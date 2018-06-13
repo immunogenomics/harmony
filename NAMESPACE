@@ -3,3 +3,5 @@
 importFrom(Rcpp,sourceCpp)
 importFrom(Rcpp,loadModule)
 useDynLib(harmony)
+export(harmony)
+
