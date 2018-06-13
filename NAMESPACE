@@ -2,3 +2,4 @@
 
 importFrom(Rcpp,sourceCpp)
 useDynLib(harmony)
+import(Rcpp)
