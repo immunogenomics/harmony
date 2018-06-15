@@ -32,14 +32,16 @@ class harmony {
     void gmm_correct_armadillo();
     void init_cluster();
     int cluster();
-  
+
+    void allocate_buffers();
+    void set_thetas(float theta_max, float tau);  
     mat compute_C(uvec& cells_in, uvec& cells_out);
     void compute_objective(); 
     void compute_R();
     bool check_convergence(int type);
 
     mat R, Z_orig, Z_corr, Z_cos, Y, Phi; 
-    vec Pr_b, theta;
+    vec N_b, Pr_b, theta;
     vector<float> objective_harmony;
     vector<float> objective_kmeans;
     float sigma, block_size, alpha, converge_thresh;

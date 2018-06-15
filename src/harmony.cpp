@@ -18,7 +18,7 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
    
   Phi = Phi_new;
   N = Z_corr.n_cols;
-  vec N_b = sum(Phi, 1);
+  N_b = sum(Phi, 1);
   Pr_b = N_b / N;
   B = Phi.n_rows;
   d = Z_corr.n_rows; 
@@ -30,34 +30,35 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
   max_iter_kmeans = __max_iter_kmeans;
   converge_thresh = __converge_thresh;
   correct_with_Zorig = __correct_with_Zorig;
-  
-  
-//  theta = __theta;
-  theta.set_size(B);
-  if (tau == 0) {
-    theta.fill(__theta);
-  } else {
-    for (int b = 0; b < B; b++) {
-      theta.row(b) = __theta * (1 - exp(-pow(N_b.row(b) / (K * tau), 2)));
-    }
-  }  
-  
-  theta.print("theta: ");
-  
-  // allocate memory to buffers
+
+  set_thetas(__theta, tau);  
+  allocate_buffers();
+  ran_setup = true;
+  init_cluster();  
+}
+
+void harmony::allocate_buffers() {
   mu_k = zeros(d, K); 
   mu_bk = zeros<cube>(d, K, B); // nrow, ncol, nslice
   mu_bk_r = zeros<mat>(d, N);  
   mu_k_r = zeros<mat>(d, N);
   _scale_dist = zeros<mat>(K, N);    
   O = zeros<mat>(K, B);
-  E = zeros<mat>(K, B);
-  ran_setup = true;
-  
-  init_cluster();
-  
+  E = zeros<mat>(K, B);  
 }
 
+
+void harmony::set_thetas(float theta_max, float tau) {
+  theta.set_size(B);
+  if (tau == 0) {
+    theta.fill(theta_max);
+  } else {
+    for (int b = 0; b < B; b++) {
+      theta.row(b) = theta_max * (1 - exp(-pow(N_b.row(b) / (K * tau), 2)));
+    }
+  }  
+  theta.print("theta: ");
+}
 
 /* BEGIN NUMERICAL METHODS */
 void harmony::harmonize(int iter_harmony) {
@@ -70,11 +71,12 @@ void harmony::harmonize(int iter_harmony) {
       break;
     };
     gmm_correct_armadillo();
-    
+
+    /* NOTE: this does not work. For now, run all iterations. 
     if (check_convergence(1)) {
       Rprintf("Converged after %d iterations\n", iter);
       break;
-    }    
+    } */   
   }
 }
 
@@ -292,6 +294,7 @@ RCPP_MODULE(harmony_module) {
   .method("init_cluster", &harmony::init_cluster)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
+  .method("set_thetas", &harmony::setup)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
     
