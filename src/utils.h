@@ -40,3 +40,74 @@ mat pow(mat A, const vec & T) {
   return(A);
 }
 
+
+mat fuzzy_kmeans(const mat & X, float sigma, const int K, int max_iter = 20, 
+                 float converge_thresh = 1e-10) {
+  
+  // Assume that X is already cosine normalized
+  // Should do some random restarts or kmeans++ initialization
+  
+  int d = X.n_rows;
+  int N = X.n_cols;
+  mat Y = zeros<mat>(d, K);
+  mat R = zeros<mat>(K, N);  
+  uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, K - 1)));
+  Y = X.cols(rand_idx);
+  cosine_normalize(Y, 0, false); // normalize columns
+  vector<float> objective;
+  
+//  Y.print("Y: ");
+//  R.print("R: ");
+  
+  for (int iter = 0; iter < max_iter; iter++) {
+    
+    R = - (1 / sigma) * 2 * (1 - Y.t() * X);  
+    R.each_row() -= max(R, 0);
+    R = exp(R);    
+    R = normalise(R, 1, 0);
+    
+    float kmeans_error = as_scalar(accu(R % (2 * (1 - (Y.t() * X)))));
+    float _entropy = as_scalar(accu(safe_entropy(R)));  
+
+    objective.push_back(kmeans_error + sigma * _entropy);    
+    float obj_old = objective[objective.size() - 2];
+    float obj_new = objective[objective.size() - 1];
+    
+    float obj_change = -(obj_new - obj_old) / abs(obj_old);
+    if (obj_change < converge_thresh) break;
+    Y = X * R.t();    
+    cosine_normalize(Y, 2, true);  
+  }
+  
+  return(R);
+}
+
+
+mat merge_R(const mat & R, float thresh = 0.8) {
+  mat cor_res = cor(R.t());
+  int K = R.n_rows;
+  
+  // define equivalence classes  
+  uvec equiv_classes = linspace<uvec>(0, K - 1, K);
+  int new_idx;
+  for (int i = 0; i < K - 1; i++) {
+    for (int j = i + 1; j < K; j++) {
+      if (cor_res(i, j) > thresh) {
+          new_idx = min(equiv_classes(i), equiv_classes(j));
+          equiv_classes(i) = new_idx;
+          equiv_classes(j) = new_idx;
+      }
+    }
+  }
+
+  // sum over equivalence classes
+  uvec uclasses = unique(equiv_classes);
+  mat R_new = zeros<mat>(uclasses.n_elem, R.n_cols); 
+  for (int i = 0; i < R_new.n_rows; i++) {
+      uvec idx = find(equiv_classes == uclasses(i)); 
+      R_new.row(i) = sum(R.rows(idx), 0);
+  }
+  
+  return R_new;
+  
+}
