@@ -13,8 +13,8 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
   
   // unfortunately, need up to 3 copies of Z
   Z_corr = mat(Z_new);
-  if (__correct_with_Zorig)
-    Z_orig = mat(Z_new);
+//  if (__correct_with_Zorig)
+  Z_orig = mat(Z_new);
    
   Phi = Phi_new;
   N = Z_corr.n_cols;
@@ -31,9 +31,11 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
   converge_thresh = __converge_thresh;
   correct_with_Zorig = __correct_with_Zorig;
 
-  set_thetas(__theta, tau);  
+  theta_max = __theta;
+  set_thetas(theta_max, tau);  
   allocate_buffers();
   ran_setup = true;
+  do_conservation = false; // initially this is false
   init_cluster();  
 }
 
@@ -57,19 +59,26 @@ void harmony::set_thetas(float theta_max, float tau) {
       theta.row(b) = theta_max * (1 - exp(-pow(N_b.row(b) / (K * tau), 2)));
     }
   }  
-  theta.print("theta: ");
+//  theta.print("theta: ");
 }
 
 /* BEGIN NUMERICAL METHODS */
 void harmony::harmonize(int iter_harmony) {
   int err_status;
   for (int iter = 0; iter < iter_harmony; iter++) {
-    Rcout << iter + 1 << "/" << iter_harmony << endl;
+    std::ostringstream oss;
+    oss << "Harmony " << iter + 1 << "/" << iter_harmony;
+    Rcpp::Function msg("message"); 
+    msg(std::string(oss.str()));
+    
     err_status = cluster();
     if (err_status == -1) {
       Rcout << "terminated by user" << endl;
       break;
-    };
+    } else if (err_status != 0) {
+      break;
+    }
+    
     gmm_correct_armadillo();
 
     /* NOTE: this does not work. For now, run all iterations. 
@@ -79,7 +88,6 @@ void harmony::harmonize(int iter_harmony) {
     } */   
   }
 }
-
 
 void harmony::init_cluster() {
   if (!ran_setup) {
@@ -93,7 +101,7 @@ void harmony::init_cluster() {
   Y.fill(0);
   for (int b = 0; b < B; b++) {
     uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
-    Rcout << "batch " << b << ": " << q.n_elem << endl;
+//    Rcout << "batch " << b << ": " << q.n_elem << endl;
     uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
     Y += Z_corr.cols(q.elem(rand_idx));
   }
@@ -124,6 +132,64 @@ void harmony::init_cluster() {
 }
 
 
+// OPTIONAL: create batch specific covariates
+//           to preserve structure inside batches
+void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
+                              float sigma_local, int K_local) {  
+  // TODO: check if batch is 1-indexed. 
+  
+  compute_phi_hat(batches, merge_thresh, sigma_local, K_local);
+  N_Kb = sum(phi_hat, 1);
+  Pr_Kb = N_Kb / N;
+  E2 = sum(R, 1) * Pr_Kb.t();
+  O2 = R * phi_hat.t();
+  
+  // TODO: figure out if theta2 needs to be scaled on cluster size
+  theta2 = zeros(N_Kb.n_rows);
+  int i = 0;
+  for (int b = 0; b < B; b++) {
+    for (int k = 0; k < Kb[b]; k++) {
+      theta2(i) = theta[b] * (N_Kb(i) / N_b(b));
+      i++;
+    }
+  }  
+  do_conservation = true;
+
+}
+
+
+
+void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
+                              float sigma_local, int K_local) {
+  mat X = mat(Z_orig);
+  cosine_normalize(X, 2, true);
+  
+  // (1) list of per-batch cluster matrices
+//  vector<mat> R_list;
+  unsigned Kb_total = 0;
+  for (int b = 0; b < B; b++) {
+    uvec idx = find(batches == b); 
+    R_list.push_back(fuzzy_kmeans(X.cols(idx), sigma_local, K_local, max_iter_kmeans, converge_thresh));
+    R_list[b] = merge_R(R_list[b], merge_thresh);
+    Kb_total += R_list[b].n_rows;
+//    Rcout << R_list[b].n_rows << endl;  
+    Kb.push_back(R_list[b].n_rows);
+  }
+
+  // (2) merge them into a single sparse matrix
+  int N = X.n_cols;  
+  phi_hat = zeros(Kb_total, N);
+  unsigned offset = 0;
+//  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;
+  for (int b = 0; b < B; b++) {
+    uvec c_idx = find(batches == b); 
+    uvec r_idx = linspace<uvec>(offset, offset + R_list[b].n_rows - 1, R_list[b].n_rows);
+    phi_hat(r_idx, c_idx) = R_list[b];                
+    offset += R_list[b].n_rows;
+  } 
+//  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
+}
+
 
 
 // TODO: generalize to adaptive sigma values
@@ -136,8 +202,21 @@ void harmony::compute_objective() {
 //  float _cross_entropy = as_scalar(accu(R % log((E / O) * Phi)));   
 //  objective_kmeans.push_back(kmeans_error + sigma * _entropy +
 //                      sigma * theta * _cross_entropy);
+
+  if (alpha > 0) {
+    dir_prior = (alpha / N) * E;
+    if (do_conservation) {
+      dir_prior2 = (alpha / N) * E2;
+    }
+  }
   
-  float _cross_entropy = as_scalar(accu(R % ((arma::repmat(theta.t(), K, 1) % log(E / O)) * Phi)));   
+  
+  float _cross_entropy = as_scalar(accu(R % ((arma::repmat(theta.t(), K, 1) % log((E + dir_prior) / (O + dir_prior))) * Phi)));
+  if (do_conservation) {
+    float _cross_entropy2 = as_scalar(accu(R % ((arma::repmat(theta2.t(), K, 1) % log((O2 + dir_prior2) / (E2 + dir_prior2))) * phi_hat)));
+//    Rcout << "CROSS: " << _cross_entropy << " " << _cross_entropy2 << endl;
+    _cross_entropy += _cross_entropy2;
+  }
   objective_kmeans.push_back(kmeans_error + sigma * _entropy +
                       sigma * _cross_entropy);
   
@@ -165,8 +244,8 @@ bool harmony::check_convergence(int type) {
   float obj_change = -(obj_new - obj_old) / abs(obj_old);
 //  float obj_change = abs((obj_new - obj_old) / obj_old);
   if (obj_change < converge_thresh) {
-    Rcout << "obj conv with " << obj_change << " < " << converge_thresh << endl;
-    Rcout << "OLD: " << obj_old << ", NEW: " << obj_new << endl;
+//    Rcout << "obj conv with " << obj_change << " < " << converge_thresh << endl;
+//    Rcout << "OLD: " << obj_old << ", NEW: " << obj_new << endl;
     return(true);    
   }
   return(false);
@@ -177,18 +256,25 @@ bool harmony::check_convergence(int type) {
 int harmony::cluster() {
   if (!ran_setup) {
     Rcout << "ERROR: before clustering, run init_cluster" << endl;
-    return(-1);
+    return -1;
   }
-
+  int err_status = 0;
   Progress p(max_iter_kmeans, true);
-  for (int iter = 0; iter < max_iter_kmeans; iter++) {
+  
+  for (int iter = 0; iter < max_iter_kmeans; iter++) {    
+    
     p.increment();
-    if (Progress::check_abort()) {
+    if (Progress::check_abort())
       return(-1);
-    }
+    
     Y = Z_cos * R.t();
-    cosine_normalize(Y, 2, true);  
-    compute_R();
+    cosine_normalize(Y, 2, true);
+    err_status = compute_R();
+    if (err_status != 0) {
+      Rcout << "Compute R failed. Exiting from clustering." << endl;
+      return err_status;
+    }
+    
     compute_objective();
     if (check_convergence(0)) {
 //      printf("Converged after %d iterations\n", iter);
@@ -196,12 +282,12 @@ int harmony::cluster() {
     }
   }
   objective_harmony.push_back(objective_kmeans.back());
-  return(0);
+  return 0;
 }
 
-void harmony::compute_R() {
-  uvec update_order = shuffle(linspace<uvec>(0, N - 1, N));
-    
+int harmony::compute_R() {  
+  update_order = shuffle(linspace<uvec>(0, N - 1, N));
+
   // compute distance based scale of R
   _scale_dist = - (1 / sigma) * 2 * (1 - Y.t() * Z_cos);  
   _scale_dist.each_row() -= max(_scale_dist, 0);
@@ -212,21 +298,43 @@ void harmony::compute_R() {
     int idx_min = i * N * block_size;
     int idx_max = min((int)((i + 1) * N * block_size), N - 1);
     uvec idx_list = linspace<uvec>(0, idx_max - idx_min, idx_max - idx_min + 1);
-    uvec cells_update = update_order.rows(idx_list);
+//    uvec cells_update = update_order.rows(idx_list);
+    cells_update = update_order.rows(idx_list); // FOR DEBUGGING: using global cells_update vector
+    
     
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
-
-//    R.cols(cells_update) = (pow((E / O) * Phi.cols(cells_update), theta)) % 
-//                              _scale_dist.cols(cells_update);
-    R.cols(cells_update) = (pow(E / O, theta) * Phi.cols(cells_update)) % 
-                              _scale_dist.cols(cells_update);
-    R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0);
+        
+    if (do_conservation) {
+      E2 -= sum(R.cols(cells_update), 1) * Pr_Kb.t();
+      O2 -= R.cols(cells_update) * phi_hat.cols(cells_update).t();      
+    }
     
+    if (alpha > 0) {
+      dir_prior = (alpha / N) * E;
+      if (do_conservation) {
+        dir_prior2 = (alpha / N) * E2;
+      }
+    }
+    
+    if (do_conservation) {      
+      R.cols(cells_update) = (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update)) % 
+                             (pow((O2 + dir_prior2) / (E2 + dir_prior2), theta2) * phi_hat.cols(cells_update)) % 
+                                _scale_dist.cols(cells_update);
+    } else {
+      R.cols(cells_update) = (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update)) % 
+                                _scale_dist.cols(cells_update);
+    }
+    R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0);    
+
     E += sum(R.cols(cells_update), 1) * Pr_b.t();
     O += R.cols(cells_update) * Phi.cols(cells_update).t();
-    
+    if (do_conservation) {
+      E2 += sum(R.cols(cells_update), 1) * Pr_Kb.t();
+      O2 += R.cols(cells_update) * phi_hat.cols(cells_update).t();      
+    }    
   }
+  return 0;
 }
 
 
@@ -284,19 +392,40 @@ RCPP_MODULE(harmony_module) {
   .field("K", &harmony::K)
   .field("B", &harmony::B)
   .field("d", &harmony::d)
+  .field("Kb", &harmony::Kb)
+  .field("Pr_Kb", &harmony::Pr_Kb)
+  .field("N_b", &harmony::N_b)
+  .field("N_Kb", &harmony::N_Kb)
+    
+
   .field("max_iter_kmeans", &harmony::max_iter_kmeans)
 
   .field("sigma", &harmony::sigma)
   .field("theta", &harmony::theta)
+  .field("theta2", &harmony::theta2)
   .field("alpha", &harmony::alpha)    
+  .field("phi_hat", &harmony::phi_hat)    
+  .field("O", &harmony::O)    
+  .field("E", &harmony::E)    
+  .field("O2", &harmony::O2)    
+  .field("E2", &harmony::E2)    
+  .field("R_list", &harmony::R_list)    
+  .field("update_order", &harmony::update_order)    
+  .field("cells_update", &harmony::cells_update)    
 
+    
+    
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
-  .method("set_thetas", &harmony::setup)
+  .method("set_thetas", &harmony::set_thetas)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
+  .method("init_batch_clusters", &harmony::init_batch_clusters)
+  .method("compute_phi_hat", &harmony::compute_phi_hat)
+
+    
     
   ;
 }

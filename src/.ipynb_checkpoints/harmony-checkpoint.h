@@ -37,27 +37,33 @@ class harmony {
     void set_thetas(float theta_max, float tau);  
     mat compute_C(uvec& cells_in, uvec& cells_out);
     void compute_objective(); 
-    void compute_R();
+    int compute_R();
     bool check_convergence(int type);
-
-    mat R, Z_orig, Z_corr, Z_cos, Y, Phi; 
-    vec N_b, Pr_b, theta;
+    void init_batch_clusters(uvec & batch, float merge_thresh,
+                              float sigma_local, int K_local);
+    void compute_phi_hat(const uvec & batches, float merge_thresh,
+                              float sigma_local, int K_local);
+  
+    mat R, Z_orig, Z_corr, Z_cos, Y, Phi, phi_hat; 
+    vec N_b, Pr_b, Pr_Kb, theta, theta2, N_Kb;
     vector<float> objective_harmony;
     vector<float> objective_kmeans;
-    float sigma, block_size, alpha, converge_thresh;
+    vector<int> Kb;
+    float sigma, block_size, alpha, converge_thresh, theta_max;
     int N, K, B, d, max_iter_kmeans; 
     bool correct_with_Zorig;
   
     // buffers
-    mat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E; // N_k, N_kb, N_b, numerator, denominator, C;
+    mat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E, O2, E2, dir_prior, dir_prior2; // N_k, N_kb, N_b, numerator, denominator, C;
+    uvec update_order;
     cube mu_bk;
   
     // flags
-    bool ran_setup, ran_init;
+    bool ran_setup, ran_init, do_conservation;
   
-    mat Rtest1(mat R);
-    mat Rtest2(mat R);
-  
+    // FOR DEBUGGING ONLY - SHOULD ERASE THESE
+    vector<mat> R_list;
+    uvec cells_update;
   
 };
 
