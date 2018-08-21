@@ -16,7 +16,7 @@ HarmonyConvergencePlot <- function(harmonyObj) {
         val = tail(harmonyObj$objective_kmeans, -1)
     ) %>%
         tibble::rowid_to_column("idx")
-    data.table(obj_fxn)[, (tail(.SD$val, 1) - head(.SD$val, 1)) / head(.SD$val, 1), by = harmony_idx]
+##    data.table(obj_fxn)[, (tail(.SD$val, 1) - head(.SD$val, 1)) / head(.SD$val, 1), by = harmony_idx]
     obj_fxn %>% ggplot(aes(idx, val, col = harmony_idx)) + geom_point(shape = 21) + 
     labs(y = "Objective Function", x = "Iteration Number")
 }
@@ -24,7 +24,7 @@ HarmonyConvergencePlot <- function(harmonyObj) {
 HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, 
                           nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                          plot_convergence = FALSE) {
+                          burn.in.time = 10, plot_convergence = FALSE) {
     
     cells_as_cols <- TRUE
     if (length(batch_labels) != ncol(pc_mat)) {
@@ -55,7 +55,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
         rep(1, length(batch_labels)), ## EXPERIMENTAL FEATURE: each cell gets its own weight
         FALSE, ## do linear correction on Z_cos?
         rep(1, nrow(batch_mat)), ## EXPERIMENTAL FEATURE: only correct certain batches
-        burn.in.time = 10 ## window size for kmeans convergence
+        burn.in.time ## window size for kmeans convergence
     )
     harmonyObj$harmonize(max.iter.harmony)
     
@@ -74,7 +74,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
 RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, 
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                       plot_convergence = FALSE) {
+                       burn.in.time = 10, plot_convergence = FALSE) {
     ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
     ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
 
@@ -102,8 +102,8 @@ RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1,
     
     harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data[[group.by]], 
                                    theta, sigma, nclust, tau, block.size, max.iter.harmony, 
-                                   max.iter.cluster, epsilon.cluster, epsilon.harmony, 
-                                   plot_convergence)
+                                   max.iter.cluster, epsilon.cluster, epsilon.harmony,
+                                   burn.in.time, plot_convergence)
     rownames(harmonyEmbed) <- row.names(object@meta.data)
     colnames(harmonyEmbed) <- paste0("harmony_", 1:ncol(harmonyEmbed))
     

@@ -367,11 +367,6 @@ int harmony::compute_R() {
   _scale_dist = exp(_scale_dist);
 
   
-  /* DEBUGGING */
-  O2 = O;
-  E2 = E;
-  /* DEBUGGING */
-  
   for (int i = 0; i < ceil(1. / block_size); i++) {
     // gather cell updates indices
     int idx_min = i * N * block_size;
