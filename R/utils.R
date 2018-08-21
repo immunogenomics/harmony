@@ -29,7 +29,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
     cells_as_cols <- TRUE
     if (length(batch_labels) != ncol(pc_mat)) {
         if (length(batch_labels) == nrow(pc_mat)) {
-            pc_mat %<>% t()
+            pc_mat <- t(pc_mat)
             cells_as_cols <- FALSE
         } else {
             stop("ERROR: Number of labels do not correspond to number of samples in PC matrix.")
@@ -65,7 +65,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
     row.names(res) <- row.names(pc_mat)
     colnames(res) <- colnames(pc_mat)
     if (!cells_as_cols) 
-        res %<>% t()
+        res <- t(res)
     return(res)
 }
 
