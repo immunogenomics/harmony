@@ -10,3 +10,6 @@ LazyData: true
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
