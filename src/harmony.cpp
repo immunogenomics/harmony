@@ -236,8 +236,9 @@ void harmony::compute_objective() {
 
   float _cross_entropy;
   if (alpha > 0) {
-    dir_prior = (alpha / N) * E;
-    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((E + dir_prior) / (O + dir_prior))) * Phi)));
+    dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
+    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+//    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi)));
 //    if (do_conservation) {
 //      dir_prior2 = (alpha / N) * E2;
 //    }
@@ -349,11 +350,14 @@ int harmony::cluster() {
     }
   }
   kmeans_rounds.push_back(iter);
+  Rcout << "Clustered for " << iter << " iterations" << endl;
+  /*
   if (iter < max_iter_kmeans) {
     Rcout << "Clustering Converged after " << iter << " iterations" << endl;
   } else {
     Rcout << "WARNING: clustering did not converge after " << iter << " iterations" << endl;    
   }
+  */
   objective_harmony.push_back(objective_kmeans.back());
   return 0;
 }
@@ -366,7 +370,22 @@ int harmony::compute_R() {
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
 
+  // SPECIAL CASE: no online updates, update all cells at once
+  if (block_size == 1) {
+    R = _scale_dist;
+    if (alpha > 0) {
+      dir_prior = alpha * E;
+      R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+    } else {
+      R = R % (pow(E / O, theta) * Phi);      
+    }
+    R = normalise(R, 1, 0); // L1 norm columns
+    E = sum(R, 1) * Pr_b.t();
+    O = R * Phi.t();    
+    return 0;
+  }
   
+  // GENERAL CASE: online updates, in blocks of size (N * block_size)
   for (int i = 0; i < ceil(1. / block_size); i++) {
     // gather cell updates indices
     int idx_min = i * N * block_size;
@@ -375,18 +394,12 @@ int harmony::compute_R() {
     if (idx_min > idx_max) break; // TODO: fix the loop logic so that this never happens
     
     uvec idx_list = linspace<uvec>(0, idx_max - idx_min, idx_max - idx_min + 1);
-//    uvec cells_update = update_order.rows(idx_list);
     cells_update = update_order.rows(idx_list); // FOR DEBUGGING: using global cells_update vector
     
     
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
     
-    /* DEBUGGING 
-    for (int b = 0; b < B; b++) {
-      O.col(b) -= sum(R.cols(intersect(phi_map[b], cells_update)), 1);
-    }
-    /* DEBUGGING */    
     
 /*    
     if (do_conservation) {
@@ -395,8 +408,9 @@ int harmony::compute_R() {
     }
   */  
     R.cols(cells_update) = _scale_dist.cols(cells_update);
+    
     if (alpha > 0) {
-      dir_prior = (alpha / N) * E;
+      dir_prior = alpha * E;
       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
 //      if (do_conservation) {
 //        dir_prior2 = (alpha / N) * E2;
@@ -412,35 +426,17 @@ int harmony::compute_R() {
 //                                _scale_dist.cols(cells_update);
 //    } else {
 
-    /*
-    for (int b = 0; b < B; b++) {
-      uvec q = intersect(cells_update, phi_map[b]);
-//      R.cols().each_col() *= pow(E.col(b) / O.col(b), theta.row(b));
-      vec t = pow(E.col(b) / O.col(b), theta.row(b));
-      for (int c = 0; c < q.n_elem; c++) {
-        R.col(q.elem(c)) = t;
-      }
-    }
-    R.cols(cells_update) *= _scale_dist.cols(cells_update);
-*/
-//    }
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
 
     E += sum(R.cols(cells_update), 1) * Pr_b.t();
-    O += R.cols(cells_update) * Phi.cols(cells_update).t();
-    
-    /* DEBUGGING 
-    for (int b = 0; b < B; b++) {
-      O.col(b) += sum(R.cols(intersect(phi_map[b], cells_update)), 1);
-    }
-    /* DEBUGGING */    
-   
-    
+    O += R.cols(cells_update) * Phi.cols(cells_update).t();   
+
+/*
     if (do_conservation) {
       E2 += sum(R.cols(cells_update), 1) * Pr_Kb.t();
       O2 += R.cols(cells_update) * phi_hat.cols(cells_update).t();      
     }    
-    
+*/    
   }
   return 0;
 }
