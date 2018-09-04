@@ -21,7 +21,7 @@ HarmonyConvergencePlot <- function(harmonyObj) {
     labs(y = "Objective Function", x = "Iteration Number")
 }
 
-HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, 
+HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, alpha = .1,
                           nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                           burn.in.time = 10, plot_convergence = FALSE) {
@@ -48,7 +48,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
         epsilon.cluster, ## kmeans converge.thresh
         epsilon.harmony, ## harmony epsilon
         TRUE, ## correct Z_orig only
-        0, ## EXPERIMENTAL: alpha, strength of dirichlet prior for DKL penalty
+        alpha, ## EXPERIMENTAL: alpha, strength of dirichlet prior for DKL penalty
         nclust, ## K
         tau, ## tau (desired cells/cluster)
         block.size, ## model$block.size
@@ -71,7 +71,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1,
 
 
 
-RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, 
+RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, alpha = .1,
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                        burn.in.time = 10, plot_convergence = FALSE) {
@@ -101,7 +101,7 @@ RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1,
     message(sprintf("Using top %d PCs", length(dims.use)))    
     
     harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data[[group.by]], 
-                                   theta, sigma, nclust, tau, block.size, max.iter.harmony, 
+                                   theta, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
                                    max.iter.cluster, epsilon.cluster, epsilon.harmony,
                                    burn.in.time, plot_convergence)
     rownames(harmonyEmbed) <- row.names(object@meta.data)
