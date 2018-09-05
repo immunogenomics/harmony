@@ -1,0 +1,2 @@
+BLAS_LIBS = -L"$(R_HOME)/lib$(R_ARCH)" -lRblas
+CXX11FLAGS = -g -O3
