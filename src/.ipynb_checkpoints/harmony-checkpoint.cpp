@@ -6,7 +6,7 @@
 harmony::harmony(int __K): K(__K) {}
 
 
-void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new, 
+void harmony::setup(arma::fmat& Z_new, arma::fmat& Phi_new, 
                         double __sigma, double __theta, int __max_iter_kmeans, 
                         float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                         double __alpha, int __K, float tau, float __block_size, 
@@ -18,7 +18,7 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
   
   Z_corr = mat(Z_new);
   Z_orig = mat(Z_new);
-   
+
   Phi = Phi_new;
   N = Z_corr.n_cols;
   N_b = sum(Phi, 1);
@@ -58,11 +58,11 @@ void harmony::setup(arma::mat& Z_new, arma::mat& Phi_new,
 void harmony::allocate_buffers() {
   mu_k = zeros(d, K); 
   mu_bk = zeros<cube>(d, K, B); // nrow, ncol, nslice
-  mu_bk_r = zeros<mat>(d, N);  
-  mu_k_r = zeros<mat>(d, N);
-  _scale_dist = zeros<mat>(K, N);    
-  O = zeros<mat>(K, B);
-  E = zeros<mat>(K, B);  
+  mu_bk_r = zeros<fmat>(d, N);  
+  mu_k_r = zeros<fmat>(d, N);
+  _scale_dist = zeros<fmat>(K, N);    
+  O = zeros<fmat>(K, B);
+  E = zeros<fmat>(K, B);  
 }
 
 
@@ -140,9 +140,9 @@ void harmony::init_cluster() {
 
   
   if (correct_with_Zorig)
-    Z_cos = mat(Z_orig);
+    Z_cos = fmat(Z_orig);
   else 
-    Z_cos = mat(Z_corr);
+    Z_cos = fmat(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns
   
   // using a nice property of cosine distance,
@@ -161,6 +161,8 @@ void harmony::init_cluster() {
   
 }
 
+
+/*
 
 // OPTIONAL: create batch specific covariates
 //           to preserve structure inside batches
@@ -220,7 +222,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
   } 
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
-
+*/
 
 
 // TODO: generalize to adaptive sigma values
@@ -479,7 +481,7 @@ void harmony::gmm_correct_armadillo() {
   else 
     Z_corr = Z_corr - mu_bk_r + mu_k_r;
     
-  Z_cos = mat(Z_corr);
+  Z_cos = fmat(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns  
 }
 
@@ -529,7 +531,7 @@ RCPP_MODULE(harmony_module) {
   .field("E", &harmony::E)    
   .field("O2", &harmony::O2)    
   .field("E2", &harmony::E2)    
-  .field("R_list", &harmony::R_list)    
+//  .field("R_list", &harmony::R_list)    
   .field("update_order", &harmony::update_order)    
   .field("cells_update", &harmony::cells_update)    
   .field("kmeans_rounds", &harmony::kmeans_rounds)    
@@ -547,8 +549,8 @@ RCPP_MODULE(harmony_module) {
   .method("update_R_merge", &harmony::update_R_merge)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
-  .method("init_batch_clusters", &harmony::init_batch_clusters)
-  .method("compute_phi_hat", &harmony::compute_phi_hat)
+//  .method("init_batch_clusters", &harmony::init_batch_clusters)
+//  .method("compute_phi_hat", &harmony::compute_phi_hat)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
 

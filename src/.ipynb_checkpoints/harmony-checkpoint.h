@@ -21,7 +21,7 @@ class harmony {
   public: 
     /* CONSTRUCTORS etc */
     harmony(int __K);    
-    void setup(arma::mat& Z, arma::mat& Phi, 
+    void setup(arma::fmat& Z, arma::fmat& Phi, 
                double __sigma, double __theta, int __max_iter_kmeans, 
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 double __alpha, int __K, float tau, float __block_size, 
@@ -38,19 +38,21 @@ class harmony {
 
     void allocate_buffers();
     void set_thetas(float theta_max, float tau);  
-    mat compute_C(uvec& cells_in, uvec& cells_out);
+    fmat compute_C(uvec& cells_in, uvec& cells_out);
     void compute_objective(); 
     int compute_R();
     bool check_convergence(int type);
+  /*
     void init_batch_clusters(uvec & batch, float merge_thresh,
                               float sigma_local, int K_local);
     void compute_phi_hat(const uvec & batches, float merge_thresh,
                               float sigma_local, int K_local);
+                              */
     void set_R_merge_flag(float merge_thresh_new);
     void update_R_merge();  
 
     /* FIELDS */
-    mat R, Z_orig, Z_corr, Z_cos, Y, Phi, phi_hat; 
+    fmat R, Z_orig, Z_corr, Z_cos, Y, Phi, phi_hat; 
     vec N_b, Pr_b, Pr_Kb, theta, theta2, N_Kb;
     rowvec w;
     vector<float> objective_harmony;
@@ -63,7 +65,7 @@ class harmony {
     bool correct_with_Zorig, correct_with_cosine;
   
     // buffers
-    mat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E, O2, E2, dir_prior, dir_prior2; // N_k, N_kb, N_b, numerator, denominator, C;
+    fmat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E, O2, E2, dir_prior, dir_prior2; // N_k, N_kb, N_b, numerator, denominator, C;
     uvec update_order;
     cube mu_bk;
   
@@ -71,7 +73,7 @@ class harmony {
     bool ran_setup, ran_init, do_conservation, do_merge_R;
   
     // FOR DEBUGGING ONLY - SHOULD ERASE THESE
-    vector<mat> R_list;
+//    vector<fmat> R_list;
     uvec cells_update;
   
 };
