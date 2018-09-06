@@ -6,18 +6,18 @@
 harmony::harmony(int __K): K(__K) {}
 
 
-void harmony::setup(arma::fmat& Z_new, arma::fmat& Phi_new, 
-                        double __sigma, double __theta, int __max_iter_kmeans, 
+void harmony::setup(fmat& Z_new, fmat& Phi_new, 
+                        float __sigma, float __theta, int __max_iter_kmeans, 
                         float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
-                        double __alpha, int __K, float tau, float __block_size, 
-                        arma::rowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
+                        float __alpha, int __K, float tau, float __block_size, 
+                        frowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
   
   correct_with_cosine = __correct_with_cosine;
   if (correct_with_cosine)
     cosine_normalize(Z_new, 0, false); // normalize columns
   
-  Z_corr = mat(Z_new);
-  Z_orig = mat(Z_new);
+  Z_corr = fmat(Z_new);
+  Z_orig = fmat(Z_new);
 
   Phi = Phi_new;
   N = Z_corr.n_cols;
@@ -56,8 +56,8 @@ void harmony::setup(arma::fmat& Z_new, arma::fmat& Phi_new,
 }
 
 void harmony::allocate_buffers() {
-  mu_k = zeros(d, K); 
-  mu_bk = zeros<cube>(d, K, B); // nrow, ncol, nslice
+  mu_k = zeros<fmat>(d, K); 
+  mu_bk = zeros<fcube>(d, K, B); // nrow, ncol, nslice
   mu_bk_r = zeros<fmat>(d, N);  
   mu_k_r = zeros<fmat>(d, N);
   _scale_dist = zeros<fmat>(K, N);    
@@ -162,8 +162,6 @@ void harmony::init_cluster() {
 }
 
 
-/*
-
 // OPTIONAL: create batch specific covariates
 //           to preserve structure inside batches
 void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
@@ -177,7 +175,7 @@ void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
   O2 = R * phi_hat.t();
   
   // TODO: figure out if theta2 needs to be scaled on cluster size
-  theta2 = zeros(N_Kb.n_rows);
+  theta2 = zeros<fvec>(N_Kb.n_rows);
   int i = 0;
   for (int b = 0; b < B; b++) {
     for (int k = 0; k < Kb[b]; k++) {
@@ -194,7 +192,7 @@ void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
 
 void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
                               float sigma_local, int K_local) {
-  mat X = mat(Z_orig);
+  fmat X = fmat(Z_orig);
   cosine_normalize(X, 2, true);
   
   // (1) list of per-batch cluster matrices
@@ -211,7 +209,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
 
   // (2) merge them into a single sparse matrix
   int N = X.n_cols;  
-  phi_hat = zeros(Kb_total, N);
+  phi_hat = zeros<fmat>(Kb_total, N);
   unsigned offset = 0;
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;
   for (int b = 0; b < B; b++) {
@@ -222,7 +220,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
   } 
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
-*/
+
 
 
 // TODO: generalize to adaptive sigma values
@@ -531,7 +529,7 @@ RCPP_MODULE(harmony_module) {
   .field("E", &harmony::E)    
   .field("O2", &harmony::O2)    
   .field("E2", &harmony::E2)    
-//  .field("R_list", &harmony::R_list)    
+  .field("R_list", &harmony::R_list)    
   .field("update_order", &harmony::update_order)    
   .field("cells_update", &harmony::cells_update)    
   .field("kmeans_rounds", &harmony::kmeans_rounds)    
@@ -549,8 +547,8 @@ RCPP_MODULE(harmony_module) {
   .method("update_R_merge", &harmony::update_R_merge)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
-//  .method("init_batch_clusters", &harmony::init_batch_clusters)
-//  .method("compute_phi_hat", &harmony::compute_phi_hat)
+  .method("init_batch_clusters", &harmony::init_batch_clusters)
+  .method("compute_phi_hat", &harmony::compute_phi_hat)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
 
