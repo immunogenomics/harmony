@@ -1,0 +1,854 @@
+harmony.cpp: In member function 'int harmony::compute_R()':
+harmony.cpp:378:60: error: no matching function for call to 'pow(arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result, arma::fvec&)'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/features.h:356:0,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/os_defines.h:39,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/c++config.h:533,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:41,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note: candidate: double pow(double, double)
+ __MATHCALL (pow,, (_Mdouble_ __x, _Mdouble_ __y));
+ ^
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'double'
+In file included from harmony.cpp:2:0:
+utils.h:36:6: note: candidate: arma::fmat pow(arma::fmat, const vec&)
+ fmat pow(fmat A, const vec & T) {
+      ^~~
+utils.h:36:6: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'const vec& {aka const arma::Col<double>&}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note: candidate: constexpr float std::pow(float, float)
+   pow(float __x, float __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'float'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note: candidate: constexpr long double std::pow(long double, long double)
+   pow(long double __x, long double __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'long double'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note: candidate: template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up)
+     pow(_Tp __x, _Up __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath: In substitution of 'template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up) [with _Tp = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>; _Up = arma::Col<float>]':
+harmony.cpp:378:60:   required from here
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: error: no type named '__type' in 'struct __gnu_cxx::__promote<arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>, false>'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, int)
+     pow(const complex<_Tp>& __z, int __n)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const _Tp&)
+     pow(const complex<_Tp>& __x, const _Tp& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     pow(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const _Tp&, const std::complex<_Tp>&)
+     pow(const _Tp& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const _Up&)
+     pow(const std::complex<_Tp>& __x, const _Up& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const _Tp&, const std::complex<_Up>&)
+     pow(const _Tp& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Up>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const std::complex<_Up>&)
+     pow(const std::complex<_Tp>& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note: candidate: template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp: In substitution of 'template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type) [with T1 = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>]':
+harmony.cpp:378:60:   required from here
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: error: 'arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>::elem_type {aka float}' is not a class, struct, or union type
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note: candidate: const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type) [with T1 = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>; typename T1::elem_type = float; typename T1::elem_type = float]
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>::elem_type {aka float}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/functions.h:54:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/sugar.h:31,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp.h:74,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:34,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note: candidate: template<int RTYPE, bool NA, class T, class EXPONENT_TYPE> Rcpp::sugar::Pow<RTYPE, NA, T, EXPONENT_TYPE> Rcpp::pow(const Rcpp::VectorBase<RTYPE, NA, VECTOR>&, EXPONENT_TYPE)
+ inline sugar::Pow<RTYPE,NA,T,EXPONENT_TYPE> pow(
+                                             ^~~
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note:   template argument deduction/substitution failed:
+harmony.cpp:378:60: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const Rcpp::VectorBase<RTYPE, NA, VECTOR>'
+       R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
+                                                            ^
+harmony.cpp:380:32: error: no matching function for call to 'pow(arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result, arma::fvec&)'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/features.h:356:0,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/os_defines.h:39,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/c++config.h:533,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:41,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note: candidate: double pow(double, double)
+ __MATHCALL (pow,, (_Mdouble_ __x, _Mdouble_ __y));
+ ^
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'double'
+In file included from harmony.cpp:2:0:
+utils.h:36:6: note: candidate: arma::fmat pow(arma::fmat, const vec&)
+ fmat pow(fmat A, const vec & T) {
+      ^~~
+utils.h:36:6: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'const vec& {aka const arma::Col<double>&}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note: candidate: constexpr float std::pow(float, float)
+   pow(float __x, float __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'float'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note: candidate: constexpr long double std::pow(long double, long double)
+   pow(long double __x, long double __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'long double'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note: candidate: template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up)
+     pow(_Tp __x, _Up __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath: In substitution of 'template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up) [with _Tp = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>; _Up = arma::Col<float>]':
+harmony.cpp:380:32:   required from here
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: error: no type named '__type' in 'struct __gnu_cxx::__promote<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>, false>'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, int)
+     pow(const complex<_Tp>& __z, int __n)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const _Tp&)
+     pow(const complex<_Tp>& __x, const _Tp& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     pow(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const _Tp&, const std::complex<_Tp>&)
+     pow(const _Tp& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const _Up&)
+     pow(const std::complex<_Tp>& __x, const _Up& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const _Tp&, const std::complex<_Up>&)
+     pow(const _Tp& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Up>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const std::complex<_Up>&)
+     pow(const std::complex<_Tp>& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note: candidate: template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp: In substitution of 'template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type) [with T1 = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>]':
+harmony.cpp:380:32:   required from here
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: error: 'arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>::elem_type {aka float}' is not a class, struct, or union type
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note: candidate: const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type) [with T1 = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>; typename T1::elem_type = float; typename T1::elem_type = float]
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>::elem_type {aka float}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/functions.h:54:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/sugar.h:31,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp.h:74,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:34,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note: candidate: template<int RTYPE, bool NA, class T, class EXPONENT_TYPE> Rcpp::sugar::Pow<RTYPE, NA, T, EXPONENT_TYPE> Rcpp::pow(const Rcpp::VectorBase<RTYPE, NA, VECTOR>&, EXPONENT_TYPE)
+ inline sugar::Pow<RTYPE,NA,T,EXPONENT_TYPE> pow(
+                                             ^~~
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note:   template argument deduction/substitution failed:
+harmony.cpp:380:32: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const Rcpp::VectorBase<RTYPE, NA, VECTOR>'
+       R = R % (pow(E / O, theta) * Phi);
+                                ^
+harmony.cpp:414:98: error: no matching function for call to 'pow(arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result, arma::fvec&)'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/features.h:356:0,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/os_defines.h:39,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/c++config.h:533,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:41,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note: candidate: double pow(double, double)
+ __MATHCALL (pow,, (_Mdouble_ __x, _Mdouble_ __y));
+ ^
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'double'
+In file included from harmony.cpp:2:0:
+utils.h:36:6: note: candidate: arma::fmat pow(arma::fmat, const vec&)
+ fmat pow(fmat A, const vec & T) {
+      ^~~
+utils.h:36:6: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'const vec& {aka const arma::Col<double>&}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note: candidate: constexpr float std::pow(float, float)
+   pow(float __x, float __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'float'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note: candidate: constexpr long double std::pow(long double, long double)
+   pow(long double __x, long double __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' to 'long double'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note: candidate: template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up)
+     pow(_Tp __x, _Up __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath: In substitution of 'template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up) [with _Tp = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>; _Up = arma::Col<float>]':
+harmony.cpp:414:98:   required from here
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: error: no type named '__type' in 'struct __gnu_cxx::__promote<arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>, false>'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, int)
+     pow(const complex<_Tp>& __z, int __n)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const _Tp&)
+     pow(const complex<_Tp>& __x, const _Tp& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     pow(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const _Tp&, const std::complex<_Tp>&)
+     pow(const _Tp& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const _Up&)
+     pow(const std::complex<_Tp>& __x, const _Up& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const _Tp&, const std::complex<_Up>&)
+     pow(const _Tp& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Up>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const std::complex<_Up>&)
+     pow(const std::complex<_Tp>& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note: candidate: template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp: In substitution of 'template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type) [with T1 = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>]':
+harmony.cpp:414:98:   required from here
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: error: 'arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>::elem_type {aka float}' is not a class, struct, or union type
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note: candidate: const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type) [with T1 = arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>; typename T1::elem_type = float; typename T1::elem_type = float]
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>::elem_type {aka float}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/functions.h:54:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/sugar.h:31,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp.h:74,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:34,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note: candidate: template<int RTYPE, bool NA, class T, class EXPONENT_TYPE> Rcpp::sugar::Pow<RTYPE, NA, T, EXPONENT_TYPE> Rcpp::pow(const Rcpp::VectorBase<RTYPE, NA, VECTOR>&, EXPONENT_TYPE)
+ inline sugar::Pow<RTYPE,NA,T,EXPONENT_TYPE> pow(
+                                             ^~~
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note:   template argument deduction/substitution failed:
+harmony.cpp:414:98: note:   'arma::enable_if2<true, const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div> >::result {aka const arma::eGlue<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_plus>, arma::eglue_div>}' is not derived from 'const Rcpp::VectorBase<RTYPE, NA, VECTOR>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+                                                                                                  ^
+harmony.cpp:419:70: error: no matching function for call to 'pow(arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result, arma::fvec&)'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/features.h:356:0,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/os_defines.h:39,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/x86_64-conda_cos6-linux-gnu/bits/c++config.h:533,
+                 from /data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:41,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note: candidate: double pow(double, double)
+ __MATHCALL (pow,, (_Mdouble_ __x, _Mdouble_ __y));
+ ^
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/sysroot/usr/include/bits/mathcalls.h:154:1: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'double'
+In file included from harmony.cpp:2:0:
+utils.h:36:6: note: candidate: arma::fmat pow(arma::fmat, const vec&)
+ fmat pow(fmat A, const vec & T) {
+      ^~~
+utils.h:36:6: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'const vec& {aka const arma::Col<double>&}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/platform/compiler.h:100:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/r/headers.h:48,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:29,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note: candidate: constexpr float std::pow(float, float)
+   pow(float __x, float __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:388:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'float'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note: candidate: constexpr long double std::pow(long double, long double)
+   pow(long double __x, long double __y)
+   ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:392:3: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' to 'long double'
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note: candidate: template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up)
+     pow(_Tp __x, _Up __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath: In substitution of 'template<class _Tp, class _Up> constexpr typename __gnu_cxx::__promote_2<_Tp, _Up>::__type std::pow(_Tp, _Up) [with _Tp = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>; _Up = arma::Col<float>]':
+harmony.cpp:419:70:   required from here
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/cmath:415:5: error: no type named '__type' in 'struct __gnu_cxx::__promote<arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>, false>'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, int)
+     pow(const complex<_Tp>& __z, int __n)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:987:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const _Tp&)
+     pow(const complex<_Tp>& __x, const _Tp& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:996:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     pow(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1030:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note: candidate: template<class _Tp> std::complex<_Tp> std::pow(const _Tp&, const std::complex<_Tp>&)
+     pow(const _Tp& __x, const complex<_Tp>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1041:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const _Up&)
+     pow(const std::complex<_Tp>& __x, const _Up& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1862:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const _Tp&, const std::complex<_Up>&)
+     pow(const _Tp& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1870:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::fvec {aka arma::Col<float>}' is not derived from 'const std::complex<_Up>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/RcppCommon.h:64:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:26,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note: candidate: template<class _Tp, class _Up> std::complex<typename __gnu_cxx::__promote_2<_Tp, _Up>::__type> std::pow(const std::complex<_Tp>&, const std::complex<_Up>&)
+     pow(const std::complex<_Tp>& __x, const std::complex<_Up>& __y)
+     ^~~
+/data/srlab/ik936/miniconda3/x86_64-conda_cos6-linux-gnu/include/c++/7.2.0/complex:1878:5: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const std::complex<_Tp>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:751:1: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note: candidate: template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type)
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type::value_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: note:   template argument deduction/substitution failed:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp: In substitution of 'template<class T1> const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type::value_type) [with T1 = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>]':
+harmony.cpp:419:70:   required from here
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:736:1: error: 'arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>::elem_type {aka float}' is not a class, struct, or union type
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note: candidate: template<class T1> const arma::eOpCube<T1, arma::eop_pow> arma::pow(const arma::BaseCube<typename T1::elem_type, T1>&, typename T1::elem_type)
+ pow(const BaseCube<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:721:1: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const arma::BaseCube<typename T1::elem_type, T1>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:437:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note: candidate: const arma::eOp<T1, arma::eop_pow> arma::pow(const arma::Base<typename T1::elem_type, T1>&, typename T1::elem_type) [with T1 = arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>; typename T1::elem_type = float; typename T1::elem_type = float]
+ pow(const Base<typename T1::elem_type,T1>& A, const typename T1::elem_type exponent)
+ ^~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/fn_elem.hpp:708:1: note:   no known conversion for argument 2 from 'arma::fvec {aka arma::Col<float>}' to 'arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>::elem_type {aka float}'
+In file included from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/functions.h:54:0,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/sugar.h:31,
+                 from /data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp.h:74,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:34,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note: candidate: template<int RTYPE, bool NA, class T, class EXPONENT_TYPE> Rcpp::sugar::Pow<RTYPE, NA, T, EXPONENT_TYPE> Rcpp::pow(const Rcpp::VectorBase<RTYPE, NA, VECTOR>&, EXPONENT_TYPE)
+ inline sugar::Pow<RTYPE,NA,T,EXPONENT_TYPE> pow(
+                                             ^~~
+/data/srlab/ik936/R/lib64/R/library/Rcpp/include/Rcpp/sugar/functions/pow.h:79:45: note:   template argument deduction/substitution failed:
+harmony.cpp:419:70: note:   'arma::enable_if2<true, const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div> >::result {aka const arma::eGlue<arma::Mat<float>, arma::Mat<float>, arma::eglue_div>}' is not derived from 'const Rcpp::VectorBase<RTYPE, NA, VECTOR>'
+       R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
+                                                                      ^
+harmony.cpp: In member function 'void harmony::gmm_correct_armadillo()':
+harmony.cpp:474:48: error: no match for 'operator=' (operand types are 'arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >' and 'arma::enable_if2<true, const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times> >::result {aka const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times>}')
+     mu_bk_r.cols(q) = mu_bk.slice(b) * R.cols(q);
+                                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:182:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_bones.hpp:69:50: note: candidate: template<class T3, class T4> void arma::subview_elem2<eT, T1, T2>::operator=(const arma::subview_elem2<eT, T1, T2>&) [with T3 = T3; T4 = T4; eT = float; T1 = arma::Mat<unsigned int>; T2 = arma::Mat<unsigned int>]
+   template<typename T3, typename T4> inline void operator=   (const subview_elem2<eT,T3,T4>& x);
+                                                  ^~~~~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_bones.hpp:69:50: note:   template argument deduction/substitution failed:
+harmony.cpp:474:48: note:   'arma::enable_if2<true, const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times> >::result {aka const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times>}' is not derived from 'const arma::subview_elem2<float, T1, T2>'
+     mu_bk_r.cols(q) = mu_bk.slice(b) * R.cols(q);
+                                                ^
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:602:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_meat.hpp:425:1: note: candidate: void arma::subview_elem2<eT, T1, T2>::operator=(const arma::subview_elem2<eT, T1, T2>&) [with eT = float; T1 = arma::Mat<unsigned int>; T2 = arma::Mat<unsigned int>]
+ subview_elem2<eT,T1,T2>::operator= (const subview_elem2<eT,T1,T2>& x)
+ ^~~~~~~~~~~~~~~~~~~~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_meat.hpp:425:1: note:   no known conversion for argument 1 from 'arma::enable_if2<true, const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times> >::result {aka const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times>}' to 'const arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >&'
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:182:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_bones.hpp:77:39: note: candidate: template<class expr> void arma::subview_elem2<eT, T1, T2>::operator=(const arma::Base<eT, T1>&) [with expr = expr; eT = float; T1 = arma::Mat<unsigned int>; T2 = arma::Mat<unsigned int>]
+   template<typename expr> inline void operator=  (const Base<eT,expr>& x);
+                                       ^~~~~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/subview_elem2_bones.hpp:77:39: note:   template argument deduction/substitution failed:
+harmony.cpp:474:48: note:   mismatched types 'float' and 'double'
+     mu_bk_r.cols(q) = mu_bk.slice(b) * R.cols(q);
+                                                ^
+harmony.cpp:474:48: note:   'arma::enable_if2<true, const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times> >::result {aka const arma::mtGlue<double, arma::Mat<double>, arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::glue_mixed_times>}' is not derived from 'const arma::Base<float, T1>'
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:104:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp: In instantiation of 'arma::Mat<eT>& arma::Mat<eT>::operator=(const arma::Glue<T1, T2, glue_type>&) [with T1 = arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >; T2 = arma::Op<arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::op_htrans>; glue_type = arma::glue_times; eT = double]':
+harmony.cpp:469:53:   required from here
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/arma_static_check.hpp:54:39: error: static assertion failed: error: incorrect or unsupported type
+   #define arma_type_check(condition)  static_assert( !(condition), "error: incorrect or unsupported type" )
+                                       ^
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4986:3: note: in expansion of macro 'arma_type_check'
+   arma_type_check(( is_same_type< eT, typename T1::elem_type >::no ));
+   ^~~~~~~~~~~~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/arma_static_check.hpp:54:39: error: static assertion failed: error: incorrect or unsupported type
+   #define arma_type_check(condition)  static_assert( !(condition), "error: incorrect or unsupported type" )
+                                       ^
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4987:3: note: in expansion of macro 'arma_type_check'
+   arma_type_check(( is_same_type< eT, typename T2::elem_type >::no ));
+   ^~~~~~~~~~~~~~~
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:590:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4989:19: error: no matching function for call to 'arma::glue_times::apply(arma::Mat<double>&, const arma::Glue<arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::Op<arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::op_htrans>, arma::glue_times>&)'
+   glue_type::apply(*this, X);
+   ~~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:687:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_meat.hpp:479:1: note: candidate: static void arma::glue_times::apply(arma::Mat<typename T1::elem_type>&, const arma::Glue<T1, T2, arma::glue_times>&) [with T1 = arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >; T2 = arma::Op<arma::subview_elem2<float, arma::Mat<unsigned int>, arma::Mat<unsigned int> >, arma::op_htrans>; typename T1::elem_type = float]
+ glue_times::apply(Mat<typename T1::elem_type>& out, const Glue<T1,T2,glue_times>& X)
+ ^~~~~~~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_meat.hpp:479:1: note:   no known conversion for argument 1 from 'arma::Mat<double>' to 'arma::Mat<float>&'
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:285:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:130:31: note: candidate: template<class eT, bool do_trans_A, bool do_trans_B, bool do_scalar_times, class TA, class TB> static void arma::glue_times::apply(arma::Mat<eT>&, const TA&, const TB&, eT)
+   arma_hot inline static void apply(Mat<eT>& out, const TA& A, const TB& B, const eT val);
+                               ^~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:130:31: note:   template argument deduction/substitution failed:
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:590:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4989:19: note:   candidate expects 4 arguments, 2 provided
+   glue_type::apply(*this, X);
+   ~~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:285:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:133:31: note: candidate: template<class eT, bool do_trans_A, bool do_trans_B, bool do_trans_C, bool do_scalar_times, class TA, class TB, class TC> static void arma::glue_times::apply(arma::Mat<eT>&, const TA&, const TB&, const TC&, eT)
+   arma_hot inline static void apply(Mat<eT>& out, const TA& A, const TB& B, const TC& C, const eT val);
+                               ^~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:133:31: note:   template argument deduction/substitution failed:
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:590:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4989:19: note:   candidate expects 5 arguments, 2 provided
+   glue_type::apply(*this, X);
+   ~~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:285:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:136:31: note: candidate: template<class eT, bool do_trans_A, bool do_trans_B, bool do_trans_C, bool do_trans_D, bool do_scalar_times, class TA, class TB, class TC, class TD> static void arma::glue_times::apply(arma::Mat<eT>&, const TA&, const TB&, const TC&, const TD&, eT)
+   arma_hot inline static void apply(Mat<eT>& out, const TA& A, const TB& B, const TC& C, const TD& D, const eT val);
+                               ^~~~~
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/glue_times_bones.hpp:136:31: note:   template argument deduction/substitution failed:
+In file included from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo:590:0,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadilloForward.h:46,
+                 from /data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/RcppArmadillo.h:31,
+                 from harmony.h:1,
+                 from harmony.cpp:1:
+/data/srlab/ik936/R/lib64/R/library/RcppArmadillo/include/armadillo_bits/Mat_meat.hpp:4989:19: note:   candidate expects 6 arguments, 2 provided
+   glue_type::apply(*this, X);
+   ~~~~~~~~~~~~~~~~^~~~~~~~~~

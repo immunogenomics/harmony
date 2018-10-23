@@ -21,7 +21,7 @@ HarmonyConvergencePlot <- function(harmonyObj) {
     labs(y = "Objective Function", x = "Iteration Number")
 }
 
-HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, alpha = .1,
+HarmonyMatrix <- function(pc_mat, batch_labels, batch_labels2 = NULL, theta = 1, theta2 = 1, sigma = 0.1, alpha = .1,
                           nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                           burn.in.time = 10, plot_convergence = FALSE) {
@@ -35,7 +35,8 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, alpha = 
             stop("ERROR: Number of labels do not correspond to number of samples in PC matrix.")
         }
     }    
-    
+
+  
     ## RUN HARMONY
     harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
     batch_mat <- t(onehot(batch_labels))
@@ -57,8 +58,13 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, alpha = 
         rep(1, nrow(batch_mat)), ## EXPERIMENTAL FEATURE: only correct certain batches
         burn.in.time ## window size for kmeans convergence
     )
+  
+    ## OPTIONAL: 2nd level of batch defined
+    if (!is.null(batch_labels2)) {
+      harmonyObj$setup_batch2(t(onehot(batch_labels2)), theta2, tau)
+    }
+  
     harmonyObj$harmonize(max.iter.harmony)
-    
     if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
     
     res <- as.matrix(harmonyObj$Z_corr)
@@ -71,7 +77,7 @@ HarmonyMatrix <- function(pc_mat, batch_labels, theta = 1, sigma = 0.1, alpha = 
 
 
 
-RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, alpha = .1,
+RunHarmony <- function(object, group.by, dims.use, group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1, alpha = .1,
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                        burn.in.time = 10, plot_convergence = FALSE) {
@@ -91,6 +97,14 @@ RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, alpha
         stop("Trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs.")        
     }
     
+    if (!group.by %in% colnames(object@meta.data)) {
+      stop(sprintf("ERROR: Primary integration variable [%s] is not in meta.data"))
+    }
+    if (!is.null(group.by.secondary) & !group.by.secondary %in% colnames(object@meta.data)) {
+      stop(sprintf("ERROR: Secondary integration variable [%s] is not in meta.data"))
+    }
+  
+  
     nbatches <- sum(table(object@meta.data[[group.by]]) > 10)
     if (nbatches < 2) {
         stop("Detected fewer than 2 batches with at least 10 cells each. Did you mean to use a different group.by variable?")
@@ -100,10 +114,18 @@ RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, alpha
     message(sprintf("Found %d datasets to integrate", nbatches))
     message(sprintf("Using top %d PCs", length(dims.use)))    
     
-    harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data[[group.by]], 
-                                   theta, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
+    if (!is.null(group.by.secondary)) {
+      batches_secondary <- object@meta.data[[group.by.secondary]]
+    } else {
+      batches_secondary <- NULL
+    }
+  
+    harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data[[group.by]], batches_secondary, 
+                                   theta, theta2, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
                                    max.iter.cluster, epsilon.cluster, epsilon.harmony,
                                    burn.in.time, plot_convergence)
+      
+  
     rownames(harmonyEmbed) <- row.names(object@meta.data)
     colnames(harmonyEmbed) <- paste0("harmony_", 1:ncol(harmonyEmbed))
     
@@ -114,6 +136,14 @@ RunHarmony <- function(object, group.by, dims.use, theta = 1, sigma = 0.1, alpha
     return(object)
     
 }
+
+
+
+
+
+
+
+
 
 
 
