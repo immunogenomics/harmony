@@ -43,17 +43,31 @@ void harmony::setup(fmat& Z_new, fmat& Phi_new,
   // map from 
   for (int b = 0; b < B; b++) {
     phi_map.push_back(find(Phi.row(b) > 0));
-  }
+  }  
   
-  
-  
-  theta_max = __theta;
-  set_thetas(theta_max, tau);  
+  theta = set_thetas(__theta, tau, N_b);  
   allocate_buffers();
   ran_setup = true;
-  do_conservation = false; // initially this is false
+  do_merge_R = false; // (EXPERIMENTAL) do not try to merge redundant clusters
+  do_conservation = false; // (EXPERIMENTAL) initially this is false
+  do_theta2 = false; // (EXPERIMENTAL) initially this is false
   init_cluster();  
 }
+
+void harmony::setup_batch2(fmat& Phi2_new, float theta2_new, float tau) {
+  if (theta2_new == 0) return;
+  
+  Phi2 = Phi2_new;
+  N_b2 = sum(Phi2, 1);
+  Pr_b2 = N_b2 / N;
+  B2 = Phi.n_rows;
+  theta2 = set_thetas(theta2_new, tau, N_b2);    
+  E2 = sum(R, 1) * Pr_b2.t();
+  O2 = R * Phi2.t();
+  do_theta2 = true;
+  
+}
+
 
 void harmony::allocate_buffers() {
   mu_k = zeros<fmat>(d, K); 
@@ -66,15 +80,17 @@ void harmony::allocate_buffers() {
 }
 
 
-void harmony::set_thetas(float theta_max, float tau) {
-  theta.set_size(B);
+fvec harmony::set_thetas(float theta_max, float tau, fvec& N_b) {
+  fvec res;
+  res.set_size(N_b.n_rows);
   if (tau == 0) {
-    theta.fill(theta_max);
+    res.fill(theta_max);
   } else {
-    for (int b = 0; b < B; b++) {
-      theta.row(b) = theta_max * (1 - exp(-pow(N_b.row(b) / (K * tau), 2)));
+    for (int b = 0; b < N_b.n_rows; b++) {
+      res.row(b) = theta_max * (1 - exp(-pow(N_b.row(b) / (K * tau), 2)));
     }
-  }  
+  }
+  return res;
 //  theta.print("theta: ");
 }
 
@@ -119,6 +135,9 @@ void harmony::harmonize(int iter_harmony) {
   }
 }
 
+
+
+
 void harmony::init_cluster() {
   if (!ran_setup) {
     Rcout << "ERROR: before initializing cluster, run setup" << endl;
@@ -162,6 +181,7 @@ void harmony::init_cluster() {
 }
 
 
+/*
 // OPTIONAL: create batch specific covariates
 //           to preserve structure inside batches
 void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
@@ -186,9 +206,10 @@ void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
   do_conservation = true;
 
 }
+*/
 
 
-
+/*
 
 void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
                               float sigma_local, int K_local) {
@@ -221,7 +242,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
 
-
+*/
 
 // TODO: generalize to adaptive sigma values
 // TODO: use cached distance computation from before
@@ -235,23 +256,19 @@ void harmony::compute_objective() {
 //                      sigma * theta * _cross_entropy);
 
   float _cross_entropy;
-  if (alpha > 0) {
-    dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
-    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
-//    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi)));
-//    if (do_conservation) {
-//      dir_prior2 = (alpha / N) * E2;
-//    }
-  } else {
-    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log(O / E)) * Phi)));
+  dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
+  _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+
+  if (do_theta2) {
+    dir_prior2 = alpha * E2; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
+    _cross_entropy =+ as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta2.t(), K, 1) % log((O2 + dir_prior2) / (E2 + dir_prior2))) * Phi2)));
+    
   }
   
   
-//  if (do_conservation) {
-//    float _cross_entropy2 = as_scalar(accu(R % ((arma::repmat(theta2.t(), K, 1) % log((O2 + dir_prior2) / (E2 + dir_prior2))) * phi_hat)));
-//    Rcout << "CROSS: " << _cross_entropy << " " << _cross_entropy2 << endl;
-//    _cross_entropy += _cross_entropy2;
-//  }
+//    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi)));    
+  
+  
   objective_kmeans.push_back(kmeans_error + sigma * _entropy +
                       sigma * _cross_entropy);
 
@@ -345,12 +362,12 @@ int harmony::cluster() {
       if (convergence_status) {
 //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
         iter++;
+        Rcout << "Clustered for " << iter << " iterations" << endl;
         break;        
       }
     }
   }
   kmeans_rounds.push_back(iter);
-  Rcout << "Clustered for " << iter << " iterations" << endl;
   /*
   if (iter < max_iter_kmeans) {
     Rcout << "Clustering Converged after " << iter << " iterations" << endl;
@@ -372,6 +389,9 @@ int harmony::compute_R() {
 
   // SPECIAL CASE: no online updates, update all cells at once
   if (block_size == 1) {
+    Rcout << "TRYING TO DO ONE BATCH UPDATE: DON'T DO THIS" << endl;
+    return(-1);
+    /*
     R = _scale_dist;
     if (alpha > 0) {
       dir_prior = alpha * E;
@@ -382,7 +402,7 @@ int harmony::compute_R() {
     R = normalise(R, 1, 0); // L1 norm columns
     E = sum(R, 1) * Pr_b.t();
     O = R * Phi.t();    
-    return 0;
+    return 0;*/
   }
   
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
@@ -400,43 +420,30 @@ int harmony::compute_R() {
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
     
-    
-/*    
-    if (do_conservation) {
-      E2 -= sum(R.cols(cells_update), 1) * Pr_Kb.t();
-      O2 -= R.cols(cells_update) * phi_hat.cols(cells_update).t();      
+    if (do_theta2) {
+      E2 -= sum(R.cols(cells_update), 1) * Pr_b2.t();
+      O2 -= R.cols(cells_update) * Phi2.cols(cells_update).t();      
     }
-  */  
+    
     R.cols(cells_update) = _scale_dist.cols(cells_update);
     
-    if (alpha > 0) {
-      dir_prior = alpha * E;
-      R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
-//      if (do_conservation) {
-//        dir_prior2 = (alpha / N) * E2;
-//      }
-    } else {
-      R.cols(cells_update) = R.cols(cells_update) % (pow(E / O, theta) * Phi.cols(cells_update));
-      
+    dir_prior = alpha * E;
+    R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
+    if (do_theta2) {
+      dir_prior2 = alpha * E2;
+      R.cols(cells_update) = R.cols(cells_update) % (pow((E2 + dir_prior2) / (O2 + dir_prior2), theta2) * Phi2.cols(cells_update));
     }
     
-//    if (do_conservation) {      
-//      R.cols(cells_update) = (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update)) % 
-//                             (pow((O2 + dir_prior2) / (E2 + dir_prior2), theta2) * phi_hat.cols(cells_update)) % 
-//                                _scale_dist.cols(cells_update);
-//    } else {
-
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
 
     E += sum(R.cols(cells_update), 1) * Pr_b.t();
     O += R.cols(cells_update) * Phi.cols(cells_update).t();   
 
-/*
-    if (do_conservation) {
-      E2 += sum(R.cols(cells_update), 1) * Pr_Kb.t();
-      O2 += R.cols(cells_update) * phi_hat.cols(cells_update).t();      
-    }    
-*/    
+    if (do_theta2) {
+      E2 += sum(R.cols(cells_update), 1) * Pr_b2.t();
+      O2 += R.cols(cells_update) * Phi2.cols(cells_update).t();      
+    }
+    
   }
   return 0;
 }
@@ -499,7 +506,9 @@ RCPP_MODULE(harmony_module) {
   .field("R", &harmony::R)  
   .field("Y", &harmony::Y)  
   .field("Phi", &harmony::Phi)    
+  .field("Phi2", &harmony::Phi2)    
   .field("Pr_b", &harmony::Pr_b)    
+  .field("Pr_b2", &harmony::Pr_b2)    
   .field("objective_kmeans", &harmony::objective_kmeans)
   .field("objective_kmeans_dist", &harmony::objective_kmeans_dist)
   .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
@@ -510,11 +519,8 @@ RCPP_MODULE(harmony_module) {
   .field("N", &harmony::N)
   .field("K", &harmony::K)
   .field("B", &harmony::B)
+  .field("B2", &harmony::B2)
   .field("d", &harmony::d)
-  .field("Kb", &harmony::Kb)
-  .field("Pr_Kb", &harmony::Pr_Kb)
-  .field("N_b", &harmony::N_b)
-  .field("N_Kb", &harmony::N_Kb)
   .field("w", &harmony::w)
     
 
@@ -523,9 +529,9 @@ RCPP_MODULE(harmony_module) {
   .field("sigma", &harmony::sigma)
   .field("theta", &harmony::theta)
   .field("theta2", &harmony::theta2)
-  .field("alpha", &harmony::alpha)    
-  .field("phi_hat", &harmony::phi_hat)    
-  .field("O", &harmony::O)    
+  .field("alpha", &harmony::alpha)
+//  .field("phi_hat", &harmony::phi_hat)    
+  .field("O", &harmony::O) 
   .field("E", &harmony::E)    
   .field("O2", &harmony::O2)    
   .field("E2", &harmony::E2)    
@@ -540,6 +546,7 @@ RCPP_MODULE(harmony_module) {
     
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
+  .method("setup_batch2", &harmony::setup_batch2)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
   .method("set_thetas", &harmony::set_thetas)
@@ -547,8 +554,8 @@ RCPP_MODULE(harmony_module) {
   .method("update_R_merge", &harmony::update_R_merge)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
-  .method("init_batch_clusters", &harmony::init_batch_clusters)
-  .method("compute_phi_hat", &harmony::compute_phi_hat)
+//  .method("init_batch_clusters", &harmony::init_batch_clusters)
+//  .method("compute_phi_hat", &harmony::compute_phi_hat)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
 

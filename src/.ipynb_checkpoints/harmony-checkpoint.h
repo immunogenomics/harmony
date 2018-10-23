@@ -37,31 +37,34 @@ class harmony {
     int cluster();
 
     void allocate_buffers();
-    void set_thetas(float theta_max, float tau);  
+    fvec set_thetas(float theta_max, float tau, fvec& Nb_use);  
     fmat compute_C(uvec& cells_in, uvec& cells_out);
     void compute_objective(); 
     int compute_R();
     bool check_convergence(int type);
   
-    void init_batch_clusters(uvec & batch, float merge_thresh,
-                              float sigma_local, int K_local);
-    void compute_phi_hat(const uvec & batches, float merge_thresh,
-                              float sigma_local, int K_local);
-                              
+  
+//    void init_batch_clusters(uvec & batch, float merge_thresh,
+//                              float sigma_local, int K_local);
+//    void compute_phi_hat(const uvec & batches, float merge_thresh,
+//                              float sigma_local, int K_local);
+
+    void setup_batch2(fmat& Phi2_new, float theta2_new, float tau);
+  
     void set_R_merge_flag(float merge_thresh_new);
     void update_R_merge();  
 
     /* FIELDS */
-    fmat R, Z_orig, Z_corr, Z_cos, Y, Phi, phi_hat; 
-    fvec N_b, Pr_b, Pr_Kb, theta, theta2, N_Kb;
+    fmat R, Z_orig, Z_corr, Z_cos, Y, Phi, Phi2; 
+    fvec Pr_b, Pr_b2, theta, theta2, N_b, N_b2;
     frowvec w;
     vector<float> objective_harmony;
     vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross;
-    vector<int> Kb, kmeans_rounds;
+    vector<int> kmeans_rounds; // OLD: Kb
     vector<bool> batch_mask;
     vector<uvec> phi_map;
-    float sigma, block_size, alpha, epsilon_kmeans, epsilon_harmony, theta_max, merge_thresh_global;
-    int N, K, B, d, max_iter_kmeans, window_size; 
+    float sigma, block_size, alpha, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
+    int N, K, B, B2, d, max_iter_kmeans, window_size; 
     bool correct_with_Zorig, correct_with_cosine;
   
     // buffers
@@ -70,7 +73,7 @@ class harmony {
     fcube mu_bk;
   
     // flags
-    bool ran_setup, ran_init, do_conservation, do_merge_R;
+    bool ran_setup, ran_init, do_conservation, do_merge_R, do_theta2;
   
     // FOR DEBUGGING ONLY - SHOULD ERASE THESE
     vector<fmat> R_list;
