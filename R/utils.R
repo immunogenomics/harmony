@@ -21,8 +21,10 @@ HarmonyConvergencePlot <- function(harmonyObj) {
     labs(y = "Objective Function", x = "Iteration Number")
 }
 
-HarmonyMatrix <- function(pc_mat, batch_labels, batch_labels2 = NULL, theta = 1, theta2 = 1, sigma = 0.1, alpha = .1,
-                          nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
+HarmonyMatrix <- function(pc_mat, batch_labels, batch_labels2 = NULL, 
+                          theta = 1, theta2 = 1, 
+                          sigma = 0.1, alpha = .1, nclust = 100, tau = 0, 
+                          block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                           burn.in.time = 10, plot_convergence = FALSE) {
     
