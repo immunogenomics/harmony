@@ -6,18 +6,18 @@
 harmony::harmony(int __K): K(__K) {}
 
 
-void harmony::setup(fmat& Z_new, fmat& Phi_new, 
+void harmony::setup(mat& Z_new, mat& Phi_new, 
                         float __sigma, float __theta, int __max_iter_kmeans, 
                         float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                         float __alpha, int __K, float tau, float __block_size, 
-                        frowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
+                        rowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
   
   correct_with_cosine = __correct_with_cosine;
   if (correct_with_cosine)
     cosine_normalize(Z_new, 0, false); // normalize columns
   
-  Z_corr = fmat(Z_new);
-  Z_orig = fmat(Z_new);
+  Z_corr = mat(Z_new);
+  Z_orig = mat(Z_new);
 
   Phi = Phi_new;
   N = Z_corr.n_cols;
@@ -54,7 +54,7 @@ void harmony::setup(fmat& Z_new, fmat& Phi_new,
   init_cluster();  
 }
 
-void harmony::setup_batch2(fmat& Phi2_new, float theta2_new, float tau) {
+void harmony::setup_batch2(mat& Phi2_new, float theta2_new, float tau) {
   if (theta2_new == 0) return;
   
   Phi2 = Phi2_new;
@@ -70,18 +70,18 @@ void harmony::setup_batch2(fmat& Phi2_new, float theta2_new, float tau) {
 
 
 void harmony::allocate_buffers() {
-  mu_k = zeros<fmat>(d, K); 
-  mu_bk = zeros<fcube>(d, K, B); // nrow, ncol, nslice
-  mu_bk_r = zeros<fmat>(d, N);  
-  mu_k_r = zeros<fmat>(d, N);
-  _scale_dist = zeros<fmat>(K, N);    
-  O = zeros<fmat>(K, B);
-  E = zeros<fmat>(K, B);  
+  mu_k = zeros<mat>(d, K); 
+  mu_bk = zeros<cube>(d, K, B); // nrow, ncol, nslice
+  mu_bk_r = zeros<mat>(d, N);  
+  mu_k_r = zeros<mat>(d, N);
+  _scale_dist = zeros<mat>(K, N);    
+  O = zeros<mat>(K, B);
+  E = zeros<mat>(K, B);  
 }
 
 
-fvec harmony::set_thetas(float theta_max, float tau, fvec& N_b) {
-  fvec res;
+vec harmony::set_thetas(float theta_max, float tau, vec& N_b) {
+  vec res;
   res.set_size(N_b.n_rows);
   if (tau == 0) {
     res.fill(theta_max);
@@ -159,9 +159,9 @@ void harmony::init_cluster() {
 
   
   if (correct_with_Zorig)
-    Z_cos = fmat(Z_orig);
+    Z_cos = mat(Z_orig);
   else 
-    Z_cos = fmat(Z_corr);
+    Z_cos = mat(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns
   
   // using a nice property of cosine distance,
@@ -195,7 +195,7 @@ void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
   O2 = R * phi_hat.t();
   
   // TODO: figure out if theta2 needs to be scaled on cluster size
-  theta2 = zeros<fvec>(N_Kb.n_rows);
+  theta2 = zeros<vec>(N_Kb.n_rows);
   int i = 0;
   for (int b = 0; b < B; b++) {
     for (int k = 0; k < Kb[b]; k++) {
@@ -213,7 +213,7 @@ void harmony::init_batch_clusters(uvec & batches, float merge_thresh,
 
 void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
                               float sigma_local, int K_local) {
-  fmat X = fmat(Z_orig);
+  mat X = mat(Z_orig);
   cosine_normalize(X, 2, true);
   
   // (1) list of per-batch cluster matrices
@@ -230,7 +230,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
 
   // (2) merge them into a single sparse matrix
   int N = X.n_cols;  
-  phi_hat = zeros<fmat>(Kb_total, N);
+  phi_hat = zeros<mat>(Kb_total, N);
   unsigned offset = 0;
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;
   for (int b = 0; b < B; b++) {
@@ -486,7 +486,7 @@ void harmony::gmm_correct_armadillo() {
   else 
     Z_corr = Z_corr - mu_bk_r + mu_k_r;
     
-  Z_cos = fmat(Z_corr);
+  Z_cos = mat(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns  
 }
 
