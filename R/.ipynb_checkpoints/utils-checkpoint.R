@@ -100,8 +100,9 @@ RunHarmony <- function(object, group.by, dims.use, group.by.secondary = NULL, th
     if (!group.by %in% colnames(object@meta.data)) {
       stop(sprintf("ERROR: Primary integration variable [%s] is not in meta.data"))
     }
-    if (!is.null(group.by.secondary) & !group.by.secondary %in% colnames(object@meta.data)) {
-      stop(sprintf("ERROR: Secondary integration variable [%s] is not in meta.data"))
+    if (!is.null(group.by.secondary)) {
+        if (!group.by.secondary %in% colnames(object@meta.data))
+            stop(sprintf("ERROR: Secondary integration variable [%s] is not in meta.data"))
     }
   
   
