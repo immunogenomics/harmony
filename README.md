@@ -30,9 +30,10 @@ my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, my_batch_vector, theta
 
 ## Harmony in a Seurat workflow
 
-If you already have a Seurat workflow for analyzing your single cell data, check out the tutorial below. To run Harmony, use the `RunHarmony` function. To then use Harmony in RunTSNE, specify `reduction.use = "harmony"`. To use it in FindClusters, specify `reduction.type = "harmony"`. 
+If you already have a Seurat workflow for analyzing your single cell data, check out the tutorial below. You'll only need to make two changes to your code: 
 
-We created a wrapper function `RunHarmony` to seamless integrate into your existing Seurat workflow. Check out this vignette to see how it works: 
+1) Run Harmony with the `RunHarmony` function
+2) In downstream analyses, use the Harmony embeddings instead of PCA. For instance, in RunTSNE, specify `reduction.use = "harmony"`, or in FindClusters, specify `reduction.type = "harmony"`. 
 
 [Aligning 10X PBMCs](https://github.com/immunogenomics/harmony/blob/master/vignettes/Seurat.ipynb)
 
