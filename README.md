@@ -37,10 +37,7 @@ If you already have a Seurat workflow for analyzing your single cell data, check
 
 [Aligning 10X PBMCs](https://github.com/immunogenomics/harmony/blob/master/vignettes/Seurat.ipynb)
 
-This vignette is based on the original in Seurat: 
-
-[Suerat Vignette](https://satijalab.org/seurat/pbmc3k_tutorial.html)
-
+This vignette is based on the original in [Seurat](https://satijalab.org/seurat/pbmc3k_tutorial.html)
 ## Harmony with two or more covariates
 
 Coming soon!
