@@ -48,8 +48,7 @@ void harmony::setup(mat& Z_new, mat& Phi_new,
   theta = set_thetas(__theta, tau, N_b);  
   allocate_buffers();
   ran_setup = true;
-  do_merge_R = false; // (EXPERIMENTAL) do not try to merge redundant clusters
-  do_conservation = false; // (EXPERIMENTAL) initially this is false
+  do_merge_R = false; // (EXPERIMENTAL) try to merge redundant clusters?
   do_theta2 = false; // (EXPERIMENTAL) initially this is false
   init_cluster();  
 }
@@ -107,7 +106,7 @@ void harmony::update_R_merge() {
   Rcout << "new K: " << K << endl;
 }
 
-/* BEGIN NUMERICAL METHODS */
+// BEGIN NUMERICAL METHODS 
 void harmony::harmonize(int iter_harmony) {
   int err_status;
   for (int iter = 0; iter < iter_harmony; iter++) {
@@ -181,6 +180,7 @@ void harmony::init_cluster() {
 }
 
 
+<<<<<<< HEAD
 /*
 // OPTIONAL: create batch specific covariates
 //           to preserve structure inside batches
@@ -241,8 +241,9 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
   } 
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
+=======
+>>>>>>> master
 
-*/
 
 // TODO: generalize to adaptive sigma values
 // TODO: use cached distance computation from before
@@ -278,11 +279,6 @@ void harmony::compute_objective() {
   
 //  Rcout << "OBJ: " << kmeans_error + sigma * _entropy + sigma * _cross_entropy << endl;
   
-//  if (verbose > 0) {
-//    Rprintf("kmeans %0.2f; sig_entropy %0.2f; theta cross %0.2f; cross %0.2f; obj %0.2f\n", 
-//           kmeans_error, sigma * _entropy, sigma * theta * _cross_entropy, _cross_entropy,
-//           *objective_kmeans.end());
-//  }
 }
 
 
@@ -299,9 +295,6 @@ bool harmony::check_convergence(int type) {
         obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
         obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
       }
-//      obj_old = objective_kmeans[objective_kmeans.size() - 2];
-//      obj_new = objective_kmeans[objective_kmeans.size() - 1];
-//      Rcout << "about to check for kmeans" << endl;
       if (-(obj_new - obj_old) / obj_old < epsilon_kmeans) {
 //        Rcout << "kmeans old: " << obj_old << ", new: " << obj_new << ", diff: " << -(obj_new - obj_old) / obj_old << endl;
         return(true); 
@@ -319,14 +312,6 @@ bool harmony::check_convergence(int type) {
       }
   }
   
-//  float obj_change = -(obj_new - obj_old) / obj_old;
-//  float obj_change = abs((obj_new - obj_old) / obj_old);
-  //if (obj_change < converge_thresh) {
-//    Rcout << "obj conv with " << obj_change << " < " << converge_thresh << endl;
-//    Rcout << "OLD: " << obj_old << ", NEW: " << obj_new << endl;
-    //return(true);    
-//  }
-//  return(false);
 }
 
 
@@ -368,13 +353,6 @@ int harmony::cluster() {
     }
   }
   kmeans_rounds.push_back(iter);
-  /*
-  if (iter < max_iter_kmeans) {
-    Rcout << "Clustering Converged after " << iter << " iterations" << endl;
-  } else {
-    Rcout << "WARNING: clustering did not converge after " << iter << " iterations" << endl;    
-  }
-  */
   objective_harmony.push_back(objective_kmeans.back());
   return 0;
 }
@@ -387,24 +365,7 @@ int harmony::compute_R() {
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
 
-  // SPECIAL CASE: no online updates, update all cells at once
-  if (block_size == 1) {
-    Rcout << "TRYING TO DO ONE BATCH UPDATE: DON'T DO THIS" << endl;
-    return(-1);
-    /*
-    R = _scale_dist;
-    if (alpha > 0) {
-      dir_prior = alpha * E;
-      R = R % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi);
-    } else {
-      R = R % (pow(E / O, theta) * Phi);      
-    }
-    R = normalise(R, 1, 0); // L1 norm columns
-    E = sum(R, 1) * Pr_b.t();
-    O = R * Phi.t();    
-    return 0;*/
-  }
-  
+
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   for (int i = 0; i < ceil(1. / block_size); i++) {
     // gather cell updates indices
@@ -490,15 +451,9 @@ void harmony::gmm_correct_armadillo() {
   cosine_normalize(Z_cos, 0, true); // normalize columns  
 }
 
-
-
-
-
-
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
-
-  .constructor<int>()    
+  .constructor<int>()
     
   .field("Z_corr", &harmony::Z_corr)  
   .field("Z_orig", &harmony::Z_orig)  
@@ -530,7 +485,6 @@ RCPP_MODULE(harmony_module) {
   .field("theta", &harmony::theta)
   .field("theta2", &harmony::theta2)
   .field("alpha", &harmony::alpha)
-//  .field("phi_hat", &harmony::phi_hat)    
   .field("O", &harmony::O) 
   .field("E", &harmony::E)    
   .field("O2", &harmony::O2)    
@@ -554,8 +508,6 @@ RCPP_MODULE(harmony_module) {
   .method("update_R_merge", &harmony::update_R_merge)
   .method("cluster", &harmony::cluster)
   .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
-//  .method("init_batch_clusters", &harmony::init_batch_clusters)
-//  .method("compute_phi_hat", &harmony::compute_phi_hat)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
 
