@@ -21,11 +21,11 @@ class harmony {
   public: 
     /* CONSTRUCTORS etc */
     harmony(int __K);    
-    void setup(fmat& Z, fmat& Phi, 
+    void setup(mat& Z, mat& Phi, 
                float __sigma, float __theta, int __max_iter_kmeans, 
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 float __alpha, int __K, float tau, float __block_size, 
-               frowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size);
+               rowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size);
     void dummy(int __K) {
       K = __K;
     }
@@ -37,8 +37,8 @@ class harmony {
     int cluster();
 
     void allocate_buffers();
-    fvec set_thetas(float theta_max, float tau, fvec& Nb_use);  
-    fmat compute_C(uvec& cells_in, uvec& cells_out);
+    vec set_thetas(float theta_max, float tau, vec& Nb_use);  
+    mat compute_C(uvec& cells_in, uvec& cells_out);
     void compute_objective(); 
     int compute_R();
     bool check_convergence(int type);
@@ -49,15 +49,15 @@ class harmony {
 //    void compute_phi_hat(const uvec & batches, float merge_thresh,
 //                              float sigma_local, int K_local);
 
-    void setup_batch2(fmat& Phi2_new, float theta2_new, float tau);
+    void setup_batch2(mat& Phi2_new, float theta2_new, float tau);
   
     void set_R_merge_flag(float merge_thresh_new);
     void update_R_merge();  
 
     /* FIELDS */
-    fmat R, Z_orig, Z_corr, Z_cos, Y, Phi, Phi2; 
-    fvec Pr_b, Pr_b2, theta, theta2, N_b, N_b2;
-    frowvec w;
+    mat R, Z_orig, Z_corr, Z_cos, Y, Phi, Phi2; 
+    vec Pr_b, Pr_b2, theta, theta2, N_b, N_b2;
+    rowvec w;
     vector<float> objective_harmony;
     vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross;
     vector<int> kmeans_rounds; // OLD: Kb
@@ -68,15 +68,15 @@ class harmony {
     bool correct_with_Zorig, correct_with_cosine;
   
     // buffers
-    fmat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E, O2, E2, dir_prior, dir_prior2; // N_k, N_kb, N_b, numerator, denominator, C;
+    mat _scale_dist, mu_k, mu_k_r, mu_bk_r, O, E, O2, E2, dir_prior, dir_prior2; // N_k, N_kb, N_b, numerator, denominator, C;
     uvec update_order;
-    fcube mu_bk;
+    cube mu_bk;
   
     // flags
     bool ran_setup, ran_init, do_merge_R, do_theta2;
   
     // FOR DEBUGGING ONLY - SHOULD ERASE THESE
-    vector<fmat> R_list;
+    vector<mat> R_list;
     uvec cells_update;
   
 };
