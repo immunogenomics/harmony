@@ -73,7 +73,7 @@ class harmony {
     cube mu_bk;
   
     // flags
-    bool ran_setup, ran_init, do_conservation, do_merge_R, do_theta2;
+    bool ran_setup, ran_init, do_merge_R, do_theta2;
   
     // FOR DEBUGGING ONLY - SHOULD ERASE THESE
     vector<mat> R_list;
