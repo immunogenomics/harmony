@@ -6,11 +6,12 @@
 harmony::harmony(int __K): K(__K) {}
 
 
-void harmony::setup(mat& Z_new, mat& Phi_new, 
+void harmony::setup(mat& Z_new, mat& Phi_new, mat& Phi_moe_new,
                         float __sigma, float __theta, int __max_iter_kmeans, 
                         float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                         float __alpha, int __K, float tau, float __block_size, 
-                        rowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
+                        rowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, 
+                        int __window_size, bool __correct_w_gmm) {
   
   correct_with_cosine = __correct_with_cosine;
   if (correct_with_cosine)
@@ -19,6 +20,7 @@ void harmony::setup(mat& Z_new, mat& Phi_new,
   Z_corr = mat(Z_new);
   Z_orig = mat(Z_new);
 
+  Phi_moe = Phi_moe_new;
   Phi = Phi_new;
   N = Z_corr.n_cols;
   N_b = sum(Phi, 1);
@@ -29,9 +31,11 @@ void harmony::setup(mat& Z_new, mat& Phi_new,
   window_size = __window_size;
   epsilon_kmeans = __epsilon_kmeans;
   epsilon_harmony = __epsilon_harmony;
-  
+    
   batch_mask = batch_mask_new; // For the special case where some batches won't be corrected
   
+  correct_w_gmm = __correct_w_gmm;
+    
   sigma = __sigma;
   block_size = __block_size;
   K = __K;
@@ -66,6 +70,7 @@ void harmony::setup_batch2(mat& Phi2_new, float theta2_new, float tau) {
   do_theta2 = true;
   
 }
+
 
 
 void harmony::allocate_buffers() {
@@ -123,7 +128,12 @@ void harmony::harmonize(int iter_harmony) {
       break;
     }
     
-    gmm_correct_armadillo();
+    if (correct_w_gmm) {
+        gmm_correct_armadillo();
+    } else {
+        moe_correct_armadillo();    
+    }
+    
 
     // NOTE: this does not work. For now, run all iterations. 
     if (check_convergence(1)) {
@@ -318,6 +328,7 @@ int harmony::cluster() {
     Rcout << "ERROR: before clustering, run init_cluster" << endl;
     return -1;
   }
+  
   int err_status = 0;
   Progress p(max_iter_kmeans, true);
   
@@ -354,6 +365,7 @@ int harmony::cluster() {
   return 0;
 }
 
+    
 int harmony::compute_R() {  
   update_order = shuffle(linspace<uvec>(0, N - 1, N));
 
@@ -408,6 +420,19 @@ int harmony::compute_R() {
 
 
 
+void harmony::harmony::moe_correct_armadillo() {
+    // Based on EM solution from Murphy 
+    mat W = zeros<mat>(K, Phi_moe.n_rows);
+    for (int k = 0; k < K; k++) { 
+        W.col(k) = inv(Phi_moe * diagmat(R.row(k)) * Phi_moe.t()) * Phi_moe * diagmat(R.row(k)) * Z_orig.t();
+    }
+    Z_corr = Z_orig - sum(R % (W.rows(1, W.n_rows - 1).t() * Phi_moe.rows(1, Phi_moe.n_rows - 1)), 0);
+    
+    Z_cos = mat(Z_corr);
+    cosine_normalize(Z_cos, 0, true); // normalize columns     
+}
+
+    
 // This method operates in Euclidean PCA space (no cosine normalization)
 void harmony::gmm_correct_armadillo() {  
   if (correct_with_Zorig) {
