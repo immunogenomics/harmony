@@ -240,7 +240,7 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
   } 
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
-
+*/
 
 // TODO: generalize to adaptive sigma values
 // TODO: use cached distance computation from before
