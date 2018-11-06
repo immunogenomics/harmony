@@ -180,7 +180,6 @@ void harmony::init_cluster() {
 }
 
 
-<<<<<<< HEAD
 /*
 // OPTIONAL: create batch specific covariates
 //           to preserve structure inside batches
@@ -241,8 +240,6 @@ void harmony::compute_phi_hat(const uvec & batches, float merge_thresh,
   } 
 //  Rcout << phi_hat.n_rows << " " << phi_hat.n_cols << endl;    
 }
-=======
->>>>>>> master
 
 
 // TODO: generalize to adaptive sigma values
