@@ -4,4 +4,9 @@ r:
 cache: packages
 sudo: false
 
+os: 
+  - windows
+  - linux
+  - osx
+
 warnings_are_errors: false
