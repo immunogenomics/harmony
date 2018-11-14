@@ -3,3 +3,9 @@ r:
   - release
 cache: packages
 sudo: false
+
+addons:
+  apt: 
+    packages: 
+      - Rcpp
+      - RcppArmadillo
