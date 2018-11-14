@@ -21,30 +21,55 @@ HarmonyConvergencePlot <- function(harmonyObj) {
     labs(y = "Objective Function", x = "Iteration Number")
 }
 
-HarmonyMatrix <- function(pc_mat, batch_labels, batch_labels2 = NULL, 
-                          theta = 1, theta2 = 1, 
+HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
                           sigma = 0.1, alpha = .1, nclust = 100, tau = 0, 
                           block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                          burn.in.time = 10, plot_convergence = FALSE) {
-    
+                          burn.in.time = 10, plot_convergence = FALSE, correct_mode = "moe_ridge", 
+                          return_object = FALSE) {
+
+    ## TODO: check for 
+    ##    partially observed batch variables (WARNING)
+    ##    batch variables with only 1 level (WARNING)
+    ##    if lambda given, check correct length
+    ##    if theta given, check correct length
+    ##    very small batch size and tau=0: suggest tau>0
+  
+    N <- nrow(meta_data)
     cells_as_cols <- TRUE
-    if (length(batch_labels) != ncol(pc_mat)) {
-        if (length(batch_labels) == nrow(pc_mat)) {
+    if (ncol(pc_mat) != N) {
+        if (nrow(pc_mat) == N) {
             pc_mat <- t(pc_mat)
             cells_as_cols <- FALSE
         } else {
             stop("ERROR: Number of labels do not correspond to number of samples in PC matrix.")
         }
+    }
+
+    if (is.null(theta)) {
+        theta <- rep(2, length(vars_use))
+    }
+    if (is.null(lambda)) {
+        lambda <- rep(1, length(vars_use))
     }    
 
-  
+    ## Pre-compute some useful statistics
+    phi <- Reduce(rbind, lapply(vars_use, function(var_use) {t(onehot(meta_data[[var_use]]))}))
+    N_b <- rowSums(phi)
+    Pr_b <- N_b / N
+    B_vec <- Reduce(c, lapply(vars_use, function(var_use) {length(unique(meta_data[[var_use]]))}))
+    theta <- Reduce(c, lapply(1:length(B_vec), function(b) rep(theta[b], B_vec[b])))
+    theta <- theta * (1 - exp(-(N_b / (nclust * tau)) ^ 2))
+
+    lambda <- Reduce(c, lapply(1:length(B_vec), function(b) rep(lambda[b], B_vec[b])))
+    lambda_mat <- diag(c(0, lambda))
+                              
     ## RUN HARMONY
     harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
-    batch_mat <- t(onehot(batch_labels))
     harmonyObj$setup(
         pc_mat, ## Z
-        batch_mat, ## Phi
+        phi, ## Phi
+        Pr_b, 
         sigma, ## sigma
         theta, ## theta
         max.iter.cluster, ## max.iter
@@ -55,31 +80,31 @@ HarmonyMatrix <- function(pc_mat, batch_labels, batch_labels2 = NULL,
         nclust, ## K
         tau, ## tau (desired cells/cluster)
         block.size, ## model$block.size
-        rep(1, length(batch_labels)), ## EXPERIMENTAL FEATURE: each cell gets its own weight
+#        rep(1, N), ## EXPERIMENTAL FEATURE: each cell gets its own weight
         FALSE, ## do linear correction on Z_cos?
-        rep(1, nrow(batch_mat)), ## EXPERIMENTAL FEATURE: only correct certain batches
-        burn.in.time ## window size for kmeans convergence
+        rep(1, N), ## EXPERIMENTAL FEATURE: only correct certain batches
+        burn.in.time, ## window size for kmeans convergence
+        lambda_mat,
+        correct_mode
     )
-  
-    ## OPTIONAL: 2nd level of batch defined
-    if (!is.null(batch_labels2)) {
-      harmonyObj$setup_batch2(t(onehot(batch_labels2)), theta2, tau)
-    }
-  
+    
     harmonyObj$harmonize(max.iter.harmony)
     if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
     
-    res <- as.matrix(harmonyObj$Z_corr)
-    row.names(res) <- row.names(pc_mat)
-    colnames(res) <- colnames(pc_mat)
-    if (!cells_as_cols) 
-        res <- t(res)
-    return(res)
+    ## Return either the R6 Harmony object or the corrected PCA matrix (default)
+    if (return_object) {
+      return(harmonyObj)
+    } else {
+      res <- as.matrix(harmonyObj$Z_corr)
+      row.names(res) <- row.names(pc_mat)
+      colnames(res) <- colnames(pc_mat)
+      if (!cells_as_cols) 
+          res <- t(res)
+      return(res)      
+    }
 }
 
-
-
-RunHarmony <- function(object, group.by, dims.use, group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1, alpha = .1,
+RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, alpha = .1,
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                        burn.in.time = 10, plot_convergence = FALSE) {
@@ -99,32 +124,18 @@ RunHarmony <- function(object, group.by, dims.use, group.by.secondary = NULL, th
         stop("Trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs.")        
     }
     
-    if (!group.by %in% colnames(object@meta.data)) {
-      stop(sprintf("ERROR: Primary integration variable [%s] is not in meta.data"))
-    }
-    if (!is.null(group.by.secondary)) {
-        if (!group.by.secondary %in% colnames(object@meta.data))
-            stop(sprintf("ERROR: Secondary integration variable [%s] is not in meta.data"))
+    missing.vars <- setdiff(group.by.vars, colnames(object@meta.data))
+    if (length(missing.vars) > 0) {
+      stop(sprintf("ERROR: Primary variable(s) [%s] not in meta.data", paste(missing.vars, collapse = ", ")))
     }
   
-  
-    nbatches <- sum(table(object@meta.data[[group.by]]) > 10)
-    if (nbatches < 2) {
-        stop("Detected fewer than 2 batches with at least 10 cells each. Did you mean to use a different group.by variable?")
-    }   
-    
+      
     message("Starting harmony")
-    message(sprintf("Found %d datasets to integrate", nbatches))
     message(sprintf("Using top %d PCs", length(dims.use)))    
     
-    if (!is.null(group.by.secondary)) {
-      batches_secondary <- object@meta.data[[group.by.secondary]]
-    } else {
-      batches_secondary <- NULL
-    }
   
-    harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data[[group.by]], batches_secondary, 
-                                   theta, theta2, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
+    harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data, group.by.vars, 
+                                   theta, lambda, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
                                    max.iter.cluster, epsilon.cluster, epsilon.harmony,
                                    burn.in.time, plot_convergence)
       
@@ -139,12 +150,6 @@ RunHarmony <- function(object, group.by, dims.use, group.by.secondary = NULL, th
     return(object)
     
 }
-
-
-
-
-
-
 
 
 
