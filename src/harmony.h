@@ -66,7 +66,7 @@ class harmony {
     string correct_mode;
     // buffers
     MATTYPE _scale_dist, __dist, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
-    uvec update_order;
+    uvec update_order, cells_update;
 //    CUBETYPE W;
 //    MATTYPE mu_k, mu_k_r, mu_bk_r,
 //    CUBETYPE mu_bk;
@@ -77,18 +77,5 @@ class harmony {
   
     // FOR DEBUGGING ONLY - SHOULD ERASE THESE
 //    vector<MATTYPE> R_list;
-    uvec cells_update;
-  
-    void foo1();
-    void foo2();
-    void foo3();
-    void foo4();
-    void foo5();
-    void foo6();
-    void foo7();
-    void foo8();
-    void foo9();
-    void foo10();
-
 };
 
