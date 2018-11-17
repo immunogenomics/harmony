@@ -187,33 +187,23 @@ void harmony::init_cluster() {
 // TODO: generalize to adaptive sigma values
 // TODO: use cached distance computation from before
 void harmony::compute_objective() {
-  
 //  float kmeans_error = as_scalar(accu((R.each_row() % w) % (2 * (1 - (Y.t() * Z_cos)))));
-//  float _entropy = as_scalar(accu(safe_entropy(R).each_row() % w));  
-  
+//  float _entropy = as_scalar(accu(safe_entropy(R).each_row() % w));
 //  float kmeans_error = as_scalar(accu(R % (2 * (1 - (Y.t() * Z_cos)))));
   float kmeans_error = as_scalar(accu(R % __dist));
-  float _entropy = as_scalar(accu(safe_entropy(R)));
-  
+  float _entropy = as_scalar(accu(safe_entropy(R)));  
 //  float _cross_entropy = as_scalar(accu(R % log((E / O) * Phi)));   
 //  objective_kmeans.push_back(kmeans_error + sigma * _entropy +
 //                      sigma * theta * _cross_entropy);
-
   float _cross_entropy;
   dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
 //  _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
   _cross_entropy = as_scalar(accu(R % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
-  
-//    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi))); 
-  
-  
+  //    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi))); 
   objective_kmeans.push_back(kmeans_error + sigma * _entropy + sigma * _cross_entropy);
   objective_kmeans_dist.push_back(kmeans_error);
   objective_kmeans_entropy.push_back(sigma * _entropy); 
   objective_kmeans_cross.push_back(sigma * _cross_entropy);
-  
-//  Rcout << "OBJ: " << kmeans_error + sigma * _entropy + sigma * _cross_entropy << endl;
-  
 }
 
 
@@ -297,34 +287,6 @@ int harmony::cluster() {
 }
 
 
-
-void harmony::foo1() {
-}
-
-void harmony::foo2() {
-}
-
-void harmony::foo3() {
-}
-
-void harmony::foo4() {
-
-}
-void harmony::foo5() {
-
-}
-void harmony::foo6() {
-}
-void harmony::foo7() {
-}
-void harmony::foo8() {
-}
-void harmony::foo9() {
-
-}
-void harmony::foo10() {
-  
-}
 
 
 int harmony::compute_R() {  
@@ -556,17 +518,6 @@ RCPP_MODULE(harmony_module) {
 //  .method("moe_correct_ridge3", &harmony::moe_correct_ridge3)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
-
-  .method("foo1", &harmony::foo1)
-  .method("foo2", &harmony::foo2)
-  .method("foo3", &harmony::foo3)
-  .method("foo4", &harmony::foo4)
-  .method("foo5", &harmony::foo5)
-  .method("foo6", &harmony::foo6)
-  .method("foo7", &harmony::foo7)
-  .method("foo8", &harmony::foo8)
-  .method("foo9", &harmony::foo9)
-  .method("foo10", &harmony::foo10)    
     
   ;
 }

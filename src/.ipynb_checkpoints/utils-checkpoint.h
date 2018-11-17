@@ -110,7 +110,5 @@ MATTYPE merge_R(const MATTYPE & R, float thresh = 0.8) {
       uvec idx = find(equiv_classes == uclasses(i)); 
       R_new.row(i) = sum(R.rows(idx), 0);
   }
-  
-  return R_new;
-  
+  return R_new;  
 }
