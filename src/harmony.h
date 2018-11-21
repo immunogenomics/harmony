@@ -29,8 +29,8 @@ class harmony {
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 float __alpha, int __K, float tau, float __block_size, 
                 //ROWVECTYPE& w_new, 
-                bool __correct_with_cosine, vector<bool> batch_mask_new, 
-                int __window_size, MATTYPE __lambda, string __correct_mode);
+                bool __correct_with_cosine,
+                int __window_size, MATTYPE __lambda);
     
     /* METHODS */
     void harmonize(int harmony_iter);
@@ -57,13 +57,12 @@ class harmony {
     vector<float> objective_harmony;
     vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross;
     vector<int> kmeans_rounds; // OLD: Kb
-    vector<bool> batch_mask;
+
 //    vector<uvec> phi_map;
     float sigma, block_size, alpha, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
     int N, K, B, d, max_iter_kmeans, window_size; 
     bool correct_with_Zorig, correct_with_cosine;
   
-    string correct_mode;
     // buffers
     MATTYPE _scale_dist, __dist, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
     uvec update_order, cells_update;

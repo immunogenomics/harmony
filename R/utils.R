@@ -1,13 +1,20 @@
 onehot <- function(x) {
-	data.frame(x) %>%
-		tibble::rowid_to_column("id") %>% 
-		dplyr::mutate(dummy = 1) %>% 
-		tidyr::spread(x, dummy, fill = 0) %>% 
-		dplyr::select(-id) %>%
-		as.matrix
+  res <- data.frame(x)
+  res$id <- row.names(res)
+  res <- res %>%
+    dplyr::mutate(dummy = 1) %>% 
+    tidyr::spread(x, dummy, fill = 0) %>% 
+    dplyr::select(-id) %>%
+    as.matrix
+  return(res)
 }
 
 HarmonyConvergencePlot <- function(harmonyObj) {
+    if (!requireNamespace("ggplot2", quietly = TRUE)) {
+      message("WARNING: Failed to load ggplot2 package. Cannot plot convergence without this package.")
+      return(NA)
+    }
+
     ## ignore initial value (random initialization)
     ## break down kmeans objective into rounds
     obj_fxn <- data.frame(
@@ -17,15 +24,30 @@ HarmonyConvergencePlot <- function(harmonyObj) {
     ) %>%
         tibble::rowid_to_column("idx")
 ##    data.table(obj_fxn)[, (tail(.SD$val, 1) - head(.SD$val, 1)) / head(.SD$val, 1), by = harmony_idx]
-    obj_fxn %>% ggplot(aes(idx, val, col = harmony_idx)) + geom_point(shape = 21) + 
-    labs(y = "Objective Function", x = "Iteration Number")
+    obj_fxn %>% ggplot(ggplot2::aes(idx, val, col = harmony_idx)) + 
+      geom_point(shape = 21) + 
+      labs(y = "Objective Function", x = "Iteration Number")
 }
 
+#' Encode vector of values from categorical variable as one-hot matrix 
+#' 
+#' @param
+#' @param
+#' @param
+#' @param
+#' @param
+#' 
+#' @return
+#' 
+#' @export
+#' 
+#' @example
+#' 
 HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
                           sigma = 0.1, alpha = .1, nclust = 100, tau = 0, 
                           block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                          burn.in.time = 10, plot_convergence = FALSE, correct_mode = "moe_ridge", 
+                          burn.in.time = 10, plot_convergence = FALSE, 
                           return_object = FALSE) {
 
     ## TODO: check for 
@@ -34,6 +56,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     ##    if lambda given, check correct length
     ##    if theta given, check correct length
     ##    very small batch size and tau=0: suggest tau>0
+    ##    is PCA correct? 
   
     N <- nrow(meta_data)
     cells_as_cols <- TRUE
@@ -82,12 +105,11 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
         block.size, ## model$block.size
 #        rep(1, N), ## EXPERIMENTAL FEATURE: each cell gets its own weight
         FALSE, ## do linear correction on Z_cos?
-        rep(1, N), ## EXPERIMENTAL FEATURE: only correct certain batches
         burn.in.time, ## window size for kmeans convergence
-        lambda_mat,
-        correct_mode
+        lambda_mat
     )
-    
+
+                               
     harmonyObj$harmonize(max.iter.harmony)
     if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
     
@@ -104,16 +126,27 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     }
 }
 
+#' Encode vector of values from categorical variable as one-hot matrix 
+#' 
+#' @param
+#' 
+#' @return
+#' 
+#' @export
+#' 
+#' 
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, alpha = .1,
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                        burn.in.time = 10, plot_convergence = FALSE) {
     ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
     ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
-
-    
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+      stop("Failed to load Seurat library.")
+    }
+  
     if (!"seurat" %in% class(object)) {
-        stop("This Function is meant to be run on a Seurat object!")
+        stop("Must pass a Seurat object to RunHarmony function. Did you mean to use the Harmony function?")
     }    
     if (!"pca" %in% names(object@dr)) {
         stop("PCA must be computed before running Harmony.")
@@ -143,9 +176,10 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
     rownames(harmonyEmbed) <- row.names(object@meta.data)
     colnames(harmonyEmbed) <- paste0("harmony_", 1:ncol(harmonyEmbed))
     
-    object %<>% SetDimReduction(reduction.type = "harmony", slot = "cell.embeddings", new.data = harmonyEmbed) %>%
-                SetDimReduction(reduction.type = "harmony", slot = "key", new.data = "Harmony") %>%
-                ProjectDim(reduction.type = "harmony", replace.dim = T, do.print = F)
+    object <- object %>%
+                Seurat::SetDimReduction(reduction.type = "harmony", slot = "cell.embeddings", new.data = harmonyEmbed) %>%
+                Seurat::SetDimReduction(reduction.type = "harmony", slot = "key", new.data = "Harmony") %>%
+                Seurat::ProjectDim(reduction.type = "harmony", replace.dim = T, do.print = F)
 
     return(object)
     
