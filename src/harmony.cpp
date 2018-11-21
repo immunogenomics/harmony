@@ -11,8 +11,8 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 float __alpha, int __K, float tau, float __block_size, 
 //                ROWVECTYPE& __w, 
-                bool __correct_with_cosine, vector<bool> __batch_mask, 
-                int __window_size, MATTYPE __lambda, string __correct_mode) {
+                bool __correct_with_cosine, 
+                int __window_size, MATTYPE __lambda) {
   
   correct_with_cosine = __correct_with_cosine;
   if (correct_with_cosine)
@@ -39,10 +39,6 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   
   lambda = __lambda;
   
-  batch_mask = __batch_mask; // For the special case where some batches won't be corrected
-  
-  correct_mode = __correct_mode;
-    
   sigma = __sigma;
   block_size = __block_size;
   K = __K;
@@ -485,8 +481,6 @@ RCPP_MODULE(harmony_module) {
   .field("d", &harmony::d)
 //  .field("w", &harmony::w)
   .field("W", &harmony::W)
-    
-
   .field("max_iter_kmeans", &harmony::max_iter_kmeans)
 
   .field("sigma", &harmony::sigma)
@@ -499,9 +493,7 @@ RCPP_MODULE(harmony_module) {
   .field("cells_update", &harmony::cells_update)    
   .field("kmeans_rounds", &harmony::kmeans_rounds)    
   .field("epsilon_kmeans", &harmony::epsilon_kmeans)    
-  .field("epsilon_harmony", &harmony::epsilon_harmony)    
-
-
+  .field("epsilon_harmony", &harmony::epsilon_harmony)
     
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
