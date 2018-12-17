@@ -2,6 +2,7 @@
 #'
 #' @param harmonyObj 
 #'
+#' @importFrom magrittr "%>%"
 #' @importFrom tibble rowid_to_column
 #' @import ggplot2
 #' 

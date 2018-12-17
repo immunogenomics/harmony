@@ -2,6 +2,7 @@
 #'
 #' @param x 
 #'
+#' @importFrom magrittr "%>%"
 #' @importFrom tibble rowid_to_column
 #' @importFrom dplyr mutate select
 #' @importFrom tidyr spread
