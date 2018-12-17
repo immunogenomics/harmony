@@ -35,7 +35,7 @@ arma::uvec std_setdiff(const arma::uvec x, const arma::uvec& y) {
 // Overload pow to work on a matrix and vector
 mat pow(mat A, const vec & T) {
   for (int c = 0; c < A.n_cols; c++) {
-      A.col(c) = pow(A.col(c), as_scalar(T.row(c)));
+    A.col(c) = pow(A.col(c), as_scalar(T.row(c)));
   }
   return(A);
 }
@@ -56,8 +56,8 @@ mat fuzzy_kmeans(const mat & X, float sigma, const int K, int max_iter = 20,
   cosine_normalize(Y, 0, false); // normalize columns
   vector<float> objective;
   
-//  Y.print("Y: ");
-//  R.print("R: ");
+  //  Y.print("Y: ");
+  //  R.print("R: ");
   
   for (int iter = 0; iter < max_iter; iter++) {
     
@@ -68,7 +68,7 @@ mat fuzzy_kmeans(const mat & X, float sigma, const int K, int max_iter = 20,
     
     float kmeans_error = as_scalar(accu(R % (2 * (1 - (Y.t() * X)))));
     float _entropy = as_scalar(accu(safe_entropy(R)));  
-
+    
     objective.push_back(kmeans_error + sigma * _entropy);    
     float obj_old = objective[objective.size() - 2];
     float obj_new = objective[objective.size() - 1];
@@ -93,19 +93,19 @@ mat merge_R(const mat & R, float thresh = 0.8) {
   for (int i = 0; i < K - 1; i++) {
     for (int j = i + 1; j < K; j++) {
       if (cor_res(i, j) > thresh) {
-          new_idx = min(equiv_classes(i), equiv_classes(j));
-          equiv_classes(i) = new_idx;
-          equiv_classes(j) = new_idx;
+        new_idx = min(equiv_classes(i), equiv_classes(j));
+        equiv_classes(i) = new_idx;
+        equiv_classes(j) = new_idx;
       }
     }
   }
-
+  
   // sum over equivalence classes
   uvec uclasses = unique(equiv_classes);
   mat R_new = zeros<mat>(uclasses.n_elem, R.n_cols); 
   for (int i = 0; i < R_new.n_rows; i++) {
-      uvec idx = find(equiv_classes == uclasses(i)); 
-      R_new.row(i) = sum(R.rows(idx), 0);
+    uvec idx = find(equiv_classes == uclasses(i)); 
+    R_new.row(i) = sum(R.rows(idx), 0);
   }
   
   return R_new;

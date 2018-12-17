@@ -1,1 +1,0 @@
-loadModule("harmony_module", TRUE)
