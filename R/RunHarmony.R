@@ -59,7 +59,7 @@ RunHarmony <- function(object,
   }
   if (missing(dims.use)) {
     dims.use <- 1:ncol(object[["pca"]])        
-  } else if (!all(dims.use %in% 1:length(names(aa_myeloid[['pca']])))) {
+  } else if (!all(dims.use %in% 1:length(names(object[['pca']])))) {
     stop("Trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs.")        
   }
   
@@ -81,7 +81,8 @@ RunHarmony <- function(object,
   message(glue("Using top {length(dims.use)} PCs"))    
   
   if (!is.null(group.by.secondary)) {
-    batches_secondary <- object$group.by.secondary
+    
+    batches_secondary <- object@meta.data[,group.by.secondary]
   } else {
     batches_secondary <- NULL
   }
@@ -93,7 +94,7 @@ RunHarmony <- function(object,
                                 burn.in.time, plot_convergence)
   
   rownames(harmonyEmbed) <- colnames(object)
-  colnames(harmonyEmbed) <- glue("harmony_{1:ncol(harmonyEmbed)}")
+  colnames(harmonyEmbed) <- glue("harmony_{1:ncol(harmonyEmbed)}") %>% as.character()
   
   harmonydata <- CreateDimReducObject(embeddings = harmonyEmbed, assay = assay.use, key="harmony")
   object[[reduction.save]] <- harmonydata
