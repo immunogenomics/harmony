@@ -202,3 +202,90 @@ RunHarmony.seurat <- function(object,
 
   return(object)
 }
+
+#' @rdname RunHarmony
+#' @method RunHarmony SingleCellExperiment
+#' @return
+#' @export
+RunHarmony.SingleCellExperiment <- function(object,
+                                            group.by,
+                                            dims.use,
+                                            group.by.secondary = NULL,
+                                            theta = 1,
+                                            theta2 = 1,
+                                            sigma = 0.1,
+                                            alpha = .1,
+                                            nclust = 100,
+                                            tau = 0,
+                                            block.size = 0.05,
+                                            max.iter.harmony = 10,
+                                            max.iter.cluster = 200,
+                                            epsilon.cluster = 1e-5,
+                                            epsilon.harmony = 1e-4,
+                                            burn.in.time = 10,
+                                            plot_convergence = FALSE) {
+  ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results.
+  ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))
+  
+  
+  if (!"PCA" %in% reducedDimNames(object)) {
+    stop("PCA must be computed before running Harmony.")
+  }
+  if (missing(dims.use)) {
+    dims.use <- 1:ncol(reducedDim(object, "PCA"))
+  } else if (!all(dims.use %in% 1:ncol(reducedDim(object, "PCA")))) {
+    stop("Trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs.")
+  }
+  
+  if (!group.by %in% colnames(colData(object))) {
+    stop(glue("ERROR: Primary integration variable {group.by} is not in meta.data"))
+  }
+  if (!is.null(group.by.secondary)) {
+    if (!group.by.secondary %in% colnames(colData(object))) {
+      stop(glue("ERROR: Secondary integration variable {group.by.secondary} is not in meta.data"))
+    }
+  }
+  
+  
+  nbatches <- sum(table(colData(object)[[group.by]]) > 10)
+  if (nbatches < 2) {
+    stop("Detected fewer than 2 batches with at least 10 cells each. Did you mean to use a different group.by variable?")
+  }
+  
+  message("Starting harmony")
+  message(glue("Found {nbatches} datasets to integrate"))
+  message(glue("Using top {length(dims.use)} PCs"))
+  
+  if (!is.null(group.by.secondary)) {
+    batches_secondary <- colData(object)[[group.by.secondary]]
+  } else {
+    batches_secondary <- NULL
+  }
+  
+  ce <- reducedDim(x = object,
+                   type = "PCA")
+  
+  harmonyEmbed <- HarmonyMatrix(ce, 
+                                colData(object)[[group.by]], 
+                                batches_secondary,
+                                theta, 
+                                theta2, 
+                                sigma, 
+                                alpha, 
+                                nclust, 
+                                tau, 
+                                block.size, 
+                                max.iter.harmony,
+                                max.iter.cluster, 
+                                epsilon.cluster, 
+                                epsilon.harmony,
+                                burn.in.time, 
+                                plot_convergence)
+  
+  rownames(harmonyEmbed) <- row.names(colData(object))
+  colnames(harmonyEmbed) <- glue("harmony_{1:ncol(harmonyEmbed)}")
+  
+  reducedDim(object, "HARMONY") <- harmonyEmbed
+  
+  return(object)
+}
