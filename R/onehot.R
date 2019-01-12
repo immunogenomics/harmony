@@ -1,4 +1,4 @@
-#' onehot
+#' @title onehot
 #'
 #' @param x 
 #'

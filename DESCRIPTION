@@ -1,15 +1,30 @@
 Package: harmony
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
+Title: An algorithm that projects cells into a shared embedding in which cells group by cell type rather 
+  than dataset-specific conditions and can simultaneously account for multiple experimental and 
+  biological factors.
+Version: 0.0.1.0000
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.4.0), Rcpp, Seurat (>= 3.0), magrittr, glue, tibble, ggplot2, dplyr, tidyr
+Description: https://www.biorxiv.org/content/early/2018/11/04/461954
+Depends: R (>= 3.4.0), 
+  Rcpp, 
+  magrittr, 
+  glue, 
+  tibble, 
+  ggplot2, 
+  dplyr, 
+  tidyr,
+  purrr
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress
-Imports: Rcpp, RcppArmadillo, RcppProgress
+LinkingTo: Rcpp, 
+  RcppArmadillo, 
+  RcppProgress
+Imports: Rcpp, 
+  RcppArmadillo, 
+  RcppProgress
 RoxygenNote: 6.1.1
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    Seurat (>= 2.3), 
 VignetteBuilder: knitr

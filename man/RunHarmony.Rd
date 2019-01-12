@@ -2,15 +2,26 @@
 % Please edit documentation in R/RunHarmony.R
 \name{RunHarmony}
 \alias{RunHarmony}
-\title{Title}
+\alias{RunHarmony.Seurat}
+\alias{RunHarmony.seurat}
+\title{RunHarmony}
 \usage{
-RunHarmony(object, group.by, dims.use, assay.use = "RNA",
+RunHarmony(object, ...)
+
+\method{RunHarmony}{Seurat}(object, group.by, dims.use,
+  assay.use = "RNA", group.by.secondary = NULL, theta = 1,
+  theta2 = 1, sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
+  block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
+  epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
+  burn.in.time = 10, plot_convergence = FALSE,
+  reduction.save = "harmony")
+
+\method{RunHarmony}{seurat}(object, group.by, dims.use,
   group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1,
   alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
   max.iter.harmony = 10, max.iter.cluster = 200,
   epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
-  burn.in.time = 10, plot_convergence = FALSE,
-  reduction.save = "harmony")
+  burn.in.time = 10, plot_convergence = FALSE)
 }
 \arguments{
 \item{object}{Seurat object to harmonize}
@@ -49,6 +60,9 @@ RunHarmony(object, group.by, dims.use, assay.use = "RNA",
 
 \item{reduction.save}{(Default: "harmony")}
 }
+\value{
+
+}
 \description{
-Title
+RunHarmony
 }

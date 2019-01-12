@@ -44,5 +44,5 @@ HarmonyMatrix(pc_mat, batch_labels, batch_labels2 = NULL, theta = 1,
 \item{plot_convergence}{window size for kmeans convergenc}
 }
 \description{
-HarmonyMatrix
+
 }

@@ -1,5 +1,7 @@
-#' HarmonyMatrix
+#' @title HarmonyMatrix
 #'
+#' @description 
+#' 
 #' @param pc_mat 
 #' @param batch_labels 
 #' @param batch_labels2 
