@@ -1,0 +1,11 @@
+language: R
+r:
+  - release
+cache: packages
+sudo: false
+
+os: 
+  - linux
+  - osx
+
+warnings_are_errors: false
