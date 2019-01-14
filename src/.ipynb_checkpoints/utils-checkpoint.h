@@ -1,4 +1,4 @@
-void cosine_normalize(fmat& X, int margin, bool do_safe) {
+void cosine_normalize(MATTYPE& X, int margin, bool do_safe) {
   // to avoid Inf values, first divide by max 
   if (margin == 1) {
     for (int r = 0; r < X.n_rows; r++) {
@@ -16,13 +16,14 @@ void cosine_normalize(fmat& X, int margin, bool do_safe) {
 }
 
 
-fmat safe_entropy(const fmat& X) {
-  fmat A = X % log(X);
+MATTYPE safe_entropy(const MATTYPE& X) {
+  MATTYPE A = X % log(X);
   A.elem(find_nonfinite(A)).zeros();
   return(A);
 }
 
 
+/*
 arma::uvec std_setdiff(const arma::uvec x, const arma::uvec& y) {
   std::vector<int> a = arma::conv_to< std::vector<int> >::from(arma::sort(x));
   std::vector<int> b = arma::conv_to< std::vector<int> >::from(arma::sort(y));
@@ -31,17 +32,18 @@ arma::uvec std_setdiff(const arma::uvec x, const arma::uvec& y) {
                       std::inserter(out, out.end()));
   return arma::conv_to<arma::uvec>::from(out);
 }
+*/
 
-// Overload pow to work on a matrix and vector
-fmat pow(fmat A, const fvec & T) {
+// Overload pow to work on a MATTYPErix and vector
+MATTYPE pow(MATTYPE A, const VECTYPE & T) {
   for (int c = 0; c < A.n_cols; c++) {
       A.col(c) = pow(A.col(c), as_scalar(T.row(c)));
   }
   return(A);
 }
 
-
-fmat fuzzy_kmeans(const fmat & X, float sigma, const int K, int max_iter = 20, 
+/*
+MATTYPE fuzzy_kmeans(const MATTYPE & X, float sigma, const int K, int max_iter = 20, 
                  float converge_thresh = 1e-10) {
   
   // Assume that X is already cosine normalized
@@ -49,8 +51,8 @@ fmat fuzzy_kmeans(const fmat & X, float sigma, const int K, int max_iter = 20,
   
   int d = X.n_rows;
   int N = X.n_cols;
-  fmat Y = zeros<fmat>(d, K);
-  fmat R = zeros<fmat>(K, N);  
+  MATTYPE Y = zeros<MATTYPE>(d, K);
+  MATTYPE R = zeros<MATTYPE>(K, N);  
   uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, K - 1)));
   Y = X.cols(rand_idx);
   cosine_normalize(Y, 0, false); // normalize columns
@@ -59,8 +61,7 @@ fmat fuzzy_kmeans(const fmat & X, float sigma, const int K, int max_iter = 20,
 //  Y.print("Y: ");
 //  R.print("R: ");
   
-  for (int iter = 0; iter < max_iter; iter++) {
-    
+  for (int iter = 0; iter < max_iter; iter++) {    
     R = - (1 / sigma) * 2 * (1 - Y.t() * X);  
     R.each_row() -= max(R, 0);
     R = exp(R);    
@@ -82,9 +83,11 @@ fmat fuzzy_kmeans(const fmat & X, float sigma, const int K, int max_iter = 20,
   return(R);
 }
 
+*/
 
-fmat merge_R(const fmat & R, float thresh = 0.8) {
-  fmat cor_res = cor(R.t());
+
+MATTYPE merge_R(const MATTYPE & R, float thresh = 0.8) {
+  MATTYPE cor_res = cor(R.t());
   int K = R.n_rows;
   
   // define equivalence classes  
@@ -102,12 +105,10 @@ fmat merge_R(const fmat & R, float thresh = 0.8) {
 
   // sum over equivalence classes
   uvec uclasses = unique(equiv_classes);
-  fmat R_new = zeros<fmat>(uclasses.n_elem, R.n_cols); 
+  MATTYPE R_new = zeros<MATTYPE>(uclasses.n_elem, R.n_cols); 
   for (int i = 0; i < R_new.n_rows; i++) {
       uvec idx = find(equiv_classes == uclasses(i)); 
       R_new.row(i) = sum(R.rows(idx), 0);
   }
-  
-  return R_new;
-  
+  return R_new;  
 }

@@ -1,15 +1,19 @@
 Package: harmony
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-Depends: R (>= 3.4.0), Rcpp
+Title: Fast, sensitive, and accurate integration of single cell data
+Version: 0.1.0
+Author: Ilya Korsunsky [aut]
+Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
+Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function, interfaces to external frameworks, and utility functions to help assess performance of the integration. 
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress
-Imports: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.0.1
-Suggests: knitr,
-    rmarkdown
-VignetteBuilder: knitr
+Depends: R (>= 3.4.0)
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+Imports: 
+  dplyr, 
+  tidyr,
+  Rcpp
+Suggests: 
+  ggplot2,
+  Seurat

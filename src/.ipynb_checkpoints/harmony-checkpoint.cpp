@@ -6,31 +6,38 @@
 harmony::harmony(int __K): K(__K) {}
 
 
-void harmony::setup(fmat& Z_new, fmat& Phi_new, 
-                        float __sigma, float __theta, int __max_iter_kmeans, 
-                        float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
-                        float __alpha, int __K, float tau, float __block_size, 
-                        frowvec& w_new, bool __correct_with_cosine, vector<bool> batch_mask_new, int __window_size) {
+void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
+                float __sigma, VECTYPE __theta, int __max_iter_kmeans, 
+                float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
+                float __alpha, int __K, float tau, float __block_size, 
+//                ROWVECTYPE& __w, 
+                bool __correct_with_cosine, 
+                int __window_size, MATTYPE __lambda) {
   
   correct_with_cosine = __correct_with_cosine;
   if (correct_with_cosine)
-    cosine_normalize(Z_new, 0, false); // normalize columns
+    cosine_normalize(__Z, 0, false); // normalize columns
   
-  Z_corr = fmat(Z_new);
-  Z_orig = fmat(Z_new);
+  Z_corr = MATTYPE(__Z);
+  Z_orig = MATTYPE(__Z);
 
-  Phi = Phi_new;
+//  Phi_moe = Phi_moe_new;
+  Phi = __Phi;
+  Phi_moe = ones<MATTYPE>(Phi.n_rows + 1, Phi.n_cols); // same as Phi plus an intercept term
+  Phi_moe.rows(1, Phi_moe.n_rows - 1) = Phi;
   N = Z_corr.n_cols;
-  N_b = sum(Phi, 1);
-  Pr_b = N_b / N;
+//  N_b = sum(Phi, 1);
+//  Pr_b = N_b / N;
+  Pr_b = __Pr_b;
   B = Phi.n_rows;
   d = Z_corr.n_rows; 
-  w = w_new;
+//  w = __w;
   window_size = __window_size;
   epsilon_kmeans = __epsilon_kmeans;
   epsilon_harmony = __epsilon_harmony;
+
   
-  batch_mask = batch_mask_new; // For the special case where some batches won't be corrected
+  lambda = __lambda;
   
   sigma = __sigma;
   block_size = __block_size;
@@ -41,46 +48,36 @@ void harmony::setup(fmat& Z_new, fmat& Phi_new,
   correct_with_Zorig = __correct_with_Zorig;
 
   // map from 
-  for (int b = 0; b < B; b++) {
-    phi_map.push_back(find(Phi.row(b) > 0));
-  }  
+//  for (int b = 0; b < B; b++) {
+//    phi_map.push_back(find(Phi.row(b) > 0));
+//  }
   
-  theta = set_thetas(__theta, tau, N_b);  
+  theta = __theta;
+//  theta = set_thetas(__theta, tau, N_b);  
   allocate_buffers();
   ran_setup = true;
-  do_merge_R = false; // (EXPERIMENTAL) try to merge redundant clusters?
-  do_theta2 = false; // (EXPERIMENTAL) initially this is false
+//  do_merge_R = false; // (EXPERIMENTAL) try to merge redundant clusters?
   init_cluster();  
-}
-
-void harmony::setup_batch2(fmat& Phi2_new, float theta2_new, float tau) {
-  if (theta2_new == 0) return;
-  
-  Phi2 = Phi2_new;
-  N_b2 = sum(Phi2, 1);
-  Pr_b2 = N_b2 / N;
-  B2 = Phi.n_rows;
-  theta2 = set_thetas(theta2_new, tau, N_b2);    
-  E2 = sum(R, 1) * Pr_b2.t();
-  O2 = R * Phi2.t();
-  do_theta2 = true;
-  
 }
 
 
 void harmony::allocate_buffers() {
-  mu_k = zeros<fmat>(d, K); 
-  mu_bk = zeros<fcube>(d, K, B); // nrow, ncol, nslice
-  mu_bk_r = zeros<fmat>(d, N);  
-  mu_k_r = zeros<fmat>(d, N);
-  _scale_dist = zeros<fmat>(K, N);    
-  O = zeros<fmat>(K, B);
-  E = zeros<fmat>(K, B);  
+//  mu_k = zeros<MATTYPE>(d, K); 
+//  mu_bk = zeros<CUBETYPE>(d, K, B); // nrow, ncol, nslice
+//  mu_bk_r = zeros<MATTYPE>(d, N);  
+//  mu_k_r = zeros<MATTYPE>(d, N);
+  _scale_dist = zeros<MATTYPE>(K, N);    
+  __dist = zeros<MATTYPE>(K, N);    
+  O = zeros<MATTYPE>(K, B);
+  E = zeros<MATTYPE>(K, B);  
+  W = zeros<MATTYPE>(B + 1, d); 
+//  W = zeros<CUBETYPE>(B + 1, d, K); // (1+B) x d x K
+  Phi_Rk = zeros<MATTYPE>(B + 1, N);
 }
 
-
-fvec harmony::set_thetas(float theta_max, float tau, fvec& N_b) {
-  fvec res;
+/*
+VECTYPE harmony::set_thetas(float theta_max, float tau, VECTYPE& N_b) {
+  VECTYPE res;
   res.set_size(N_b.n_rows);
   if (tau == 0) {
     res.fill(theta_max);
@@ -92,8 +89,9 @@ fvec harmony::set_thetas(float theta_max, float tau, fvec& N_b) {
   return res;
 //  theta.print("theta: ");
 }
+*/
 
-
+/*
 void harmony::set_R_merge_flag(float merge_thresh_new) {
   merge_thresh_global = merge_thresh_new;
   do_merge_R = true;
@@ -105,7 +103,7 @@ void harmony::update_R_merge() {
   // Y will be updated in first round of clustering
   Rcout << "new K: " << K << endl;
 }
-
+*/
 // BEGIN NUMERICAL METHODS 
 void harmony::harmonize(int iter_harmony) {
   int err_status;
@@ -115,6 +113,7 @@ void harmony::harmonize(int iter_harmony) {
     Rcpp::Function msg("message"); 
     msg(std::string(oss.str()));
     
+    // STEP 1: do clustering
     err_status = cluster();
     if (err_status == -1) {
       Rcout << "terminated by user" << endl;
@@ -123,12 +122,12 @@ void harmony::harmonize(int iter_harmony) {
       break;
     }
     
-    gmm_correct_armadillo();
-
-    // NOTE: this does not work. For now, run all iterations. 
+    // STEP 2: regress out covariates
+    moe_correct_ridge();      
+    
+    // STEP 3: check for convergence
     if (check_convergence(1)) {
       Rcout << "Harmony converged after " << iter + 1 << " iterations\n" << endl;
-//      Rprintf("Converged after %d iterations\n", iter);
       break;
     }    
   }
@@ -157,12 +156,12 @@ void harmony::init_cluster() {
   cosine_normalize(Y, 0, false); // normalize columns
 
   
-  if (correct_with_Zorig)
-    Z_cos = fmat(Z_orig);
-  else 
-    Z_cos = fmat(Z_corr);
+//  if (correct_with_Zorig)
+  Z_cos = MATTYPE(Z_orig);
+//  else 
+//    Z_cos = MATTYPE(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns
-  
+  __dist = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0
   // using a nice property of cosine distance,
   // compute squared distance directly with cross product
   R = - (1 / sigma) * 2 * (1 - (Y.t() * Z_cos));  
@@ -181,41 +180,26 @@ void harmony::init_cluster() {
 
 
 
-
 // TODO: generalize to adaptive sigma values
 // TODO: use cached distance computation from before
 void harmony::compute_objective() {
-  
-  float kmeans_error = as_scalar(accu((R.each_row() % w) % (2 * (1 - (Y.t() * Z_cos)))));
-  float _entropy = as_scalar(accu(safe_entropy(R).each_row() % w));  
-  
+//  float kmeans_error = as_scalar(accu((R.each_row() % w) % (2 * (1 - (Y.t() * Z_cos)))));
+//  float _entropy = as_scalar(accu(safe_entropy(R).each_row() % w));
+//  float kmeans_error = as_scalar(accu(R % (2 * (1 - (Y.t() * Z_cos)))));
+  float kmeans_error = as_scalar(accu(R % __dist));
+  float _entropy = as_scalar(accu(safe_entropy(R)));  
 //  float _cross_entropy = as_scalar(accu(R % log((E / O) * Phi)));   
 //  objective_kmeans.push_back(kmeans_error + sigma * _entropy +
 //                      sigma * theta * _cross_entropy);
-
   float _cross_entropy;
   dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
-  _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
-
-  if (do_theta2) {
-    dir_prior2 = alpha * E2; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
-    _cross_entropy =+ as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta2.t(), K, 1) % log((O2 + dir_prior2) / (E2 + dir_prior2))) * Phi2)));
-    
-  }
-  
-  
-//    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi)));    
-  
-  
-  objective_kmeans.push_back(kmeans_error + sigma * _entropy +
-                      sigma * _cross_entropy);
-
+//  _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+  _cross_entropy = as_scalar(accu(R % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+  //    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi))); 
+  objective_kmeans.push_back(kmeans_error + sigma * _entropy + sigma * _cross_entropy);
   objective_kmeans_dist.push_back(kmeans_error);
   objective_kmeans_entropy.push_back(sigma * _entropy); 
   objective_kmeans_cross.push_back(sigma * _cross_entropy);
-  
-//  Rcout << "OBJ: " << kmeans_error + sigma * _entropy + sigma * _cross_entropy << endl;
-  
 }
 
 
@@ -259,26 +243,30 @@ int harmony::cluster() {
     return -1;
   }
   int err_status = 0;
+  int iter; 
   Progress p(max_iter_kmeans, true);
   
-  int iter; 
-//  Rcout << "max iter kmeans: " << max_iter_kmeans << endl;
+  __dist = 2 * (1 - Y.t() * Z_cos); // Z_cos was changed
   for (iter = 0; iter < max_iter_kmeans; iter++) {    
     p.increment();
     if (Progress::check_abort())
       return(-1);
-  
-//    Y = Z_cos * R.t();
-    Y = Z_cos * (R.each_row() % w).t();
-    cosine_normalize(Y, 2, true);
+
+    // STEP 1: Update Y
+//    Y = Z_cos * (R.each_row() % w).t();
+    Y = Z_cos * R.t();
+    cosine_normalize(Y, 0, true);
+    __dist = 2 * (1 - Y.t() * Z_cos); // Y was changed
+
+    // STEP 2: Update R
     err_status = compute_R();
     if (err_status != 0) {
       Rcout << "Compute R failed. Exiting from clustering." << endl;
       return err_status;
     }
-    
-    compute_objective();
 
+    // STEP 3: Check for convergence
+    compute_objective();
     if (iter > window_size) {
       bool convergence_status = check_convergence(0); 
       if (convergence_status) {
@@ -294,69 +282,147 @@ int harmony::cluster() {
   return 0;
 }
 
+
+
+
 int harmony::compute_R() {  
   update_order = shuffle(linspace<uvec>(0, N - 1, N));
-
-  // compute distance based scale of R
-  _scale_dist = - (1 / sigma) * 2 * (1 - Y.t() * Z_cos);  
+// compute distance based scale of R
+//  _scale_dist = - (1 / sigma) * 2 * (1 - Y.t() * Z_cos);  
+  _scale_dist = - (1 / sigma) * __dist;
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
-
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   for (int i = 0; i < ceil(1. / block_size); i++) {
     // gather cell updates indices
     int idx_min = i * N * block_size;
     int idx_max = min((int)((i + 1) * N * block_size), N - 1);
-    
     if (idx_min > idx_max) break; // TODO: fix the loop logic so that this never happens
     
     uvec idx_list = linspace<uvec>(0, idx_max - idx_min, idx_max - idx_min + 1);
-    cells_update = update_order.rows(idx_list); // FOR DEBUGGING: using global cells_update vector
-    
-    
+    cells_update = update_order.rows(idx_list); // FOR DEBUGGING: using global cells_update vector    
+
+    // Step 1: remove cells
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
     
-    if (do_theta2) {
-      E2 -= sum(R.cols(cells_update), 1) * Pr_b2.t();
-      O2 -= R.cols(cells_update) * Phi2.cols(cells_update).t();      
-    }
-    
-    R.cols(cells_update) = _scale_dist.cols(cells_update);
-    
+    // Step 2: recompute R for cells
+    R.cols(cells_update) = _scale_dist.cols(cells_update);    
     dir_prior = alpha * E;
     R.cols(cells_update) = R.cols(cells_update) % (pow((E + dir_prior) / (O + dir_prior), theta) * Phi.cols(cells_update));
-    if (do_theta2) {
-      dir_prior2 = alpha * E2;
-      R.cols(cells_update) = R.cols(cells_update) % (pow((E2 + dir_prior2) / (O2 + dir_prior2), theta2) * Phi2.cols(cells_update));
-    }
-    
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
 
+    // Step 3: put cells back 
     E += sum(R.cols(cells_update), 1) * Pr_b.t();
     O += R.cols(cells_update) * Phi.cols(cells_update).t();   
-
-    if (do_theta2) {
-      E2 += sum(R.cols(cells_update), 1) * Pr_b2.t();
-      O2 += R.cols(cells_update) * Phi2.cols(cells_update).t();      
-    }
     
   }
   return 0;
 }
 
 
+void harmony::moe_correct_ridge() {
+  Z_corr = Z_orig;
+  for (int k = 0; k < K; k++) { 
+    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();    
+    // do not remove the intercept 
+    W.row(0).zeros(); 
+    Z_corr -= W.t() * Phi_Rk;
+  }
+  
+  Z_cos = MATTYPE(Z_corr);
+  cosine_normalize(Z_cos, 0, true); // normalize columns
+}
 
+
+
+/*
+void harmony::moe_correct_ridge() {
+  // here, we model both an intercept and one-hot 
+  // we overcome singularity by putting a ridge-regression penalty on the non-intercept terms
+//  W = zeros<CUBETYPE>(Phi_moe.n_rows, Z_orig.n_rows, K); // (1+B) x d x K
+  for (int k = 0; k < K; k++) { 
+    W.slice(k) = inv(Phi_moe * diagmat(R.row(k)) * Phi_moe.t() + lambda) * Phi_moe * diagmat(R.row(k)) * Z_orig.t();
+  }
+
+  // (3) remove batch effects from each row, one at a time 
+  for (int d = 0; d < Z_orig.n_rows; d++) {
+    MATTYPE W_sub = W.subcube(1, d, 0, W.n_rows - 1, d, W.n_slices - 1); // can we just use .col(d)? 
+    Z_corr.row(d) = Z_orig.row(d) - sum(R % (W_sub.t() * Phi_moe.rows(1, Phi_moe.n_rows - 1)), 0);
+  }
+
+  Z_cos = MATTYPE(Z_corr);
+  cosine_normalize(Z_cos, 0, true); // normalize columns
+}
+*/
+
+/*
+void harmony::moe_correct_onehot() {
+  // (1) constrain the means of every cell to the batch-agnostic centroids
+//  mu_k = Z_orig * (R.each_row() % w).t(); // d x K   
+//  mu_k *= diagmat(1 / sum((R.each_row() % w), 1)); // divide by the effective number of cells in each cluster
+  mu_k = Z_orig * R.t(); // d x K   
+  mu_k *= diagmat(1 / sum(R, 1)); // divide by the effective number of cells in each cluster
+  mu_k_r = mu_k * R; // expected location of each cell (by cluster mixture) d * N    
+  
+  
+  // (2) model the differences of y = Z - mu with batch variables and residuals
+  MATTYPE y = Z_orig - mu_k_r;
+  W = zeros<CUBETYPE>(Phi.n_rows, Z_orig.n_rows, K); // B x d x K
+  for (int k = 0; k < K; k++) { 
+    W.slice(k) = inv(Phi * diagmat(R.row(k)) * Phi.t()) * Phi * diagmat(R.row(k)) * y.t();
+  }
+
+  // (3) remove batch effects from each row, one at a time 
+  for (int d = 0; d < Z_orig.n_rows; d++) {
+    MATTYPE W_sub = W.subcube(0, d, 0, W.n_rows - 1, d, W.n_slices - 1); // can we just use .col(d)? 
+    Z_corr.row(d) = Z_orig.row(d) - sum(R % (W_sub.t() * Phi), 0);
+  }
+
+  Z_cos = MATTYPE(Z_corr);
+  cosine_normalize(Z_cos, 0, true); // normalize columns
+}
+*/
+
+
+/*
+void harmony::moe_correct_contrast() {  
+  // (1) model the Z directly
+  W = zeros<CUBETYPE>(Phi_moe.n_rows, Z_orig.n_rows, K); // B x d x K
+  for (int k = 0; k < K; k++) { 
+    W.slice(k) = inv(Phi_moe * diagmat(R.row(k)) * Phi_moe.t()) * Phi_moe * diagmat(R.row(k)) * Z_orig.t();
+  }
+
+  // (2) remove batch effects from each row, one at a time 
+  // NOTE: first row of W is intercept, which we do not remove as batch effect
+  for (int d = 0; d < Z_orig.n_rows; d++) {
+    MATTYPE W_sub = W.subcube(1, d, 0, W.n_rows - 1, d, W.n_slices - 1);
+    Z_corr.row(d) = Z_orig.row(d) - sum(R % (W_sub.t() * Phi_moe.rows(1, Phi_moe.n_rows - 1)), 0);
+  }
+
+  Z_cos = MATTYPE(Z_corr);
+  cosine_normalize(Z_cos, 0, true); // normalize columns  
+}
+*/
+
+
+
+
+/*    
 // This method operates in Euclidean PCA space (no cosine normalization)
 void harmony::gmm_correct_armadillo() {  
   if (correct_with_Zorig) {
-    mu_k = Z_orig * (R.each_row() % w).t(); // d x K    
+//    mu_k = Z_orig * (R.each_row() % w).t(); // d x K    
+    mu_k = Z_orig * R.t(); // d x K    
   } else {
-    mu_k = Z_corr * (R.each_row() % w).t(); // d x K    
+//    mu_k = Z_corr * (R.each_row() % w).t(); // d x K    
+    mu_k = Z_corr * R.t(); // d x K    
   }
   
-  mu_k *= diagmat(1 / sum((R.each_row() % w), 1)); // divide by the effective number of cells in each cluster
+//  mu_k *= diagmat(1 / sum((R.each_row() % w), 1)); // divide by the effective number of cells in each cluster
+  mu_k *= diagmat(1 / sum(R, 1)); // divide by the effective number of cells in each cluster
   mu_k_r = mu_k * R; // expected location of each cell (by cluster mixture) d * N    
 
   // Assumes that all cells within a batch have equal weight
@@ -384,9 +450,11 @@ void harmony::gmm_correct_armadillo() {
   else 
     Z_corr = Z_corr - mu_bk_r + mu_k_r;
     
-  Z_cos = fmat(Z_corr);
+  Z_cos = MATTYPE(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns  
 }
+*/
+
 
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
@@ -397,10 +465,9 @@ RCPP_MODULE(harmony_module) {
   .field("Z_cos", &harmony::Z_cos)  
   .field("R", &harmony::R)  
   .field("Y", &harmony::Y)  
-  .field("Phi", &harmony::Phi)    
-  .field("Phi2", &harmony::Phi2)    
+  .field("Phi", &harmony::Phi)        
+  .field("Phi_moe", &harmony::Phi_moe)
   .field("Pr_b", &harmony::Pr_b)    
-  .field("Pr_b2", &harmony::Pr_b2)    
   .field("objective_kmeans", &harmony::objective_kmeans)
   .field("objective_kmeans_dist", &harmony::objective_kmeans_dist)
   .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
@@ -411,44 +478,38 @@ RCPP_MODULE(harmony_module) {
   .field("N", &harmony::N)
   .field("K", &harmony::K)
   .field("B", &harmony::B)
-  .field("B2", &harmony::B2)
   .field("d", &harmony::d)
-  .field("w", &harmony::w)
-    
-
+//  .field("w", &harmony::w)
+  .field("W", &harmony::W)
   .field("max_iter_kmeans", &harmony::max_iter_kmeans)
 
   .field("sigma", &harmony::sigma)
   .field("theta", &harmony::theta)
-  .field("theta2", &harmony::theta2)
   .field("alpha", &harmony::alpha)
+  .field("lambda", &harmony::lambda)
   .field("O", &harmony::O) 
   .field("E", &harmony::E)    
-  .field("O2", &harmony::O2)    
-  .field("E2", &harmony::E2)    
-  .field("R_list", &harmony::R_list)    
   .field("update_order", &harmony::update_order)    
   .field("cells_update", &harmony::cells_update)    
   .field("kmeans_rounds", &harmony::kmeans_rounds)    
   .field("epsilon_kmeans", &harmony::epsilon_kmeans)    
-  .field("epsilon_harmony", &harmony::epsilon_harmony)    
-
-
+  .field("epsilon_harmony", &harmony::epsilon_harmony)
     
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
-  .method("setup_batch2", &harmony::setup_batch2)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
-  .method("set_thetas", &harmony::set_thetas)
-  .method("set_R_merge_flag", &harmony::set_R_merge_flag)
-  .method("update_R_merge", &harmony::update_R_merge)
+//  .method("set_thetas", &harmony::set_thetas)
+//  .method("set_R_merge_flag", &harmony::set_R_merge_flag)
+//  .method("update_R_merge", &harmony::update_R_merge)
   .method("cluster", &harmony::cluster)
-  .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
+//  .method("gmm_correct_armadillo", &harmony::gmm_correct_armadillo)   
+//  .method("moe_correct_onehot", &harmony::moe_correct_onehot)   
+  .method("moe_correct_ridge", &harmony::moe_correct_ridge)   
+//  .method("moe_correct_ridge2", &harmony::moe_correct_ridge2)   
+//  .method("moe_correct_ridge3", &harmony::moe_correct_ridge3)
   .method("compute_objective", &harmony::compute_objective)
   .method("compute_R", &harmony::compute_R)
-
-    
     
   ;
 }
