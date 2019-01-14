@@ -15,17 +15,17 @@ install_github("immunogenomics/harmony")
 
 # Getting Started
 
-Try out Harmony on your single cell dataset! If you already have PCA embeddings for your cells and a vector that defines some batch you want to integrate over, Harmony will do the rest: 
+Try out Harmony on your single cell dataset! If you already have PCA embeddings for your cells and a meta data table with the variable *dataset* defined, Harmony will do the rest: 
 
 ```
 library(harmony)
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, my_batch_vector)
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset")
 ```
 
 Now your cell embeddings will be less dependent on your batch variable. Do you want to align the data even more? Consider increasing the alignment parameter: 
 
 ```
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, my_batch_vector, theta = 4)
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", theta = 4)
 ```
 
 ## Harmony in a Seurat workflow
@@ -38,11 +38,31 @@ If you already have a Seurat workflow for analyzing your single cell data, check
 [Aligning 10X PBMCs](https://github.com/immunogenomics/harmony/blob/master/vignettes/Seurat.ipynb)
 
 This vignette is based on the original in [Seurat](https://satijalab.org/seurat/pbmc3k_tutorial.html)
+
 ## Harmony with two or more covariates
 
-Coming soon!
+Harmony is able to integrate over multiple covariates. The workflow is the same as above. All you need to do is specify the covariates to integrate. 
 
-This section will show you how to align cells from donors and tissues at the same time. 
+```
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"))
+```
+
+Again, if you'd like to integrate one of the variables even more, try increasing theta for that variable. Below, we leave theta=2 for *dataset* and *donor* and ratchet theta up to 4 for *batch_id*. 
+
+```
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"), theta = c(2, 2, 4))
+```
+
+You can also specify multiple covariates in your Seurat analysis pipeline: 
+
+```
+seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
+```
+
+
+## Harmony with numerical covariates 
+
+Harmony will soon be able to correct for read depth, cell cycle state, and other non-categorical variables. 
 
 
 
