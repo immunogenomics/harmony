@@ -17,6 +17,7 @@ using namespace std;
 class harmony;
 RCPP_EXPOSED_CLASS(harmony)
 
+  
 #include "harmony_types.h"
 
 class harmony { 
@@ -39,7 +40,7 @@ class harmony {
     void moe_correct_ridge();
     void init_cluster();
     int cluster();
-    
+
     void allocate_buffers();
     void compute_objective(); 
     int compute_R();
@@ -61,7 +62,7 @@ class harmony {
     float sigma, block_size, alpha, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
     int N, K, B, d, max_iter_kmeans, window_size; 
     bool correct_with_Zorig, correct_with_cosine;
-    
+  
     // buffers
     MATTYPE _scale_dist, __dist, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
     uvec update_order, cells_update;

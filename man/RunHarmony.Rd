@@ -4,6 +4,7 @@
 \alias{RunHarmony}
 \alias{RunHarmony.Seurat}
 \alias{RunHarmony.seurat}
+\alias{RunHarmony.SingleCellExperiment}
 \title{RunHarmony}
 \usage{
 RunHarmony(object, ...)
@@ -17,6 +18,13 @@ RunHarmony(object, ...)
   reduction.save = "harmony")
 
 \method{RunHarmony}{seurat}(object, group.by, dims.use,
+  group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1,
+  alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
+  max.iter.harmony = 10, max.iter.cluster = 200,
+  epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
+  burn.in.time = 10, plot_convergence = FALSE)
+
+\method{RunHarmony}{SingleCellExperiment}(object, group.by, dims.use,
   group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1,
   alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
   max.iter.harmony = 10, max.iter.cluster = 200,

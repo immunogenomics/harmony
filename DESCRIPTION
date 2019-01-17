@@ -1,16 +1,14 @@
 Package: harmony
-Title: An algorithm that projects cells into a shared embedding in which cells group by cell type rather 
-  than dataset-specific conditions and can simultaneously account for multiple experimental and 
-  biological factors.
-Version: 0.0.1.0000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: https://www.biorxiv.org/content/early/2018/11/04/461954
+Title: Fast, sensitive, and accurate integration of single cell data
+Version: 0.1.0
+Authors@R: person("Korsunsky", "Ilya", email = "ilya.korsunsky@gmail.com", role = c("aut", "cre"))
+Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
+Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function, interfaces to external frameworks, and utility functions to help assess performance of the integration. 
 Depends: R (>= 3.4.0), 
   Rcpp, 
   magrittr, 
   glue, 
-  tibble, 
-  ggplot2, 
+  tibble,
   dplyr, 
   tidyr,
   purrr
@@ -24,7 +22,9 @@ Imports: Rcpp,
   RcppArmadillo, 
   RcppProgress
 RoxygenNote: 6.1.1
-Suggests: knitr,
-    rmarkdown,
-    Seurat (>= 2.3), 
+Suggests: 
+  ggplot2,
+  knitr,
+  rmarkdown,
+  Seurat (>= 2.3), 
 VignetteBuilder: knitr

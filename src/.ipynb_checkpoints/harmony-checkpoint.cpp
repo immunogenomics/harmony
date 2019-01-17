@@ -44,9 +44,9 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   K = __K;
   alpha = __alpha;
   max_iter_kmeans = __max_iter_kmeans;
-  //  converge_thresh = __converge_thresh;
+//  converge_thresh = __converge_thresh;
   correct_with_Zorig = __correct_with_Zorig;
-  
+
   // map from 
 //  for (int b = 0; b < B; b++) {
 //    phi_map.push_back(find(Phi.row(b) > 0));
@@ -87,7 +87,7 @@ VECTYPE harmony::set_thetas(float theta_max, float tau, VECTYPE& N_b) {
     }
   }
   return res;
-  //  theta.print("theta: ");
+//  theta.print("theta: ");
 }
 */
 
@@ -148,13 +148,13 @@ void harmony::init_cluster() {
   Y.fill(0);
   for (int b = 0; b < B; b++) {
     uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
-    //    Rcout << "batch " << b << ": " << q.n_elem << endl;
+//    Rcout << "batch " << b << ": " << q.n_elem << endl;
     uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
     Y += Z_corr.cols(q.elem(rand_idx));
   }
   Y /= B;  
   cosine_normalize(Y, 0, false); // normalize columns
-  
+
   
 //  if (correct_with_Zorig)
   Z_cos = MATTYPE(Z_orig);
@@ -168,7 +168,7 @@ void harmony::init_cluster() {
   R.each_row() -= max(R, 0);  
   R = exp(R);
   R.each_row() /= sum(R, 0);
-  
+
   E = sum(R, 1) * Pr_b.t();
   O = R * Phi.t();
   
@@ -207,31 +207,32 @@ void harmony::compute_objective() {
 bool harmony::check_convergence(int type) {
   float obj_new, obj_old;
   switch (type) {
-  case 0: 
-    // Clustering 
-    // compute new window mean
-    obj_old = 0;
-    obj_new = 0;
-    for (int i = 0; i < window_size; i++) {
-      obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
-      obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
-    }
-    if (-(obj_new - obj_old) / obj_old < epsilon_kmeans) {
-      //        Rcout << "kmeans old: " << obj_old << ", new: " << obj_new << ", diff: " << -(obj_new - obj_old) / obj_old << endl;
-      return(true); 
-    } else {
-      return(false);
-    }
-  case 1:
-    // Harmony
-    obj_old = objective_harmony[objective_harmony.size() - 2];
-    obj_new = objective_harmony[objective_harmony.size() - 1];
-    if (-(obj_new - obj_old) / obj_old < epsilon_harmony) {
-      return(true);              
-    } else {
-      return(false);              
-    }
+    case 0: 
+      // Clustering 
+      // compute new window mean
+      obj_old = 0;
+      obj_new = 0;
+      for (int i = 0; i < window_size; i++) {
+        obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
+        obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
+      }
+      if (-(obj_new - obj_old) / obj_old < epsilon_kmeans) {
+//        Rcout << "kmeans old: " << obj_old << ", new: " << obj_new << ", diff: " << -(obj_new - obj_old) / obj_old << endl;
+        return(true); 
+      } else {
+        return(false);
+      }
+    case 1:
+      // Harmony
+      obj_old = objective_harmony[objective_harmony.size() - 2];
+      obj_new = objective_harmony[objective_harmony.size() - 1];
+      if (-(obj_new - obj_old) / obj_old < epsilon_harmony) {
+        return(true);              
+      } else {
+        return(false);              
+      }
   }
+  
 }
 
 
@@ -269,7 +270,7 @@ int harmony::cluster() {
     if (iter > window_size) {
       bool convergence_status = check_convergence(0); 
       if (convergence_status) {
-        //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
+//        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
         iter++;
         Rcout << "Clustered for " << iter << " iterations" << endl;
         break;        
@@ -423,7 +424,7 @@ void harmony::gmm_correct_armadillo() {
 //  mu_k *= diagmat(1 / sum((R.each_row() % w), 1)); // divide by the effective number of cells in each cluster
   mu_k *= diagmat(1 / sum(R, 1)); // divide by the effective number of cells in each cluster
   mu_k_r = mu_k * R; // expected location of each cell (by cluster mixture) d * N    
-  
+
   // Assumes that all cells within a batch have equal weight
   for (int b = 0; b < Phi.n_rows; b++) {
     uvec q = find(Phi.row(b) == 1); 
@@ -434,7 +435,7 @@ void harmony::gmm_correct_armadillo() {
       mu_k_r.cols(q).zeros();
       continue;
     }
-    
+        
     if (correct_with_Zorig)
       mu_bk.slice(b) = Z_orig.cols(q) * R.cols(q).t();
     else 
@@ -458,7 +459,7 @@ void harmony::gmm_correct_armadillo() {
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
   .constructor<int>()
-  
+    
   .field("Z_corr", &harmony::Z_corr)  
   .field("Z_orig", &harmony::Z_orig)  
   .field("Z_cos", &harmony::Z_cos)  
@@ -472,8 +473,8 @@ RCPP_MODULE(harmony_module) {
   .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
   .field("objective_kmeans_cross", &harmony::objective_kmeans_cross)    
   .field("objective_harmony", &harmony::objective_harmony)
-  
-  
+    
+    
   .field("N", &harmony::N)
   .field("K", &harmony::K)
   .field("B", &harmony::B)
@@ -481,7 +482,7 @@ RCPP_MODULE(harmony_module) {
 //  .field("w", &harmony::w)
   .field("W", &harmony::W)
   .field("max_iter_kmeans", &harmony::max_iter_kmeans)
-  
+
   .field("sigma", &harmony::sigma)
   .field("theta", &harmony::theta)
   .field("alpha", &harmony::alpha)
@@ -512,3 +513,10 @@ RCPP_MODULE(harmony_module) {
     
   ;
 }
+
+
+
+
+
+
+
