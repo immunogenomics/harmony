@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/milescsmith/harmony.svg?branch=master)](https://travis-ci.com/milescsmith/harmony)
 # Harmony
 
 Check out the latest preprint of Harmony on [bioRxiv](https://www.biorxiv.org/content/early/2018/11/04/461954)
