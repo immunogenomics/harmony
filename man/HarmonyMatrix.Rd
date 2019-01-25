@@ -4,42 +4,16 @@
 \alias{HarmonyMatrix}
 \title{HarmonyMatrix}
 \usage{
-HarmonyMatrix(pc_mat, batch_labels, batch_labels2 = NULL, theta = 1,
-  theta2 = 1, sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
+HarmonyMatrix(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
+  sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
   block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
   epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
-  burn.in.time = 10, plot_convergence = FALSE)
+  burn.in.time = 10, plot_convergence = FALSE, return_object = FALSE)
 }
 \arguments{
-\item{pc_mat}{}
-
-\item{batch_labels}{}
-
-\item{batch_labels2}{}
-
-\item{theta}{}
-
-\item{theta2}{}
-
-\item{sigma}{}
-
 \item{alpha}{strength of dirichlet prior for DKL penalty}
 
-\item{nclust}{}
-
 \item{tau}{desired cells/cluster}
-
-\item{block.size}{}
-
-\item{max.iter.harmony}{}
-
-\item{max.iter.cluster}{}
-
-\item{epsilon.cluster}{}
-
-\item{epsilon.harmony}{}
-
-\item{burn.in.time}{}
 
 \item{plot_convergence}{window size for kmeans convergenc}
 }

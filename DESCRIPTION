@@ -11,7 +11,8 @@ Depends: R (>= 3.4.0),
   tibble,
   dplyr, 
   tidyr,
-  purrr
+  purrr,
+  Hmisc
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true

@@ -9,42 +9,38 @@
 \usage{
 RunHarmony(object, ...)
 
-\method{RunHarmony}{Seurat}(object, group.by, dims.use,
-  assay.use = "RNA", group.by.secondary = NULL, theta = 1,
-  theta2 = 1, sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
-  block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
+\method{RunHarmony}{Seurat}(object, grouping.vars, dims.use,
+  assay.use = "RNA", theta = NULL, lambda = NULL, sigma = 0.1,
+  alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
+  max.iter.harmony = 10, max.iter.cluster = 200,
   epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
   burn.in.time = 10, plot_convergence = FALSE,
   reduction.save = "harmony")
 
 \method{RunHarmony}{seurat}(object, group.by, dims.use,
-  group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1,
-  alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
-  max.iter.harmony = 10, max.iter.cluster = 200,
+  group.by.secondary = NULL, theta = NULL, lambda = NULL,
+  sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
+  block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
   epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
   burn.in.time = 10, plot_convergence = FALSE)
 
-\method{RunHarmony}{SingleCellExperiment}(object, group.by, dims.use,
-  group.by.secondary = NULL, theta = 1, theta2 = 1, sigma = 0.1,
-  alpha = 0.1, nclust = 100, tau = 0, block.size = 0.05,
-  max.iter.harmony = 10, max.iter.cluster = 200,
-  epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
-  burn.in.time = 10, plot_convergence = FALSE)
+\method{RunHarmony}{SingleCellExperiment}(object, grouping.vars, dims.use,
+  theta = NULL, lambda = NULL, sigma = 0.1, alpha = 0.1,
+  nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10,
+  max.iter.cluster = 200, epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04, burn.in.time = 10,
+  plot_convergence = FALSE)
 }
 \arguments{
-\item{object}{Seurat object to harmonize}
-
-\item{group.by}{Metadata column to use as a grouping variable when harmonizing}
+\item{object}{Data object to harmonize}
 
 \item{dims.use}{PCA dimensions to use (Default: all available)}
 
 \item{assay.use}{(Default: "RNA")}
 
-\item{group.by.secondary}{Second metadata column to use as a grouping variable}
-
 \item{theta}{}
 
-\item{theta2}{}
+\item{lambda}{}
 
 \item{sigma}{}
 
@@ -67,6 +63,8 @@ RunHarmony(object, ...)
 \item{burn.in.time}{}
 
 \item{reduction.save}{(Default: "harmony")}
+
+\item{grouping.var}{Metadata column(s) to use as a grouping variable when harmonizing}
 }
 \value{
 
