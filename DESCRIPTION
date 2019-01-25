@@ -12,7 +12,9 @@ Depends: R (>= 3.4.0),
   dplyr, 
   tidyr,
   purrr,
-  Hmisc
+  Hmisc,
+  ggplot2,
+  Seurat (>= 2.3),
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -24,8 +26,6 @@ Imports: Rcpp,
   RcppProgress
 RoxygenNote: 6.1.1
 Suggests: 
-  ggplot2,
   knitr,
   rmarkdown,
-  Seurat (>= 2.3), 
 VignetteBuilder: knitr
