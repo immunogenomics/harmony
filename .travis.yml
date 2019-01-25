@@ -9,3 +9,44 @@ os:
   - osx
 
 warnings_are_errors: false
+
+dist: xenial
+
+sudo: required
+
+addons:
+  apt:
+    packages:
+      - libgit2-dev
+      - libhdf5-dev
+      - libtool
+      - libmagick++-dev
+  homebrew:
+    packages:
+      - cmake
+      - gcc
+
+r_packages:
+  - reticulate
+  - parallel
+  - glue
+  - magrittr
+  - Rcpp
+  - RcppArmadillo
+  - RcppProgress
+  - tibble
+  - dplyr 
+  - tidyr
+  - purrr
+  - Hmisc
+  - ggplot2
+  - knitr
+  - rmarkdown
+  
+bioc_packages:
+  - SingleCellExperiment
+  - GenomeInfoDbData
+  - S4Vectors
+  - SummarizedExperiment
+
+Remotes: satijalab/Seurat@release/3.0
