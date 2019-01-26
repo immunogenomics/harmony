@@ -211,7 +211,7 @@ RunHarmony.SingleCellExperiment <- function(object,
   
   harmonyEmbed <- HarmonyMatrix(pc_mat = ce, 
                                 meta_data = colData(object),
-                                vars.use = grouping.vars, 
+                                vars_use = grouping.vars, 
                                 theta = theta, 
                                 lambda = lambda,
                                 sigma = sigma, 
