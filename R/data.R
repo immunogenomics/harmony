@@ -11,4 +11,3 @@
 #'
 #' @source \url{https://www.nature.com/articles/nbt.4042}
 "stim.sparse"
-

@@ -4,10 +4,10 @@
 \alias{HarmonyConvergencePlot}
 \title{HarmonyConvergencePlot}
 \usage{
-HarmonyConvergencePlot(harmonyObj)
+HarmonyConvergencePlot(harmony_obj)
 }
 \arguments{
-\item{harmonyObj}{}
+\item{harmony_obj}{}
 }
 \description{
 HarmonyConvergencePlot

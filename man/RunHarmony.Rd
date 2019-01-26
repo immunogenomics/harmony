@@ -17,12 +17,12 @@ RunHarmony(object, ...)
   burn.in.time = 10, plot_convergence = FALSE,
   reduction.save = "harmony")
 
-\method{RunHarmony}{seurat}(object, group.by, dims.use,
-  group.by.secondary = NULL, theta = NULL, lambda = NULL,
-  sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
-  block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
-  epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
-  burn.in.time = 10, plot_convergence = FALSE)
+\method{RunHarmony}{seurat}(object, grouping.vars, dims.use,
+  theta = NULL, lambda = NULL, sigma = 0.1, alpha = 0.1,
+  nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10,
+  max.iter.cluster = 200, epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04, burn.in.time = 10,
+  plot_convergence = FALSE, reduction.save = "harmony")
 
 \method{RunHarmony}{SingleCellExperiment}(object, grouping.vars, dims.use,
   theta = NULL, lambda = NULL, sigma = 0.1, alpha = 0.1,
@@ -37,30 +37,6 @@ RunHarmony(object, ...)
 \item{dims.use}{PCA dimensions to use (Default: all available)}
 
 \item{assay.use}{(Default: "RNA")}
-
-\item{theta}{}
-
-\item{lambda}{}
-
-\item{sigma}{}
-
-\item{alpha}{}
-
-\item{nclust}{}
-
-\item{tau}{}
-
-\item{block.size}{}
-
-\item{max.iter.harmony}{}
-
-\item{max.iter.cluster}{}
-
-\item{epsilon.cluster}{}
-
-\item{epsilon.harmony}{}
-
-\item{burn.in.time}{}
 
 \item{reduction.save}{(Default: "harmony")}
 

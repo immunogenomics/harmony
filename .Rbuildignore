@@ -1,2 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.yml
+^.*\.Rhistory
+^.*\.RData
+^.*\.ipynb_checkpoints
+^.*\.vscode
