@@ -37,6 +37,7 @@ class harmony {
 //    void gmm_correct_armadillo();
 //    void moe_correct_contrast();
 //    void moe_correct_onehot();
+    void init_clusters_random_balanced();
     void moe_correct_ridge();
     void init_cluster();
     int cluster();
@@ -51,7 +52,7 @@ class harmony {
 
     /* FIELDS */
     MATTYPE R, Z_orig, Z_corr, Z_cos, Y, Phi, Phi_moe; 
-    VECTYPE Pr_b, theta, N_b, sigma;
+    VECTYPE Pr_b, theta, N_b, sigma, sigma_prior;
 //    ROWVECTYPE w;
     MATTYPE lambda; // diagonal MATTYPErix of ridge regression penalties
     vector<float> objective_harmony;
