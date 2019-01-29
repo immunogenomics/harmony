@@ -20,6 +20,8 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   
   Z_corr = MATTYPE(__Z);
   Z_orig = MATTYPE(__Z);
+  Z_cos = MATTYPE(Z_orig);
+  cosine_normalize(Z_cos, 0, true); // normalize columns
 
 //  Phi_moe = Phi_moe_new;
   Phi = __Phi;
@@ -40,6 +42,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   lambda = __lambda;
   
   sigma = __sigma;
+  sigma_prior = __sigma;
   block_size = __block_size;
   K = __K;
   alpha = __alpha;
@@ -57,7 +60,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   allocate_buffers();
   ran_setup = true;
 //  do_merge_R = false; // (EXPERIMENTAL) try to merge redundant clusters?
-  init_cluster();  
+//   init_cluster();  
 }
 
 
@@ -134,8 +137,76 @@ void harmony::harmonize(int iter_harmony) {
 }
 
 
+void harmony::init_clusters_random_balanced() {
+      Y.set_size(d, K);
+      Y.fill(0);
+      for (int b = 0; b < B; b++) {
+        uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
+    //    Rcout << "batch " << b << ": " << q.n_elem << endl;
+        uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
+        Y += Z_corr.cols(q.elem(rand_idx));
+      }
+      Y /= B;     
+}
 
+void harmony::init_cluster() {
+  if (!ran_setup) {
+    Rcout << "ERROR: before initializing cluster, run setup" << endl;
+    return;
+  }
+/* THIS PART IS CURRENTLY IMPLEMENTED IN THE R FRONT-END
 
+  // (1) INITIALIZE CLUSTERS
+  if (init_mode == 0) {
+      // MODE 0: random, batch-balanced
+      Y.set_size(d, K);
+      Y.fill(0);
+      for (int b = 0; b < B; b++) {
+        uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
+    //    Rcout << "batch " << b << ": " << q.n_elem << endl;
+        uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
+        Y += Z_corr.cols(q.elem(rand_idx));
+      }
+      Y /= B; 
+  } else if (init_mode == 1) {
+    // MODE 1: regular kmeans
+    for (int i = 0; i < 10; i++) {
+        kmeans(Y, Z_cos, K, random_subset, 20, true);        
+    }
+  } else if (init_mode == 2) {
+    // MODE 2: regular diagonal gmm (approx spherical covariance)
+    // ... THIS DOESN'T WORK YET 
+      
+//    gmm_diag model;
+//    bool status = model.learn(Z_cos, K, maha_dist, random_subset, 20, 20, 1e-4, false);
+//    sigma = arma::sqrt(arma::mean(model.dcovs, 0).t()); // returns column vector
+  }
+  
+*/
+
+  cosine_normalize(Y, 0, false); // normalize columns
+    
+  // (2) ASSIGN CLUSTER PROBABILITIES
+  // using a nice property of cosine distance,
+  // compute squared distance directly with cross product
+  dist_mat = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0    
+//  R = - (1 / sigma) * 2 * (1 - (Y.t() * Z_cos));  // OLD CODE: sigma was fixed scalar
+  R = - dist_mat;
+  R.each_col() /= sigma;
+  R.each_row() -= max(R, 0);  
+  R = exp(R);
+  R.each_row() /= sum(R, 0);
+
+  // (3) BATCH DIVERSITY STATISTICS
+  E = sum(R, 1) * Pr_b.t();
+  O = R * Phi.t();
+  
+  compute_objective();
+  objective_harmony.push_back(objective_kmeans.back());
+  ran_init = true;
+  
+}
+/*
 void harmony::init_cluster() {
   if (!ran_setup) {
     Rcout << "ERROR: before initializing cluster, run setup" << endl;
@@ -179,6 +250,8 @@ void harmony::init_cluster() {
   ran_init = true;
   
 }
+*/
+
 
 void harmony::compute_objective() {
 //  float kmeans_error = as_scalar(accu((R.each_row() % w) % (2 * (1 - (Y.t() * Z_cos)))));
@@ -288,14 +361,16 @@ int harmony::cluster() {
     cosine_normalize(Y, 0, true);
     dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
-    // STEP 2: Update R
+    // STEP 2: Update Sigma
+      
+    // STEP 3: Update R
     err_status = compute_R(true);
     if (err_status != 0) {
       Rcout << "Compute R failed. Exiting from clustering." << endl;
       return err_status;
     }
 
-    // STEP 3: Check for convergence
+    // STEP 4: Check for convergence
     compute_objective();
     if (iter > window_size) {
       bool convergence_status = check_convergence(0); 
@@ -537,6 +612,7 @@ RCPP_MODULE(harmony_module) {
     
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
+  .method("init_clusters_random_balanced", &harmony::init_clusters_random_balanced)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
 //  .method("set_thetas", &harmony::set_thetas)
