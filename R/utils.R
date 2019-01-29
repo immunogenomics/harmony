@@ -1,13 +1,11 @@
 onehot <- function(x) {
-  res <- data.frame(x)
-  res$id <- row.names(res)
-  res <- res %>%
-    dplyr::mutate(dummy = 1) %>% 
-    tidyr::spread(x, dummy, fill = 0) %>% 
-    dplyr::select(-id) %>%
-    as.matrix
-  return(res)
+    data.frame(x) %>% 
+        tibble::rowid_to_column("id") %>% 
+        dplyr::mutate(dummy = 1) %>% 
+        tidyr::spread(x, dummy, fill = 0) %>% 
+        dplyr::select(-id) %>% as.matrix
 }
+
 
 HarmonyConvergencePlot <- function(harmonyObj) {
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
