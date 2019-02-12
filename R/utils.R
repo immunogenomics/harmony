@@ -41,7 +41,7 @@ HarmonyConvergencePlot <- function(harmonyObj) {
 #' 
 #' @example
 #' 
-HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
+HarmonyMatrix <- function(pc_mat, meta_data, vars_use = NULL, theta = NULL, lambda = NULL,
                           sigma = 0.1, alpha = .1, nclust = 100, tau = 0, 
                           block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
@@ -56,6 +56,19 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     ##    very small batch size and tau=0: suggest tau>0
     ##    is PCA correct? 
   
+    if (!'data.frame' %in% class(meta_data)) {
+        if (length(meta_data) %in% dim(pc_mat)) {
+            meta_data <- data.frame(batch_variable = meta_data)
+            vars_use <- 'batch_variable'
+        } else {
+            stop('meta_data must be either a data.frame or a vector with batch values for each cell.')
+        }
+    }
+
+    if (is.null(vars_use)) {
+        stop('Must provides variables to integrate over (e.g. vars_use="stim")')
+    }
+    
     N <- nrow(meta_data)
     cells_as_cols <- TRUE
     if (ncol(pc_mat) != N) {
@@ -148,7 +161,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, alpha = .1,
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                       burn.in.time = 10, plot_convergence = FALSE, init_mode = "kmeans") {
+                       burn.in.time = 10, plot_convergence = FALSE) {
     ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
     ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
     if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -180,7 +193,7 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
     harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data, group.by.vars, 
                                    theta, lambda, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
                                    max.iter.cluster, epsilon.cluster, epsilon.harmony,
-                                   burn.in.time, plot_convergence, init_mode)
+                                   burn.in.time, plot_convergence, FALSE, 'kmeans')
       
   
     rownames(harmonyEmbed) <- row.names(object@meta.data)
