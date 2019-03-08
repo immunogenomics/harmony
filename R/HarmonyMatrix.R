@@ -41,7 +41,8 @@ HarmonyMatrix <- function(pc_mat,
                           epsilon.harmony = 1e-4,
                           burn.in.time = 10,
                           plot_convergence = FALSE,
-                          return_object = FALSE) {
+                          return_object = FALSE,
+                          init_mode = "kmeans") {
 
   ## TODO: check for
   ##    partially observed batch variables (WARNING)
@@ -50,6 +51,19 @@ HarmonyMatrix <- function(pc_mat,
   ##    if theta given, check correct length
   ##    very small batch size and tau=0: suggest tau>0
   ##    is PCA correct?
+
+  if (!'data.frame' %in% class(meta_data)) {
+      if (length(meta_data) %in% dim(pc_mat)) {
+          meta_data <- data.frame(batch_variable = meta_data)
+          vars_use <- 'batch_variable'
+      } else {
+          stop('meta_data must be either a data.frame or a vector with batch values for each cell.')
+      }
+  }
+
+  if (is.null(vars_use)) {
+      stop('Must provides variables to integrate over (e.g. vars_use="stim")')
+  }
 
   N <- nrow(meta_data)
   cells_as_cols <- TRUE
@@ -67,6 +81,9 @@ HarmonyMatrix <- function(pc_mat,
   }
   if (is.null(lambda)) {
     lambda <- rep(1, length(vars_use))
+  }
+  if (length(sigma) == 1 & nclust > 1) {
+      sigma <- rep(sigma, nclust)
   }
 
   ## Pre-compute some useful statistics
@@ -106,6 +123,13 @@ HarmonyMatrix <- function(pc_mat,
     lambda_mat
   )
 
+  ## initialize clusters with kmeans
+  if (init_mode == "kmeans") {
+      harmonyObj$Y <- t(kmeans(t(harmonyObj$Z_cos), centers = nclust, iter.max = 25, nstart = 10)$centers)        
+  } else if (init_mode == "batch_random") {
+      harmonyObj$init_clusters_random_balanced()
+  }
+  harmonyObj$init_cluster()
 
   harmonyObj$harmonize(max.iter.harmony)
   if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))

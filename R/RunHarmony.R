@@ -89,7 +89,9 @@ RunHarmony.Seurat <- function(object,
     epsilon.cluster = epsilon.cluster,
     epsilon.harmony = epsilon.harmony,
     burn.in.time = burn.in.time,
-    plot_convergence = plot_convergence
+    plot_convergence = plot_convergence,
+    return_object = FALSE,
+    init_mode = 'kmeans'
   )
 
   rownames(harmonyEmbed) <- colnames(object)
@@ -161,7 +163,9 @@ RunHarmony.seurat <- function(object,
     epsilon.cluster = epsilon.cluster,
     epsilon.harmony = epsilon.harmony,
     burn.in.time = burn.in.time,
-    plot_convergence = plot_convergence
+    plot_convergence = plot_convergence,
+    return_object = FALSE,
+    init_mode = 'kmeans'
   )
 
   rownames(harmonyEmbed) <- row.names(object@meta.data)
@@ -236,7 +240,9 @@ RunHarmony.SingleCellExperiment <- function(object,
     epsilon.cluster = epsilon.cluster,
     epsilon.harmony = epsilon.harmony,
     burn.in.time = burn.in.time,
-    plot_convergence = plot_convergence
+    plot_convergence = plot_convergence,
+    return_object = FALSE,
+    init_mode = 'kmeans'
   )
 
   rownames(harmonyEmbed) <- row.names(colData(object))

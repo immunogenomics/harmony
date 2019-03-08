@@ -1,13 +1,11 @@
 onehot <- function(x) {
-  res <- data.frame(x)
-  res$id <- row.names(res)
-  res <- res %>%
-    dplyr::mutate(dummy = 1) %>% 
-    tidyr::spread(x, dummy, fill = 0) %>% 
-    dplyr::select(-id) %>%
-    as.matrix
-  return(res)
+    data.frame(x) %>% 
+        tibble::rowid_to_column("id") %>% 
+        dplyr::mutate(dummy = 1) %>% 
+        tidyr::spread(x, dummy, fill = 0) %>% 
+        dplyr::select(-id) %>% as.matrix
 }
+
 
 HarmonyConvergencePlot <- function(harmonyObj) {
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -43,12 +41,12 @@ HarmonyConvergencePlot <- function(harmonyObj) {
 #' 
 #' @example
 #' 
-HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
+HarmonyMatrix <- function(pc_mat, meta_data, vars_use = NULL, theta = NULL, lambda = NULL,
                           sigma = 0.1, alpha = .1, nclust = 100, tau = 0, 
                           block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                           burn.in.time = 10, plot_convergence = FALSE, 
-                          return_object = FALSE) {
+                          return_object = FALSE, init_mode = "kmeans") {
 
     ## TODO: check for 
     ##    partially observed batch variables (WARNING)
@@ -58,6 +56,19 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     ##    very small batch size and tau=0: suggest tau>0
     ##    is PCA correct? 
   
+    if (!'data.frame' %in% class(meta_data)) {
+        if (length(meta_data) %in% dim(pc_mat)) {
+            meta_data <- data.frame(batch_variable = meta_data)
+            vars_use <- 'batch_variable'
+        } else {
+            stop('meta_data must be either a data.frame or a vector with batch values for each cell.')
+        }
+    }
+
+    if (is.null(vars_use)) {
+        stop('Must provides variables to integrate over (e.g. vars_use="stim")')
+    }
+    
     N <- nrow(meta_data)
     cells_as_cols <- TRUE
     if (ncol(pc_mat) != N) {
@@ -75,6 +86,9 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     if (is.null(lambda)) {
         lambda <- rep(1, length(vars_use))
     }    
+    if (length(sigma) == 1 & nclust > 1) {
+        sigma <- rep(sigma, nclust)
+    }
 
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {t(onehot(meta_data[[var_use]]))}))
@@ -109,7 +123,16 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
         lambda_mat
     )
 
+    ## initialize clusters with kmeans
+    if (init_mode == "kmeans") {
+        harmonyObj$Y <- t(kmeans(t(harmonyObj$Z_cos), centers = nclust, iter.max = 25, nstart = 10)$centers)        
+    } else if (init_mode == "batch_random") {
+        harmonyObj$init_clusters_random_balanced()
+    }
+    harmonyObj$init_cluster()
+
                                
+
     harmonyObj$harmonize(max.iter.harmony)
     if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
     
@@ -170,7 +193,7 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
     harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data, group.by.vars, 
                                    theta, lambda, sigma, alpha, nclust, tau, block.size, max.iter.harmony, 
                                    max.iter.cluster, epsilon.cluster, epsilon.harmony,
-                                   burn.in.time, plot_convergence)
+                                   burn.in.time, plot_convergence, FALSE, 'kmeans')
       
   
     rownames(harmonyEmbed) <- row.names(object@meta.data)
