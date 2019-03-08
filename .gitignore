@@ -3,4 +3,7 @@ inst/doc
 .Rproj.user
 .Rhistory
 config.*
+<<<<<<< HEAD
 .R*
+=======
+>>>>>>> 9b333514e541f9295a6da666bcec4d6668909795
