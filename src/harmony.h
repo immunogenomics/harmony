@@ -24,7 +24,7 @@ class harmony {
     /* CONSTRUCTORS etc */
     harmony(int __K);    
     void setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
-                float __sigma, VECTYPE __theta, int __max_iter_kmeans, 
+                VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 float __alpha, int __K, float tau, float __block_size, 
                 //ROWVECTYPE& w_new, 
@@ -36,13 +36,14 @@ class harmony {
 //    void gmm_correct_armadillo();
 //    void moe_correct_contrast();
 //    void moe_correct_onehot();
+    void init_clusters_random_balanced();
     void moe_correct_ridge();
     void init_cluster();
     int cluster();
     
     void allocate_buffers();
     void compute_objective(); 
-    int compute_R();
+    int compute_R(bool random_order);
     bool check_convergence(int type);
     
 //    void set_R_merge_flag(float merge_thresh_new);
@@ -50,7 +51,7 @@ class harmony {
 
     /* FIELDS */
     MATTYPE R, Z_orig, Z_corr, Z_cos, Y, Phi, Phi_moe; 
-    VECTYPE Pr_b, theta, N_b;
+    VECTYPE Pr_b, theta, N_b, sigma, sigma_prior;
 //    ROWVECTYPE w;
     MATTYPE lambda; // diagonal MATTYPErix of ridge regression penalties
     vector<float> objective_harmony;
@@ -58,12 +59,12 @@ class harmony {
     vector<int> kmeans_rounds; // OLD: Kb
 
 //    vector<uvec> phi_map;
-    float sigma, block_size, alpha, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
+    float block_size, alpha, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
     int N, K, B, d, max_iter_kmeans, window_size; 
     bool correct_with_Zorig, correct_with_cosine;
     
     // buffers
-    MATTYPE _scale_dist, __dist, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
+    MATTYPE _scale_dist, dist_mat, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
     uvec update_order, cells_update;
 //    CUBETYPE W;
 //    MATTYPE mu_k, mu_k_r, mu_bk_r,

@@ -31,7 +31,7 @@ HarmonyConvergencePlot <- function(harmony_obj) {
                          ),
     val = tail(harmony_obj$objective_kmeans, -1)) %>%
     rowid_to_column("idx")
-  ##    data.table(obj_fxn)[, (tail(.SD$val, 1) - head(.SD$val, 1)) / head(.SD$val, 1), by = harmony_idx]
+    
   obj_fxn %>%
     ggplot(aes(x = idx,
                y = val,

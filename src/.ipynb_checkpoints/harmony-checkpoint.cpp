@@ -7,7 +7,7 @@ harmony::harmony(int __K): K(__K) {}
 
 
 void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
-                float __sigma, VECTYPE __theta, int __max_iter_kmeans, 
+                VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
                 float __epsilon_kmeans, float __epsilon_harmony, bool __correct_with_Zorig,
                 float __alpha, int __K, float tau, float __block_size, 
 //                ROWVECTYPE& __w, 
@@ -20,6 +20,8 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   
   Z_corr = MATTYPE(__Z);
   Z_orig = MATTYPE(__Z);
+  Z_cos = MATTYPE(Z_orig);
+  cosine_normalize(Z_cos, 0, true); // normalize columns
 
 //  Phi_moe = Phi_moe_new;
   Phi = __Phi;
@@ -40,6 +42,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   lambda = __lambda;
   
   sigma = __sigma;
+  sigma_prior = __sigma;
   block_size = __block_size;
   K = __K;
   alpha = __alpha;
@@ -57,7 +60,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   allocate_buffers();
   ran_setup = true;
 //  do_merge_R = false; // (EXPERIMENTAL) try to merge redundant clusters?
-  init_cluster();  
+//   init_cluster();  
 }
 
 
@@ -67,7 +70,7 @@ void harmony::allocate_buffers() {
 //  mu_bk_r = zeros<MATTYPE>(d, N);  
 //  mu_k_r = zeros<MATTYPE>(d, N);
   _scale_dist = zeros<MATTYPE>(K, N);    
-  __dist = zeros<MATTYPE>(K, N);    
+  dist_mat = zeros<MATTYPE>(K, N);    
   O = zeros<MATTYPE>(K, B);
   E = zeros<MATTYPE>(K, B);  
   W = zeros<MATTYPE>(B + 1, d); 
@@ -134,8 +137,76 @@ void harmony::harmonize(int iter_harmony) {
 }
 
 
+void harmony::init_clusters_random_balanced() {
+      Y.set_size(d, K);
+      Y.fill(0);
+      for (int b = 0; b < B; b++) {
+        uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
+    //    Rcout << "batch " << b << ": " << q.n_elem << endl;
+        uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
+        Y += Z_corr.cols(q.elem(rand_idx));
+      }
+      Y /= B;     
+}
 
+void harmony::init_cluster() {
+  if (!ran_setup) {
+    Rcout << "ERROR: before initializing cluster, run setup" << endl;
+    return;
+  }
+/* THIS PART IS CURRENTLY IMPLEMENTED IN THE R FRONT-END
 
+  // (1) INITIALIZE CLUSTERS
+  if (init_mode == 0) {
+      // MODE 0: random, batch-balanced
+      Y.set_size(d, K);
+      Y.fill(0);
+      for (int b = 0; b < B; b++) {
+        uvec q = find(Phi.row(b) > 0); // indices of cells belonging to batch (b)
+    //    Rcout << "batch " << b << ": " << q.n_elem << endl;
+        uvec rand_idx = conv_to<uvec>::from(randi(K, distr_param(0, q.n_elem - 1)));
+        Y += Z_corr.cols(q.elem(rand_idx));
+      }
+      Y /= B; 
+  } else if (init_mode == 1) {
+    // MODE 1: regular kmeans
+    for (int i = 0; i < 10; i++) {
+        kmeans(Y, Z_cos, K, random_subset, 20, true);        
+    }
+  } else if (init_mode == 2) {
+    // MODE 2: regular diagonal gmm (approx spherical covariance)
+    // ... THIS DOESN'T WORK YET 
+      
+//    gmm_diag model;
+//    bool status = model.learn(Z_cos, K, maha_dist, random_subset, 20, 20, 1e-4, false);
+//    sigma = arma::sqrt(arma::mean(model.dcovs, 0).t()); // returns column vector
+  }
+  
+*/
+
+  cosine_normalize(Y, 0, false); // normalize columns
+    
+  // (2) ASSIGN CLUSTER PROBABILITIES
+  // using a nice property of cosine distance,
+  // compute squared distance directly with cross product
+  dist_mat = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0    
+//  R = - (1 / sigma) * 2 * (1 - (Y.t() * Z_cos));  // OLD CODE: sigma was fixed scalar
+  R = - dist_mat;
+  R.each_col() /= sigma;
+  R.each_row() -= max(R, 0);  
+  R = exp(R);
+  R.each_row() /= sum(R, 0);
+
+  // (3) BATCH DIVERSITY STATISTICS
+  E = sum(R, 1) * Pr_b.t();
+  O = R * Phi.t();
+  
+  compute_objective();
+  objective_harmony.push_back(objective_kmeans.back());
+  ran_init = true;
+  
+}
+/*
 void harmony::init_cluster() {
   if (!ran_setup) {
     Rcout << "ERROR: before initializing cluster, run setup" << endl;
@@ -161,10 +232,12 @@ void harmony::init_cluster() {
 //  else 
 //    Z_cos = MATTYPE(Z_corr);
   cosine_normalize(Z_cos, 0, true); // normalize columns
-  __dist = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0
+  dist_mat = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0
   // using a nice property of cosine distance,
   // compute squared distance directly with cross product
-  R = - (1 / sigma) * 2 * (1 - (Y.t() * Z_cos));  
+//   R = - (1 / sigma) * dist;  
+  R = - dist_mat;
+  R.each_col() /= sigma;
   R.each_row() -= max(R, 0);  
   R = exp(R);
   R.each_row() /= sum(R, 0);
@@ -177,7 +250,37 @@ void harmony::init_cluster() {
   ran_init = true;
   
 }
+*/
 
+
+void harmony::compute_objective() {
+//  float kmeans_error = as_scalar(accu((R.each_row() % w) % (2 * (1 - (Y.t() * Z_cos)))));
+//  float _entropy = as_scalar(accu(safe_entropy(R).each_row() % w));
+//  float kmeans_error = as_scalar(accu(R % (2 * (1 - (Y.t() * Z_cos)))));
+
+  float kmeans_error = as_scalar(accu(R % dist_mat)); 
+//   float _entropy = as_scalar(accu(safe_entropy(R))); // OLD: scalar sigma
+  float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
+
+//  float _cross_entropy = as_scalar(accu(R % log((E / O) * Phi)));   
+//  objective_kmeans.push_back(kmeans_error + sigma * _entropy +
+//                      sigma * theta * _cross_entropy);
+  float _cross_entropy;
+  dir_prior = alpha * E; // here, alpha is in [0, Inf). Reflects strength of dirichlet prior. 
+//  _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+//  _cross_entropy = as_scalar(accu(R % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));
+  //    _cross_entropy = as_scalar(accu((R.each_row() % w) % ((arma::repmat(theta.t(), K, 1) % log((O + alpha) / (E + alpha))) * Phi))); 
+    
+  _cross_entropy = as_scalar(accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + dir_prior) / (E + dir_prior))) * Phi)));    
+    
+   objective_kmeans.push_back(kmeans_error + _entropy + _cross_entropy);
+//   objective_kmeans.push_back(kmeans_error + sigma * _entropy + sigma * _cross_entropy);
+ objective_kmeans_dist.push_back(kmeans_error);
+ objective_kmeans_entropy.push_back(_entropy); 
+ objective_kmeans_cross.push_back(_cross_entropy);
+}
+
+/*
 
 
 // TODO: generalize to adaptive sigma values
@@ -201,7 +304,7 @@ void harmony::compute_objective() {
   objective_kmeans_entropy.push_back(sigma * _entropy); 
   objective_kmeans_cross.push_back(sigma * _cross_entropy);
 }
-
+*/
 
 
 bool harmony::check_convergence(int type) {
@@ -246,7 +349,7 @@ int harmony::cluster() {
   int iter; 
   Progress p(max_iter_kmeans, true);
   
-  __dist = 2 * (1 - Y.t() * Z_cos); // Z_cos was changed
+  dist_mat = 2 * (1 - Y.t() * Z_cos); // Z_cos was changed
   for (iter = 0; iter < max_iter_kmeans; iter++) {    
     p.increment();
     if (Progress::check_abort())
@@ -256,16 +359,18 @@ int harmony::cluster() {
 //    Y = Z_cos * (R.each_row() % w).t();
     Y = Z_cos * R.t();
     cosine_normalize(Y, 0, true);
-    __dist = 2 * (1 - Y.t() * Z_cos); // Y was changed
+    dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
-    // STEP 2: Update R
-    err_status = compute_R();
+    // STEP 2: Update Sigma
+      
+    // STEP 3: Update R
+    err_status = compute_R(true);
     if (err_status != 0) {
       Rcout << "Compute R failed. Exiting from clustering." << endl;
       return err_status;
     }
 
-    // STEP 3: Check for convergence
+    // STEP 4: Check for convergence
     compute_objective();
     if (iter > window_size) {
       bool convergence_status = check_convergence(0); 
@@ -285,23 +390,31 @@ int harmony::cluster() {
 
 
 
-int harmony::compute_R() {  
-  update_order = shuffle(linspace<uvec>(0, N - 1, N));
+int harmony::compute_R(bool random_order) {  
+  if (random_order) {
+      update_order = shuffle(linspace<uvec>(0, N - 1, N));
+  }
 // compute distance based scale of R
 //  _scale_dist = - (1 / sigma) * 2 * (1 - Y.t() * Z_cos);  
-  _scale_dist = - (1 / sigma) * __dist;
+//   _scale_dist = - (1 / sigma) * __dist;
+  _scale_dist = -dist_mat;
+//   _scale_dist = - 2 * (1 - Y.t() * Z_cos);  
+  _scale_dist.each_col() /= sigma; // NEW: vector sigma
+    
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
-
+    
+    
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
-  for (int i = 0; i < ceil(1. / block_size); i++) {
+  for (int i = 0; i < ceil(1. / block_size); i++) {    
     // gather cell updates indices
     int idx_min = i * N * block_size;
     int idx_max = min((int)((i + 1) * N * block_size), N - 1);
     if (idx_min > idx_max) break; // TODO: fix the loop logic so that this never happens
-    
-    uvec idx_list = linspace<uvec>(0, idx_max - idx_min, idx_max - idx_min + 1);
-    cells_update = update_order.rows(idx_list); // FOR DEBUGGING: using global cells_update vector    
+
+    uvec idx_list = linspace<uvec>(idx_min, idx_max, idx_max - idx_min + 1);
+//     uvec idx_list = linspace<uvec>(0, idx_max - idx_min, idx_max - idx_min + 1);
+    cells_update = update_order.rows(idx_list); 
 
     // Step 1: remove cells
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
@@ -326,7 +439,8 @@ void harmony::moe_correct_ridge() {
   Z_corr = Z_orig;
   for (int k = 0; k < K; k++) { 
     Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
-    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();    
+    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+
     // do not remove the intercept 
     W.row(0).zeros(); 
     Z_corr -= W.t() * Phi_Rk;
@@ -473,7 +587,8 @@ RCPP_MODULE(harmony_module) {
   .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
   .field("objective_kmeans_cross", &harmony::objective_kmeans_cross)    
   .field("objective_harmony", &harmony::objective_harmony)
-    
+  .field("dist_mat", &harmony::dist_mat)
+
     
   .field("N", &harmony::N)
   .field("K", &harmony::K)
@@ -497,6 +612,7 @@ RCPP_MODULE(harmony_module) {
     
   .method("harmonize", &harmony::harmonize)
   .method("init_cluster", &harmony::init_cluster)
+  .method("init_clusters_random_balanced", &harmony::init_clusters_random_balanced)
   .method("check_convergence", &harmony::check_convergence)
   .method("setup", &harmony::setup)
 //  .method("set_thetas", &harmony::set_thetas)
