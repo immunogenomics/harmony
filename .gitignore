@@ -1,3 +1,6 @@
 inst/doc
 *.ipynb
 .Rproj.user
+.Rhistory
+config.*
+.R*
