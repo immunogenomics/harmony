@@ -72,7 +72,8 @@ RunHarmony.Seurat <- function(object,
     object = object,
     reduction = "pca",
     assay = assay.use
-  )
+  )[,dims.use]
+
   harmonyEmbed <- HarmonyMatrix(
     pc_mat = ce,
     meta_data = object@meta.data,

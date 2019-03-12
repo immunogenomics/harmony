@@ -8,7 +8,8 @@ HarmonyMatrix(pc_mat, meta_data, vars_use, theta = NULL, lambda = NULL,
   sigma = 0.1, alpha = 0.1, nclust = 100, tau = 0,
   block.size = 0.05, max.iter.harmony = 10, max.iter.cluster = 200,
   epsilon.cluster = 1e-05, epsilon.harmony = 1e-04,
-  burn.in.time = 10, plot_convergence = FALSE, return_object = FALSE)
+  burn.in.time = 10, plot_convergence = FALSE, return_object = FALSE,
+  init_mode = "kmeans")
 }
 \arguments{
 \item{alpha}{strength of dirichlet prior for DKL penalty}
