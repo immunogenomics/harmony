@@ -1,8 +1,10 @@
 # Harmony
 
-Check out the latest preprint of Harmony on [bioRxiv](https://www.biorxiv.org/content/early/2018/11/04/461954)
+![ ](docs/main.jpg)
 
-![ ](tools/img/Figure1.jpg)
+*Scalable integration of single cell RNAseq data for batch correction and meta analysis*
+
+Check out the latest preprint of Harmony on [bioRxiv](https://www.biorxiv.org/content/early/2018/11/04/461954)
 
 # Installation
 
@@ -65,6 +67,9 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 Harmony will soon be able to correct for read depth, cell cycle state, and other non-categorical variables. 
 
 
+## Additional tutorials
 
+- [Getting Started with Harmony (without Seurat object)](docs/getting_started.pdf)
+- Using Harmony with Seurat
 
 

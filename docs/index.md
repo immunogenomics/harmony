@@ -1,6 +1,6 @@
 # Harmony
 
-![ ](../tools/img/Figure1.jpg)
+![ ](main.jpg)
 
 *Scalable integration of single cell RNAseq data for batch correction and meta analysis*
 
