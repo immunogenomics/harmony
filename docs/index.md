@@ -1,6 +1,6 @@
 # Harmony
 
-![ ](docs/main.jpg)
+![ ](main.jpg)
 
 *Scalable integration of single cell RNAseq data for batch correction and meta analysis*
 
@@ -69,7 +69,7 @@ Harmony will soon be able to correct for read depth, cell cycle state, and other
 
 ## Additional tutorials
 
-- [Getting Started with Harmony (without Seurat object)](docs/getting_started.pdf)
+- [Getting Started with Harmony (without Seurat object)](getting_started)
 - Using Harmony with Seurat
 
 
