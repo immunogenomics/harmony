@@ -69,7 +69,7 @@ Harmony will soon be able to correct for read depth, cell cycle state, and other
 
 ## Additional tutorials
 
-- [Getting Started with Harmony (without Seurat object)](docs/getting_started.pdf)
+- [Getting Started with Harmony (with MUDAN library)](docs/getting_started.pdf)
 - Using Harmony with Seurat
 
 
