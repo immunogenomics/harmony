@@ -2,7 +2,7 @@
 
 Check out the latest preprint of Harmony on [bioRxiv](https://www.biorxiv.org/content/early/2018/11/04/461954)
 
-![ ](Figure1.jpg)
+![ ](tools/img/Figure1.jpg)
 
 # Installation
 
