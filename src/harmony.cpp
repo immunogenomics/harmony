@@ -7,7 +7,7 @@ harmony::harmony(int __K): K(__K) {}
 
 
 
-void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
+void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __Pr_b,
                     VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
                     float __epsilon_kmeans, float __epsilon_harmony, 
                     int __K, float tau, float __block_size, 
@@ -19,8 +19,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
   cosine_normalize(Z_cos, 0, true); // normalize columns
   
   Phi = __Phi;
-  Phi_moe = ones<MATTYPE>(Phi.n_rows + 1, Phi.n_cols); // same as Phi plus an intercept term
-  Phi_moe.rows(1, Phi_moe.n_rows - 1) = Phi;
+  Phi_moe = __Phi_moe;
   N = Z_corr.n_cols;
   Pr_b = __Pr_b;
   B = Phi.n_rows;

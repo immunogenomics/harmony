@@ -22,7 +22,7 @@ class harmony {
 public: 
   /* CONSTRUCTORS etc */
   harmony(int __K);    
-  void setup(MATTYPE& __Z, MATTYPE& __Phi, VECTYPE __Pr_b,
+  void setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __Pr_b,
              VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
              float __epsilon_kmeans, float __epsilon_harmony, 
              int __K, float tau, float __block_size, 

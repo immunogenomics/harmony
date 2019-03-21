@@ -25,7 +25,9 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
   }
   
   for (iter in 1:iter_harmony) {
-    message(sprintf('Harmony %d/%d', iter, iter_harmony))
+    if (verbose) {
+        message(sprintf('Harmony %d/%d', iter, iter_harmony))        
+    }
     
     # STEP 1: do clustering
     err_status <- cluster(harmonyObj)
@@ -40,7 +42,9 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
     
     # STEP 3: check for convergence
     if (harmonyObj$check_convergence(1)) {
-      if (verbose) message(sprintf("Harmony converged after %d iterations", iter))
+      if (verbose) {
+          message(sprintf("Harmony converged after %d iterations", iter))    
+      }
       return(0)
     }
   }

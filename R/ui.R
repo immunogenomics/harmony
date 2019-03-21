@@ -18,6 +18,7 @@
 #' @param plot_convergence Whether to print the convergence plot of the clustering objective function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
 #' @param return_object (Advanced Usage) Whether to return the Harmony object or only the corrected PCA embeddings. 
 #' @param verbose Whether to print progress messages. TRUE to print, FALSE to suppress.
+#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have batch variables values matching reference_values will not be moved.  
 #' 
 #' @return By default, matrix with corrected PCA embeddings. If return_object is TRUE, returns the full Harmony object (R6 reference class type). 
 #' 
@@ -46,7 +47,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
                           block.size = 0.05, max.iter.harmony = 10, 
                           max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                           plot_convergence = FALSE, 
-                          return_object = FALSE, verbose = TRUE) {
+                          return_object = FALSE, verbose = TRUE, reference_values = NULL) {
   
   ## TODO: check for 
   ##    partially observed batch variables (WARNING)
@@ -89,7 +90,9 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
   if (length(sigma) == 1 & nclust > 1) {
     sigma <- rep(sigma, nclust)
   }
+  ## TODO: if theta or lambda doesn't match number of variables, fix this
   
+    
   ## Pre-compute some useful statistics
   phi <- Reduce(rbind, lapply(vars_use, function(var_use) {t(onehot(meta_data[[var_use]]))}))
   N_b <- rowSums(phi)
@@ -100,12 +103,29 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
   
   lambda <- Reduce(c, lapply(1:length(B_vec), function(b) rep(lambda[b], B_vec[b])))
   lambda_mat <- diag(c(0, lambda))
-  
+
+  ## TODO: check that each ref val matches exactly one covariate
+  ## TODO: check that you haven't marked all cells as reference! 
+  if (!is.null(reference_values)) {
+    cells_ref <- which(colSums(phi[which(row.names(phi) %in% reference_values), , drop = FALSE] == 1) >= 1)
+    b_keep <- which(!row.names(phi) %in% reference_values)
+    phi_moe <- phi[b_keep, , drop = FALSE]
+    phi_moe[, cells_ref] <- 0
+
+    phi_moe <- rbind(rep(1, N), phi_moe)
+    lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]    
+  } else {
+    phi_moe <- rbind(rep(1, N), phi)
+  }
+
+
+                             
   ## RUN HARMONY
   harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
   harmonyObj$setup(
     pc_mat, ## Z
-    phi, ## Phi
+    phi, ## design matrix to be used in clustering 
+    phi_moe, ## design matrix to be used in MoE
     Pr_b, 
     sigma, ## sigma
     theta, ## theta
@@ -119,7 +139,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
     verbose
   )
   init_cluster(harmonyObj)
-  harmonize(harmonyObj, max.iter.harmony)
+  harmonize(harmonyObj, max.iter.harmony, verbose)
   if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
   
   ## Return either the R6 Harmony object or the corrected PCA matrix (default)
@@ -153,6 +173,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
 #' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to never stop early. 
 #' @param plot_convergence Whether to print the convergence plot of the clustering objective function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
 #' @param verbose Whether to print progress messages. TRUE to print, FALSE to suppress.
+#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have batch variables values matching reference_values will not be moved.  
 #' 
 #' @return Seurat object. Harmony dimensions placed into object@dr$harmony. For downstream Seurat analyses, use reduction.use='harmony' and reduction.type='harmony'.
 #' 
@@ -170,7 +191,7 @@ HarmonyMatrix <- function(pc_mat, meta_data, vars_use, theta = NULL, lambda = NU
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
                        max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                       plot_convergence = FALSE, verbose = TRUE) {
+                       plot_convergence = FALSE, verbose = TRUE, reference_values = NULL) {
   ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
   ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
   if (!requireNamespace("Seurat", quietly = TRUE)) {
@@ -203,7 +224,7 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
   harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data, group.by.vars, 
                                 theta, lambda, sigma, nclust, tau, block.size, max.iter.harmony, 
                                 max.iter.cluster, epsilon.cluster, epsilon.harmony,
-                                plot_convergence, FALSE, verbose)
+                                plot_convergence, FALSE, verbose, reference_values)
   
   
   rownames(harmonyEmbed) <- row.names(object@meta.data)
