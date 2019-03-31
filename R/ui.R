@@ -24,9 +24,7 @@
 #' 
 #' @return By default, matrix with corrected PCA embeddings. If return_object is TRUE, returns the full Harmony object (R6 reference class type). 
 #' 
-#' @export 
-#' 
-#' examples
+#' @examples
 #' 
 #' pca_embeddings <- harmony::pbmc.small$pca_embeddings
 #' meta_data <- harmony::pbmc.small$meta_data
@@ -44,6 +42,8 @@
 #' dim(harmony_object$R) ## soft cluster assignment
 #' dim(harmony_object$Z_corr) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
+#' 
+#' @export 
 HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20, 
                           theta = NULL, lambda = NULL, sigma = 0.1, nclust = 100, 
                           tau = 0, block.size = 0.05, max.iter.harmony = 10, 
@@ -177,9 +177,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' 
 #' @return Seurat object. Harmony dimensions placed into object@dr$harmony. For downstream Seurat analyses, use reduction.use='harmony' and reduction.type='harmony'.
 #' 
-#' @export 
-#' 
-#' example
+#' @examples
 #' 
 #' pbmc <- RunHarmony(harmony::pbmc.small.seurat, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4)
 #' pbmc@dr$harmony@cell.embeddings[1:5, 1:10]
@@ -187,6 +185,8 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' p1 <- DimPlot(object = pbmc, reduction.use = 'harmony', pt.size = .1, group.by = 'stim', do.return = T)
 #' p2 <- VlnPlot(object = pbmc, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
 #' plot_grid(p1,p2)
+#' 
+#' @export 
 #' 
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
