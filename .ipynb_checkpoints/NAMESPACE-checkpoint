@@ -2,6 +2,8 @@
 
 importFrom(Rcpp,sourceCpp)
 importFrom(Rcpp,loadModule)
+importFrom(Rcpp, evalCpp)
+importFrom(irlba, prcomp_irlba)
 useDynLib(harmony)
 export(harmony)
 export(HarmonyMatrix)
