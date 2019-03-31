@@ -49,11 +49,12 @@ Use this to run the Harmony algorithm on a Seurat object. See also HarmonyMatrix
 }
 \examples{
 
+\dontrun{
 pbmc <- RunHarmony(harmony::pbmc.small.seurat, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4)
 pbmc@dr$harmony@cell.embeddings[1:5, 1:10]
 pbmc@dr$harmony@gene.loadings[1:5, 1:10]
 p1 <- DimPlot(object = pbmc, reduction.use = 'harmony', pt.size = .1, group.by = 'stim', do.return = T)
 p2 <- VlnPlot(object = pbmc, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
 plot_grid(p1,p2)
-
+}
 }
