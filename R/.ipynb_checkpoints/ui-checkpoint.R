@@ -68,7 +68,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
     }
   }
   
-  if (is.null(vars_use)) {
+  if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
     stop('Must provides variables to integrate over (e.g. vars_use="stim")')
   }
 
@@ -190,7 +190,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' 
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
-                       max.iter.cluster = 200, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
+                       max.iter.cluster = 20, epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
                        plot_convergence = FALSE, verbose = TRUE, reference_values = NULL) {
   ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
   ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
@@ -226,7 +226,6 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
                                 theta, lambda, sigma, nclust, tau, block.size, max.iter.harmony, 
                                 max.iter.cluster, epsilon.cluster, epsilon.harmony,
                                 plot_convergence, FALSE, verbose, reference_values)
-  
   
   rownames(harmonyEmbed) <- row.names(object@meta.data)
   colnames(harmonyEmbed) <- paste0("harmony_", 1:ncol(harmonyEmbed))
