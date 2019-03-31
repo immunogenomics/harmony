@@ -56,3 +56,23 @@ By default, matrix with corrected PCA embeddings. If return_object is TRUE, retu
 \description{
 Use this to run the Harmony algorithm on a PCA matrix. See also RunHarmony to run on Seurat object.
 }
+\examples{
+
+pca_embeddings <- harmony::pbmc.small$pca_embeddings
+meta_data <- harmony::pbmc.small$meta_data
+
+## first, get the corrected PCA matrix
+harmony_embeddings <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4)
+head(meta_data)
+dim(pca_embeddings)
+dim(harmony_embeddings)
+
+
+## now, let's get the full Harmony object
+harmony_object <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, return_object = TRUE)
+dim(harmony_object$Y) ## cluster centroids
+dim(harmony_object$R) ## soft cluster assignment
+dim(harmony_object$Z_corr) ## corrected PCA embeddings
+head(harmony_object$O) ## batch by cluster co-occurence matrix
+
+}
