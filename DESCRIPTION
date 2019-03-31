@@ -13,6 +13,8 @@ LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports: 
   dplyr, 
   tidyr,
+  irlba,
+  Matrix,
   Rcpp
 Suggests: 
   ggplot2,
