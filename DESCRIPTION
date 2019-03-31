@@ -10,12 +10,13 @@ LazyData: true
 RoxygenNote: 6.0.1
 Depends: R (>= 3.4.0), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
-Imports: 
+Imports:
   dplyr, 
   tidyr,
   irlba,
   Matrix,
   Rcpp
-Suggests: 
+Suggests:
   ggplot2,
-  Seurat
+  Seurat,
+    testthat
