@@ -103,8 +103,7 @@ bool harmony::check_convergence(int type) {
       obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
       obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
     }
-    if (-(obj_new - obj_old) / obj_old < epsilon_kmeans) {
-      //        Rcout << "kmeans old: " << obj_old << ", new: " << obj_new << ", diff: " << -(obj_new - obj_old) / obj_old << endl;
+    if ((obj_old - obj_new) / abs(obj_old) < epsilon_kmeans) {
       return(true); 
     } else {
       return(false);
@@ -113,7 +112,7 @@ bool harmony::check_convergence(int type) {
     // Harmony
     obj_old = objective_harmony[objective_harmony.size() - 2];
     obj_new = objective_harmony[objective_harmony.size() - 1];
-    if (-(obj_new - obj_old) / obj_old < epsilon_harmony) {
+    if ((obj_old - obj_new) / abs(obj_old) < epsilon_harmony) {
       return(true);              
     } else {
       return(false);              
