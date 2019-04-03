@@ -28,6 +28,8 @@
 #' 
 #' @examples
 #' 
+#' library(dplyr)
+#' library(ggplot2)
 #' exprs_matrix <- harmony::pbmc.small$exprs_norm_vargenes
 #' pca_embeddings <- harmony::pbmc.small$pca_embeddings
 #' meta_data <- harmony::pbmc.small$meta_data
@@ -56,7 +58,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
                           plot_convergence = FALSE, 
                           return_object = FALSE, verbose = TRUE, reference_values = NULL) {
 
-    
+
   ## TODO: check for 
   ##    partially observed batch variables (WARNING)
   ##    batch variables with only 1 level (WARNING)
@@ -69,12 +71,12 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
       meta_data <- data.frame(batch_variable = meta_data)
       vars_use <- 'batch_variable'
     } else {
-      stop('meta_data must be either a data.frame or a vector with batch values for each cell.')
+      stop('meta_data must be either a data.frame or a vector with batch values for each cell')
     }
   }
   
   if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
-    stop('Must provides variables to integrate over (e.g. vars_use="stim")')
+    stop(gettextf('must provides variables to integrate over (e.g. vars_use=%s)', sQuote('stim')))
   }
 
   if (do_pca) {
@@ -82,7 +84,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
         data_mat <- Matrix::t(data_mat)
     }
       
-    pca_res <- data_mat %>% 
+    pca_res <- data_mat %>%
       scaleData() %>% 
       irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, scale. = FALSE)
     data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
@@ -95,7 +97,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
       data_mat <- t(data_mat)
       cells_as_cols <- FALSE
     } else {
-      stop("ERROR: Number of labels do not correspond to number of samples in PC matrix.")
+      stop("number of labels do not correspond to number of samples in data matrix")
     }
   }
   
@@ -166,6 +168,7 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' 
 #' @param object Seurat object. Must have PCA computed. 
 #' @param group.by.vars Which variable(s) to remove (character vector).
+#' @param dims.use Which PCA dimensions to use for Harmony. By default, use all.            
 #' @param theta Diversity clustering penalty parameter. Specify for each variable in group.by.vars. Default theta=2. theta=0 does not encourage any diversity. Larger values of theta result in more diverse clusters. 
 #' @param lambda Ridge regression penalty parameter. Specify for each variable in group.by.vars. Default lambda=1. Lambda must be strictly positive. Smaller values result in more aggressive correction. 
 #' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales the distance from a cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. Smaller values of sigma make soft kmeans cluster approach hard clustering. 
@@ -201,32 +204,38 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
   ## CHECK: PCs should be scaled. Unscaled PCs yield misleading results. 
   ##      sqrt(sum((apply(object@dr$pca@cell.embeddings, 2, sd) - object@dr$pca@sdev) ^ 2))  
   if (!requireNamespace("Seurat", quietly = TRUE)) {
-    stop("Failed to load Seurat library.")
+    stop("failed to load Seurat library")
   }
   
   if (!"seurat" %in% class(object)) {
-    stop("Must pass a Seurat object to RunHarmony function. Did you mean to use the Harmony function?")
+    stop("must pass a Seurat object to RunHarmony function. Did you mean to use the HarmonyMatrix function?")
   }
   if (!"pca" %in% names(object@dr)) {
-    stop("PCA must be computed before running Harmony.")
+    stop("PCA must be computed before running Harmony")
   }
   if (missing(dims.use)) {
     dims.use <- 1:ncol(object@dr$pca@cell.embeddings)        
   } else if (!all(dims.use %in% 1:ncol(object@dr$pca@cell.embeddings))) {
-    stop("Trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs.")        
+    stop("trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs")
   }
-  
+  if (length(dims.use) == 1) {
+    stop("only specified one dimension in dims.use")
+  }
+
   missing.vars <- setdiff(group.by.vars, colnames(object@meta.data))
   if (length(missing.vars) > 0) {
-    stop(sprintf("ERROR: Primary variable(s) [%s] not in meta.data", paste(missing.vars, collapse = ", ")))
+    msg <- gettextf(ngettext(length(missing.vars),
+                            "trying to integrate over missing variable: %s",
+                            "trying to integrate over missing variables: %s",
+                            domain = "R-base"),
+                   paste(missing.vars, collapse = ", "))
+    stop(msg)
   }
   
   if (verbose) {
-    message("Run Harmony")
-    message(sprintf("Using top %d PCs", length(dims.use)))    
+    message(gettextf("running Harmony using %d PCs", length(dims.use)))    
   }
-    
-  
+      
   harmonyEmbed <- HarmonyMatrix(object@dr$pca@cell.embeddings, object@meta.data, group.by.vars, 
                                 FALSE, 0, 
                                 theta, lambda, sigma, nclust, tau, block.size, max.iter.harmony, 
