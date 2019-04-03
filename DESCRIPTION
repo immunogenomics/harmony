@@ -13,10 +13,11 @@ LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
   dplyr, 
   tidyr,
+  ggplot2, 
   irlba,
   Matrix,
-  Rcpp
+  methods,
+  tibble
 Suggests:
-  ggplot2,
   Seurat,
-    testthat
+  testthat

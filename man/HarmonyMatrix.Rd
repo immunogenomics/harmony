@@ -58,6 +58,8 @@ Use this to run the Harmony algorithm on a PCA matrix. See also RunHarmony to ru
 }
 \examples{
 
+library(dplyr)
+library(ggplot2)
 exprs_matrix <- harmony::pbmc.small$exprs_norm_vargenes
 pca_embeddings <- harmony::pbmc.small$pca_embeddings
 meta_data <- harmony::pbmc.small$meta_data
