@@ -15,6 +15,8 @@ RunHarmony(object, group.by.vars, dims.use, theta = NULL,
 
 \item{group.by.vars}{Which variable(s) to remove (character vector).}
 
+\item{dims.use}{Which PCA dimensions to use for Harmony. By default, use all.}
+
 \item{theta}{Diversity clustering penalty parameter. Specify for each variable in group.by.vars. Default theta=2. theta=0 does not encourage any diversity. Larger values of theta result in more diverse clusters.}
 
 \item{lambda}{Ridge regression penalty parameter. Specify for each variable in group.by.vars. Default lambda=1. Lambda must be strictly positive. Smaller values result in more aggressive correction.}
