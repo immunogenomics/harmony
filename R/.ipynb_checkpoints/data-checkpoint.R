@@ -23,4 +23,4 @@
 #' 
 #' 
 #' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
-"celllines"
+"cell_lines"
