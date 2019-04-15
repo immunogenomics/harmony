@@ -19,5 +19,8 @@ Imports:
   methods,
   tibble
 Suggests:
-  Seurat,
-  testthat
+    Seurat,
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

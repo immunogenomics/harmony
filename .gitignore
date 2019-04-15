@@ -1,3 +1,7 @@
 inst/doc
 *.ipynb
 .DS_Store
+.travis.yml
+.ipynb_checkpoints
+**/.ipynb_checkpoints
+
