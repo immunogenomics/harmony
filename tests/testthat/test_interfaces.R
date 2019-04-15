@@ -14,10 +14,10 @@ check_seurat2 <- function() {
 test_that('Seurat V2 interface works', {
     check_seurat2()
     library(Seurat)
-    pbmc.small.seurat <- RunHarmony(pbmc.small.seurat, "stim", theta = 1, nclust = 50, 
+    cell_lines_small_seurat <- RunHarmony(cell_lines_small_seurat, "dataset", theta = 1, nclust = 50, lambda = .1,
                        max.iter.cluster = 5, max.iter.harmony = 2, verbose = FALSE)
-    expect_true('harmony' %in% names(pbmc.small.seurat@dr))
-    expect_equal(sum(is.na(pbmc.small.seurat@dr$harmony@cell.embeddings)), 0)
-    expect_equal(dim(pbmc.small.seurat@dr$harmony@cell.embeddings), dim(pbmc.small.seurat@dr$pca@cell.embeddings))
+    expect_true('harmony' %in% names(cell_lines_small_seurat@dr))
+    expect_equal(sum(is.na(cell_lines_small_seurat@dr$harmony@cell.embeddings)), 0)
+    expect_equal(dim(cell_lines_small_seurat@dr$harmony@cell.embeddings), dim(cell_lines_small_seurat@dr$pca@cell.embeddings))
 })
 

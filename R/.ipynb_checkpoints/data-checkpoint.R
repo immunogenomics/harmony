@@ -7,3 +7,14 @@
 #' 
 #' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
 "cell_lines"
+
+#' Same as cell_lines but smaller (300 cells).
+#' 
+#' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+"cell_lines_small"
+
+#' Same as cell_lines_small but as Seurat object. Expression matrices filled in with dummy values. 
+#' 
+#' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+"cell_lines_small_seurat"
+
