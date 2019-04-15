@@ -58,27 +58,18 @@ Use this to run the Harmony algorithm on a PCA matrix. See also RunHarmony to ru
 }
 \examples{
 
-library(dplyr)
-library(ggplot2)
-exprs_matrix <- harmony::pbmc.small$exprs_norm_vargenes
-pca_embeddings <- harmony::pbmc.small$pca_embeddings
-meta_data <- harmony::pbmc.small$meta_data
-dim(exprs_matrix)
-dim(pca_embeddings)
-head(meta_data)
-
+\dontrun{
 ## Harmony can take a normalized gene expression matrix
-harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, do_pca=TRUE, npcs=20)
-dim(harmony_embeddings)
+harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'stim', do_pca=TRUE)
 
 ## Harmony can also take a PCA embeddings matrix
-harmony_embeddings <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, do_pca=FALSE)
-dim(harmony_embeddings)
+harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE)
 
 ## Finally, we can return an object with all the underlying Harmony data structures
-harmony_object <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, return_object=TRUE, do_pca=FALSE)
+harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE, return_object=TRUE)
 dim(harmony_object$Y) ## cluster centroids
 dim(harmony_object$R) ## soft cluster assignment
 dim(harmony_object$Z_corr) ## corrected PCA embeddings
 head(harmony_object$O) ## batch by cluster co-occurence matrix
+}
 }

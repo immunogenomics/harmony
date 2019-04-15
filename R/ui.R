@@ -28,29 +28,20 @@
 #' 
 #' @examples
 #' 
-#' library(dplyr)
-#' library(ggplot2)
-#' exprs_matrix <- harmony::pbmc.small$exprs_norm_vargenes
-#' pca_embeddings <- harmony::pbmc.small$pca_embeddings
-#' meta_data <- harmony::pbmc.small$meta_data
-#' dim(exprs_matrix)
-#' dim(pca_embeddings)
-#' head(meta_data)
-#' 
+#' \dontrun{
 #' ## Harmony can take a normalized gene expression matrix
-#' harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, do_pca=TRUE, npcs=20)
-#' dim(harmony_embeddings)
+#' harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'stim', do_pca=TRUE)
 #' 
 #' ## Harmony can also take a PCA embeddings matrix
-#' harmony_embeddings <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, do_pca=FALSE)
-#' dim(harmony_embeddings)
+#' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE)
 #' 
 #' ## Finally, we can return an object with all the underlying Harmony data structures
-#' harmony_object <- HarmonyMatrix(pca_embeddings, meta_data, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4, return_object=TRUE, do_pca=FALSE)
+#' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE, return_object=TRUE)
 #' dim(harmony_object$Y) ## cluster centroids
 #' dim(harmony_object$R) ## soft cluster assignment
 #' dim(harmony_object$Z_corr) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
+#' }
 HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20, 
                           theta = NULL, lambda = NULL, sigma = 0.1, nclust = 100, 
                           tau = 0, block.size = 0.05, max.iter.harmony = 10, 
@@ -190,11 +181,13 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' @examples
 #'
 #' \dontrun{
-#' pbmc <- RunHarmony(harmony::pbmc.small.seurat, 'stim', theta=2, plot_convergence=TRUE, nclust=50, max.iter.cluster=10, max.iter.harmony=4)
-#' pbmc@dr$harmony@cell.embeddings[1:5, 1:10]
-#' pbmc@dr$harmony@gene.loadings[1:5, 1:10]
-#' p1 <- DimPlot(object = pbmc, reduction.use = 'harmony', pt.size = .1, group.by = 'stim', do.return = T)
-#' p2 <- VlnPlot(object = pbmc, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
+#' seuratObject <- RunHarmony(seuratObject, 'orig.ident')
+#' ## Harmony cell embeddings
+#' seuratObject@dr$harmony@cell.embeddings[1:5, 1:10] 
+#' ## Harmony gene loadings
+#' seuratObject@dr$harmony@gene.loadings[1:5, 1:10] 
+#' p1 <- DimPlot(object = seuratObject, reduction.use = 'harmony', pt.size = .1, group.by = 'stim', do.return = T)
+#' p2 <- VlnPlot(object = seuratObject, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
 #' plot_grid(p1,p2)
 #' }
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 
