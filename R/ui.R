@@ -79,128 +79,130 @@
 #' dim(harmony_object$Z_corr) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
-HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE,
-                          npcs=20, theta = NULL, lambda = NULL, sigma = 0.1, 
-                          nclust = 100, tau = 0, block.size = 0.05, 
-                          max.iter.harmony = 10, max.iter.cluster = 200, 
-                          epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-                          plot_convergence = FALSE, return_object = FALSE, 
-                          verbose = TRUE, reference_values = NULL) {
-
-
-  ## TODO: check for 
-  ##    partially observed batch variables (WARNING)
-  ##    batch variables with only 1 level (WARNING)
-  ##    if lambda given, check correct length
-  ##    if theta given, check correct length
-  ##    very small batch size and tau=0: suggest tau>0
-  ##    is PCA correct? 
-  if (!'data.frame' %in% class(meta_data)) {
-    if (length(meta_data) %in% dim(data_mat)) {
-      meta_data <- data.frame(batch_variable = meta_data)
-      vars_use <- 'batch_variable'
-    } else {
-      stop('meta_data must be either a data.frame or a vector with batch 
-           values for each cell')
-    }
-  }
-  
-  if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
-    msg <- gettextf('must provide variables to integrate (e.g. vars_use=%s)', 
-                    sQuote('stim'))
-    stop(msg)
-  }
-
-  if (do_pca) {
-    if (ncol(data_mat) != nrow(meta_data)) {
-        data_mat <- Matrix::t(data_mat)
-    }
-      
-    pca_res <- data_mat %>%
-      scaleData() %>% 
-      irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, 
-                          scale. = FALSE)
-    data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
-  } 
-
-  N <- nrow(meta_data)
-  cells_as_cols <- TRUE
-  if (ncol(data_mat) != N) {
-    if (nrow(data_mat) == N) {
-      data_mat <- t(data_mat)
-      cells_as_cols <- FALSE
-    } else {
-      stop("number of labels do not correspond to number of samples in data 
-           matrix")
-    }
-  }
-  
-  if (is.null(theta)) {
-    theta <- rep(2, length(vars_use))
-  }
-  if (is.null(lambda)) {
-    lambda <- rep(1, length(vars_use))
-  }    
-  if (length(sigma) == 1 & nclust > 1) {
-    sigma <- rep(sigma, nclust)
-  }
-  ## TODO: if theta or lambda doesn't match number of variables, fix this
-  
+HarmonyMatrix <- function(
+    data_mat, meta_data, vars_use, do_pca = TRUE,
+    npcs=20, theta = NULL, lambda = NULL, sigma = 0.1, 
+    nclust = 100, tau = 0, block.size = 0.05, 
+    max.iter.harmony = 10, max.iter.cluster = 200, 
+    epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
+    plot_convergence = FALSE, return_object = FALSE, 
+    verbose = TRUE, reference_values = NULL
+) {
     
-  ## Pre-compute some useful statistics
-  phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
-      t(onehot(meta_data[[var_use]]))
+    
+    ## TODO: check for 
+    ##    partially observed batch variables (WARNING)
+    ##    batch variables with only 1 level (WARNING)
+    ##    if lambda given, check correct length
+    ##    if theta given, check correct length
+    ##    very small batch size and tau=0: suggest tau>0
+    ##    is PCA correct? 
+    if (!'data.frame' %in% class(meta_data)) {
+        if (length(meta_data) %in% dim(data_mat)) {
+            meta_data <- data.frame(batch_variable = meta_data)
+            vars_use <- 'batch_variable'
+        } else {
+            stop('meta_data must be either a data.frame or a vector with batch 
+                values for each cell')
+        }
+    }
+    
+    if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
+        msg <- gettextf('must provide variables names (e.g. vars_use=%s)', 
+                        sQuote('stim'))
+        stop(msg)
+    }
+    
+    if (do_pca) {
+        if (ncol(data_mat) != nrow(meta_data)) {
+            data_mat <- Matrix::t(data_mat)
+        }
+        
+        pca_res <- data_mat %>%
+            scaleData() %>% 
+            irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, 
+                                scale. = FALSE)
+        data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
+    } 
+    
+    N <- nrow(meta_data)
+    cells_as_cols <- TRUE
+    if (ncol(data_mat) != N) {
+        if (nrow(data_mat) == N) {
+            data_mat <- t(data_mat)
+            cells_as_cols <- FALSE
+        } else {
+            stop("number of labels do not correspond to number of 
+                samples in data matrix")
+        }
+    }
+    
+    if (is.null(theta)) {
+        theta <- rep(2, length(vars_use))
+    }
+    if (is.null(lambda)) {
+        lambda <- rep(1, length(vars_use))
+    }    
+    if (length(sigma) == 1 & nclust > 1) {
+        sigma <- rep(sigma, nclust)
+    }
+    ## TODO: if theta or lambda doesn't match number of variables, fix this
+    
+    
+    ## Pre-compute some useful statistics
+    phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
+        t(onehot(meta_data[[var_use]]))
     }))
-  N_b <- rowSums(phi)
-  Pr_b <- N_b / N
-  B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
-      length(unique(meta_data[[var_use]]))
+    N_b <- rowSums(phi)
+    Pr_b <- N_b / N
+    B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
+        length(unique(meta_data[[var_use]]))
     }))
-  theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
-    rep(theta[b], B_vec[b])))
-  theta <- theta * (1 - exp(-(N_b / (nclust * tau)) ^ 2))
-  
-  lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
-    rep(lambda[b], B_vec[b])))
-  lambda_mat <- diag(c(0, lambda))
-
-  ## TODO: check that each ref val matches exactly one covariate
-  ## TODO: check that you haven't marked all cells as reference! 
-  if (!is.null(reference_values)) {
-    idx <- which(row.names(phi) %in% reference_values)
-    cells_ref <- which(colSums(phi[idx, , drop = FALSE] == 1) >= 1)
-    b_keep <- which(!row.names(phi) %in% reference_values)
-    phi_moe <- phi[b_keep, , drop = FALSE]
-    phi_moe[, cells_ref] <- 0
-
-    phi_moe <- rbind(rep(1, N), phi_moe)
-    lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]    
-  } else {
-    phi_moe <- rbind(rep(1, N), phi)
-  }
-                             
-  ## RUN HARMONY
-  harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
-  harmonyObj$setup(
-    data_mat, phi, phi_moe, 
-    Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
-    epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
-  )
-  init_cluster(harmonyObj)
-  harmonize(harmonyObj, max.iter.harmony, verbose)
-  if (plot_convergence) plot(HarmonyConvergencePlot(harmonyObj))
-  
-  ## Return either the R6 Harmony object or the corrected PCA matrix (default)
-  if (return_object) {
-    return(harmonyObj)
-  } else {
-    res <- as.matrix(harmonyObj$Z_corr)
-    row.names(res) <- row.names(data_mat)
-    colnames(res) <- colnames(data_mat)
-    if (!cells_as_cols) 
-      res <- t(res)
-    return(res)      
-  }
+    theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
+        rep(theta[b], B_vec[b])))
+    theta <- theta * (1 - exp(-(N_b / (nclust * tau)) ^ 2))
+    
+    lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
+        rep(lambda[b], B_vec[b])))
+    lambda_mat <- diag(c(0, lambda))
+    
+    ## TODO: check that each ref val matches exactly one covariate
+    ## TODO: check that you haven't marked all cells as reference! 
+    if (!is.null(reference_values)) {
+        idx <- which(row.names(phi) %in% reference_values)
+        cells_ref <- which(colSums(phi[idx, , drop = FALSE] == 1) >= 1)
+        b_keep <- which(!row.names(phi) %in% reference_values)
+        phi_moe <- phi[b_keep, , drop = FALSE]
+        phi_moe[, cells_ref] <- 0
+        
+        phi_moe <- rbind(rep(1, N), phi_moe)
+        lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]    
+    } else {
+        phi_moe <- rbind(rep(1, N), phi)
+    }
+    
+    ## RUN HARMONY
+    harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
+    harmonyObj$setup(
+        data_mat, phi, phi_moe, 
+        Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
+        epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
+    )
+    init_cluster(harmonyObj)
+    harmonize(harmonyObj, max.iter.harmony, verbose)
+    if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
+    
+    ## Return either the R6 Harmony object or the corrected PCA matrix
+    if (return_object) {
+        return(harmonyObj)
+    } else {
+        res <- as.matrix(harmonyObj$Z_corr)
+        row.names(res) <- row.names(data_mat)
+        colnames(res) <- colnames(data_mat)
+        if (!cells_as_cols) 
+            res <- t(res)
+        return(res)      
+    }
 }
 
 #' Harmony wrapper for Seurat
@@ -266,74 +268,73 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE,
 #'                         group.by = 'dataset', do.return = TRUE)
 #'   cowplot::plot_grid(p1,p2)
 #' }
-RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, 
-                       lambda = NULL, sigma = 0.1, nclust = 100, tau = 0, 
-                       block.size = 0.05, max.iter.harmony = 10, 
-                       max.iter.cluster = 20, epsilon.cluster = 1e-5, 
-                       epsilon.harmony = 1e-4, plot_convergence = FALSE, 
-                       verbose = TRUE, reference_values = NULL) {
-  if (!requireNamespace("Seurat", quietly = TRUE)) {
-    stop("failed to load Seurat library")
-  }
-  
-  if (!"seurat" %in% class(object)) {
-    stop("must pass a Seurat object to RunHarmony function. Did you mean to
-         use the HarmonyMatrix function?")
-  }
-  
-  tryCatch(
-    pca_embedding <- Seurat::GetCellEmbeddings(obj, 'pca'), 
-    error = function(e) {
-      stop("PCA must be computed before running Harmony")
+RunHarmony <- function(
+    object, group.by.vars, dims.use, theta = NULL, 
+    lambda = NULL, sigma = 0.1, nclust = 100, tau = 0, 
+    block.size = 0.05, max.iter.harmony = 10, 
+    max.iter.cluster = 20, epsilon.cluster = 1e-5, 
+    epsilon.harmony = 1e-4, plot_convergence = FALSE, 
+    verbose = TRUE, reference_values = NULL
+    ) {
+    if (!requireNamespace("Seurat", quietly = TRUE)) {
+        stop("failed to load Seurat library")
     }
-  )
-  
-  if (missing(dims.use)) {
-    dims.use <- seq_len(ncol(pca_embedding))
-  } 
-  dims_avail <- seq_len(ncol(pca_embedding))
-  if (!all(dims.use %in% dims_avail)) {
-    stop("trying to use more dimensions than computed with PCA. Rereun PCA with 
-         more dimensions or use fewer PCs")
-  }
-  if (length(dims.use) == 1) {
-    stop("only specified one dimension in dims.use")
-  }
-
-  tryCatch(x <- Seurat::FetchData(object, group.by.vars), error = function(e) {
-    stop(e)
-  })
-  
-
-  if (verbose) {
-    message(gettextf("running Harmony using %d PCs", length(dims.use)))    
-  }
-  
-
-  harmonyEmbed <- HarmonyMatrix(
-    pca_embedding,
-    Seurat::FetchData(object, group.by.vars),
-    group.by.vars, FALSE, 0, 
-    theta, lambda, sigma, nclust, tau, block.size, 
-    max.iter.harmony, max.iter.cluster,
-    epsilon.cluster, epsilon.harmony,
-    plot_convergence, FALSE, verbose, 
-    reference_values)
-  
-  rownames(harmonyEmbed) <- row.names(pca_embedding)
-  colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
-  
-  object <- object %>%
-    Seurat::SetDimReduction(reduction.type = "harmony", 
-                            slot = "cell.embeddings", 
-                            new.data = harmonyEmbed) %>%
-    Seurat::SetDimReduction(reduction.type = "harmony", 
-                            slot = "key", 
-                            new.data = "Harmony") %>%
-    Seurat::ProjectDim(reduction.type = "harmony", 
-                       replace.dim = TRUE, do.print = FALSE)
-  
-  return(object)
-  
+    
+    if (!"seurat" %in% class(object)) {
+        stop("must pass a Seurat object to RunHarmony function. Did you mean to
+            use the HarmonyMatrix function?")
+    }
+    
+    tryCatch(
+        pca_embedding <- Seurat::GetCellEmbeddings(object, 'pca'), 
+        error = function(e) {
+            stop("PCA must be computed before running Harmony")
+        }
+    )
+    
+    if (missing(dims.use)) {
+        dims.use <- seq_len(ncol(pca_embedding))
+    } 
+    dims_avail <- seq_len(ncol(pca_embedding))
+    if (!all(dims.use %in% dims_avail)) {
+        stop("trying to use more dimensions than computed with PCA. Rereun 
+            PCA with more dimensions or use fewer PCs")
+    }
+    if (length(dims.use) == 1) {
+        stop("only specified one dimension in dims.use")
+    }
+    
+    metavars_df <- Seurat::FetchData(object, group.by.vars)
+    
+    if (verbose) {
+        message(gettextf("running Harmony using %d PCs", length(dims.use)))    
+    }
+    
+    
+    harmonyEmbed <- HarmonyMatrix(
+        pca_embedding,
+        metavars_df,
+        group.by.vars, FALSE, 0, 
+        theta, lambda, sigma, nclust, tau, block.size, 
+        max.iter.harmony, max.iter.cluster,
+        epsilon.cluster, epsilon.harmony,
+        plot_convergence, FALSE, verbose, 
+        reference_values)
+    
+    rownames(harmonyEmbed) <- row.names(pca_embedding)
+    colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
+    
+    object <- object %>%
+        Seurat::SetDimReduction(reduction.type = "harmony", 
+                                slot = "cell.embeddings", 
+                                new.data = harmonyEmbed) %>%
+        Seurat::SetDimReduction(reduction.type = "harmony", 
+                                slot = "key", 
+                                new.data = "Harmony") %>%
+        Seurat::ProjectDim(reduction.type = "harmony", 
+                            replace.dim = TRUE, do.print = FALSE)
+    
+    return(object)
+    
 }
 

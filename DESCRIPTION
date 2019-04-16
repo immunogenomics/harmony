@@ -3,8 +3,11 @@ Title: Fast, sensitive, and accurate integration of single cell data
 biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
 Version: 0.99.0
 Authors@R: c(
-    person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", role = "cre", comment = c(ORCID = "0000-0003-4848-3948")),
-    person("Nghia", "Millard", role = "aut"))
+    person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", 
+        role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
+    person("Nghia", "Millard", email = "nmillard@g.harvard.edu", 
+        role = "aut", comment = c(ORCID = "0000-0002-0518-7674"))
+    )
 Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
 Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function and interfaces to external frameworks.
 URL: software.broadinstitute.org/harmony
@@ -14,14 +17,14 @@ RoxygenNote: 6.1.1
 Depends: R (>= 3.5.0), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
-  dplyr, 
-  tidyr,
-  ggplot2, 
-  irlba,
-  Matrix,
-  methods,
-  tibble,
-  rlang
+    dplyr, 
+    tidyr,
+    ggplot2, 
+    irlba,
+    Matrix,
+    methods,
+    tibble,
+    rlang
 Suggests:
     Seurat,
     cowplot,
@@ -31,5 +34,6 @@ Suggests:
     patchwork,
     MUDAN,
     igraph,
-    Rtsne
+    Rtsne,
+    BiocStyle
 VignetteBuilder: knitr

@@ -9,19 +9,19 @@ output:
     toc: yes  
     fig_width: 7
     fig_height: 2.5
-pdf_document: default
 vignette: >
-  %\VignetteIndexEntry{Quick start to Harmony}
-  %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+    %\VignetteIndexEntry{Quick start to Harmony}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8} 
 ---
-
-
+  
+  
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 library(dplyr)
 library(ggplot2)
 library(harmony)
 library(patchwork)
+
 ```
 
 ```{r, echo=FALSE}
@@ -45,10 +45,10 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
         plt_df %<>%
             dplyr::inner_join(nice_names, by = "given_name") %>% 
             subset(nice_name != "" & !is.na(nice_name))
-
+        
         plt_df[[label_name]] <- plt_df$nice_name        
     }
-        
+    
     plt <- plt_df %>% 
         ggplot(aes_string("X1", "X2", col = label_name, fill = label_name)) + 
         theme_test(base_size = base_size) + 
@@ -65,21 +65,24 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
         plt <- plt + geom_point(shape = '.')
     if (do_density) 
         plt <- plt + geom_density_2d()    
-        
-
+    
+    
     if (no_guides)
         plt <- plt + guides(col = FALSE, fill = FALSE, alpha = FALSE)
     
     if (do_labels) {
-      data_labels <- data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), 
-                                        by = label_name]
-    }
-      
+        data_labels <- plt_df %>% 
+            dplyr::group_by_(label_name) %>% 
+            dplyr::summarise(X1 = mean(X1), X2 = mean(X2)) %>% 
+            dplyr::ungroup()
+        
         plt <- plt + geom_label(data = data_labels, label.size = NA,
-                                      aes_string(label = label_name), 
-                                color = "white", size = pt_size, alpha = 1,
-                                segment.size = 0) +
-        guides(col = FALSE, fill = FALSE)
+                        aes_string(label = label_name), 
+                        color = "white", size = pt_size, alpha = 1,
+                        segment.size = 0) +
+                guides(col = FALSE, fill = FALSE)
+    }
+    
     return(plt)
 }
 
@@ -134,9 +137,9 @@ Initially, the cells cluster by both dataset (left) and cell type (right).
 ```{r}
 do_scatter(V, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset') +
-do_scatter(V, meta_data, 'cell_type') + 
+    do_scatter(V, meta_data, 'cell_type') + 
     labs(title = 'Colored by cell type') +
-NULL
+    NULL
 ```
 
 Let's run Harmony to remove the influence of dataset-of-origin from the
@@ -147,7 +150,7 @@ embeddings.
 
 ```{r}
 harmony_embeddings <- harmony::HarmonyMatrix(
-  V, meta_data, 'dataset', do_pca = FALSE, verbose=FALSE
+    V, meta_data, 'dataset', do_pca = FALSE, verbose=FALSE
 )
 
 ```
@@ -158,9 +161,9 @@ separate (right).
 ```{r}
 do_scatter(harmony_embeddings, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset') +
-do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
+    do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
     labs(title = 'Colored by cell type') +
-NULL
+    NULL
 ```
 
 # Next Steps
