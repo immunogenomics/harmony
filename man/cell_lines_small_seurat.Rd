@@ -3,15 +3,17 @@
 \docType{data}
 \name{cell_lines_small_seurat}
 \alias{cell_lines_small_seurat}
-\title{Same as cell_lines_small but as Seurat object. Expression matrices filled in with dummy values.}
+\title{Same as cell_lines_small but as Seurat object. Expression matrices filled 
+in with dummy values.}
 \format{An object of class \code{seurat} of length 1.}
 \source{
-\url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+\url{support.10xgenomics.com/single-cell-gene-expression/datasets}
 }
 \usage{
 cell_lines_small_seurat
 }
 \description{
-Same as cell_lines_small but as Seurat object. Expression matrices filled in with dummy values.
+Same as cell_lines_small but as Seurat object. Expression matrices filled 
+in with dummy values.
 }
 \keyword{datasets}

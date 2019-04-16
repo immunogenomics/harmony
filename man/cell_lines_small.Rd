@@ -6,7 +6,7 @@
 \title{Same as cell_lines but smaller (300 cells).}
 \format{An object of class \code{list} of length 2.}
 \source{
-\url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}
+\url{support.10xgenomics.com/single-cell-gene-expression/datasets}
 }
 \usage{
 cell_lines_small

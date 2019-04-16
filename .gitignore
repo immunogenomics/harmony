@@ -4,4 +4,4 @@ inst/doc
 .travis.yml
 .ipynb_checkpoints
 **/.ipynb_checkpoints
-
+src/Makevars
