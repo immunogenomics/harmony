@@ -10,7 +10,7 @@ Description: Implementation of the Harmony algorithm for single cell integration
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
-Depends: R (>= 3.4.0), Rcpp
+Depends: R (>= 3.5.0), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
   dplyr, 
