@@ -7,6 +7,7 @@ Authors@R: c(
     person("Nghia", "Millard", role = "aut"))
 Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
 Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function and interfaces to external frameworks.
+URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1

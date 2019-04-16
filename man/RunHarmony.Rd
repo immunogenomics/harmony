@@ -65,13 +65,14 @@ Use this to run the Harmony algorithm on a Seurat object.
 \examples{
                           
 if (requireNamespace("Seurat", quietly = TRUE)) {
-  seuratObject <- RunHarmony(cell_lines_small_seurat, 'orig.ident')
+  data(cell_lines_small_seurat)
+  seuratObject <- RunHarmony(cell_lines_small_seurat, 'dataset')
   ## Harmony cell embeddings
   seuratObject@dr$harmony@cell.embeddings[seq_len(5), seq_len(10)] 
   ## Harmony gene loadings
   seuratObject@dr$harmony@gene.loadings[seq_len(5), seq_len(10)] 
-  p1 <- DimPlot(seuratObject, reduction.use = 'harmony', group.by = 'stim', do.return = TRUE)
-  p2 <- VlnPlot(seuratObject, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
+  p1 <- DimPlot(seuratObject, reduction.use = 'harmony', group.by = 'dataset', do.return = TRUE)
+  p2 <- VlnPlot(seuratObject, features.plot = 'Harmony1', group.by = 'dataset', do.return = TRUE)
   plot_grid(p1,p2)
 }
 }
