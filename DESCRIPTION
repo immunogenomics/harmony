@@ -25,5 +25,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    patchwork
+    patchwork,
+    MUDAN
 VignetteBuilder: knitr
