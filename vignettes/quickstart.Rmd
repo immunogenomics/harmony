@@ -16,8 +16,6 @@ vignette: >
 ---
 
 
-
-
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -91,6 +89,7 @@ Install Harmony with standard Bioconductor commands.
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("harmony", version = "3.8")
+
 ```
 
 # Integrating cell line datasets from 10X

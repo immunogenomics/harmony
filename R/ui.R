@@ -4,8 +4,9 @@
 #' 
 #' @param data_mat Matrix of normalized gene expession (default) or PCA embeddings (see do_pca). 
 #' Cells can be rows or columns. 
-#' @param meta_data Dataframe with variables to integrate. Cells must be rows. 
-#' @param vars_use Which variable(s) to remove (character vector).
+#' @param meta_data Either (1) Dataframe with variables to integrate or (2) vector with labels. 
+#' @param vars_use If meta_data is dataframe, this defined which variable(s) 
+#' to remove (character vector).
 #' @param do_pca Whether to perform PCA on input matrix. 
 #' @param npcs If doing PCA on input matrix, number of PCs to compute. 
 #' @param theta Diversity clustering penalty parameter. Specify for each variable in 
@@ -219,13 +220,14 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 #' @examples
 #'                           
 #' if (requireNamespace("Seurat", quietly = TRUE)) {
-#'   seuratObject <- RunHarmony(cell_lines_small_seurat, 'orig.ident')
+#'   data(cell_lines_small_seurat)
+#'   seuratObject <- RunHarmony(cell_lines_small_seurat, 'dataset')
 #'   ## Harmony cell embeddings
 #'   seuratObject@dr$harmony@cell.embeddings[seq_len(5), seq_len(10)] 
 #'   ## Harmony gene loadings
 #'   seuratObject@dr$harmony@gene.loadings[seq_len(5), seq_len(10)] 
-#'   p1 <- DimPlot(seuratObject, reduction.use = 'harmony', group.by = 'stim', do.return = TRUE)
-#'   p2 <- VlnPlot(seuratObject, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
+#'   p1 <- DimPlot(seuratObject, reduction.use = 'harmony', group.by = 'dataset', do.return = TRUE)
+#'   p2 <- VlnPlot(seuratObject, features.plot = 'Harmony1', group.by = 'dataset', do.return = TRUE)
 #'   plot_grid(p1,p2)
 #' }
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 

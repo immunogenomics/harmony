@@ -15,9 +15,10 @@ HarmonyMatrix(data_mat, meta_data, vars_use, do_pca = TRUE, npcs = 20,
 \item{data_mat}{Matrix of normalized gene expession (default) or PCA embeddings (see do_pca). 
 Cells can be rows or columns.}
 
-\item{meta_data}{Dataframe with variables to integrate. Cells must be rows.}
+\item{meta_data}{Either (1) Dataframe with variables to integrate or (2) vector with labels.}
 
-\item{vars_use}{Which variable(s) to remove (character vector).}
+\item{vars_use}{If meta_data is dataframe, this defined which variable(s) 
+to remove (character vector).}
 
 \item{do_pca}{Whether to perform PCA on input matrix.}
 
