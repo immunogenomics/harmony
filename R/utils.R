@@ -9,6 +9,7 @@
 #' x <- 5 %>% sum(10)
 #' 
 #' @usage lhs \%>\% rhs
+#' @return return value of rhs function. 
 NULL
 
 

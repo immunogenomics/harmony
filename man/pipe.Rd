@@ -6,6 +6,9 @@
 \usage{
 lhs \%>\% rhs
 }
+\value{
+return value of rhs function.
+}
 \description{
 Pipe operator
 }
