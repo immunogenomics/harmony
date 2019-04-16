@@ -1,47 +1,72 @@
 #' Main Harmony interface
 #' 
-#' Use this to run the Harmony algorithm on a PCA matrix. See also RunHarmony to run on Seurat object. 
+#' Use this to run the Harmony algorithm on gene expression or PCA matrix. 
 #' 
-#' @param data_mat Matrix of normalized gene expession (default) or PCA embeddings (see do_pca). Cells can be rows or columns. 
+#' @param data_mat Matrix of normalized gene expession (default) or PCA embeddings (see do_pca). 
+#' Cells can be rows or columns. 
 #' @param meta_data Dataframe with variables to integrate. Cells must be rows. 
 #' @param vars_use Which variable(s) to remove (character vector).
 #' @param do_pca Whether to perform PCA on input matrix. 
 #' @param npcs If doing PCA on input matrix, number of PCs to compute. 
-#' @param theta Diversity clustering penalty parameter. Specify for each variable in vars_use Default theta=2. theta=0 does not encourage any diversity. Larger values of theta result in more diverse clusters. 
-#' @param lambda Ridge regression penalty parameter. Specify for each variable in vars_use Default lambda=1. Lambda must be strictly positive. Smaller values result in more aggressive correction. 
-#' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales the distance from a cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. Smaller values of sigma make soft kmeans cluster approach hard clustering. 
-#' @param nclust Number of clusters in Harmony model. nclust=1 equivalent to simple linear regression. 
-#' @param tau Protection against overclustering small datasets with large ones. tau is the expected number of cells per cluster. 
-#' @param block.size What proportion of cells to update during clustering. Between 0 to 1, default 0.05. Larger values may be faster but less accurate. 
+#' @param theta Diversity clustering penalty parameter. Specify for each variable in 
+#' vars_use Default theta=2. theta=0 does not encourage any diversity. Larger values of 
+#' theta result in more diverse clusters. 
+#' @param lambda Ridge regression penalty parameter. Specify for each variable in vars_use. 
+#' Default lambda=1. Lambda must be strictly positive. Smaller values result in more 
+#' aggressive correction. 
+#' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales the distance from a 
+#' cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. 
+#' Smaller values of sigma make soft kmeans cluster approach hard clustering. 
+#' @param nclust Number of clusters in model. nclust=1 equivalent to simple linear regression. 
+#' @param tau Protection against overclustering small datasets with large ones. tau is the 
+#' expected number of cells per cluster. 
+#' @param block.size What proportion of cells to update during clustering. Between 0 to 1, 
+#' default 0.05. Larger values may be faster but less accurate. 
 #' @param max.iter.cluster Maximum number of rounds to run clustering at each round of Harmony. 
-#' @param epsilon.cluster Convergence tolerance for clustering round of Harmony. Set to -Inf to never stop early. 
-#' @param max.iter.harmony Maximum number of rounds to run Harmony. One round of Harmony involves one clustering and one correction step. 
+#' @param epsilon.cluster Convergence tolerance for clustering round of Harmony. Set to -Inf to 
+#' never stop early. 
+#' @param max.iter.harmony Maximum number of rounds to run Harmony. One round of Harmony involves 
+#' one clustering and one correction step. 
 #' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to never stop early. 
-#' @param plot_convergence Whether to print the convergence plot of the clustering objective function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
-#' @param return_object (Advanced Usage) Whether to return the Harmony object or only the corrected PCA embeddings. 
+#' @param plot_convergence Whether to print the convergence plot of the clustering objective 
+#' function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
+#' @param return_object (Advanced Usage) Whether to return the Harmony object or only the 
+#' corrected PCA embeddings. 
 #' @param verbose Whether to print progress messages. TRUE to print, FALSE to suppress.
-#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have batch variables values matching reference_values will not be moved.  
+#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have batch 
+#' variables values matching reference_values will not be moved.  
 #' 
-#' @return By default, matrix with corrected PCA embeddings. If return_object is TRUE, returns the full Harmony object (R6 reference class type). 
+#' @return By default, matrix with corrected PCA embeddings. If return_object is TRUE, returns 
+#' the full Harmony object (R6 reference class type). 
 #' 
 #' @export 
 #' 
 #' @examples
 #' 
+#' 
+#' ## By default, Harmony inputs a normalized gene expression matrix
 #' \dontrun{
-#' ## Harmony can take a normalized gene expression matrix
 #' harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'stim', do_pca=TRUE)
+#' }
 #' 
 #' ## Harmony can also take a PCA embeddings matrix
+#' data(cell_lines)
+#' pca_matrix <- cell_lines_small$scaled_pcs
+#' meta_data <- cell_lines_small$meta_data
 #' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE)
 #' 
+#' ## Output is a matrix of corrected PC embeddings
+#' dim(harmony_embeddings)
+#' harmony_embeddings[seq_len(5), seq_len(5)]
+#' 
 #' ## Finally, we can return an object with all the underlying Harmony data structures
-#' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', do_pca=FALSE, return_object=TRUE)
+#' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'stim', 
+#'                                     do_pca=FALSE, return_object=TRUE)
 #' dim(harmony_object$Y) ## cluster centroids
 #' dim(harmony_object$R) ## soft cluster assignment
 #' dim(harmony_object$Z_corr) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
-#' }
+#' 
 HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20, 
                           theta = NULL, lambda = NULL, sigma = 0.1, nclust = 100, 
                           tau = 0, block.size = 0.05, max.iter.harmony = 10, 
@@ -109,10 +134,10 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
   N_b <- rowSums(phi)
   Pr_b <- N_b / N
   B_vec <- Reduce(c, lapply(vars_use, function(var_use) {length(unique(meta_data[[var_use]]))}))
-  theta <- Reduce(c, lapply(1:length(B_vec), function(b) rep(theta[b], B_vec[b])))
+  theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) rep(theta[b], B_vec[b])))
   theta <- theta * (1 - exp(-(N_b / (nclust * tau)) ^ 2))
   
-  lambda <- Reduce(c, lapply(1:length(B_vec), function(b) rep(lambda[b], B_vec[b])))
+  lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) rep(lambda[b], B_vec[b])))
   lambda_mat <- diag(c(0, lambda))
 
   ## TODO: check that each ref val matches exactly one covariate
@@ -155,40 +180,53 @@ HarmonyMatrix <- function(data_mat, meta_data, vars_use, do_pca = TRUE, npcs=20,
 
 #' Harmony wrapper for Seurat
 #' 
-#' Use this to run the Harmony algorithm on a Seurat object. See also HarmonyMatrix to run directly on PCA matrix. 
+#' Use this to run the Harmony algorithm on a Seurat object. 
 #' 
 #' @param object Seurat object. Must have PCA computed. 
 #' @param group.by.vars Which variable(s) to remove (character vector).
 #' @param dims.use Which PCA dimensions to use for Harmony. By default, use all.            
-#' @param theta Diversity clustering penalty parameter. Specify for each variable in group.by.vars. Default theta=2. theta=0 does not encourage any diversity. Larger values of theta result in more diverse clusters. 
-#' @param lambda Ridge regression penalty parameter. Specify for each variable in group.by.vars. Default lambda=1. Lambda must be strictly positive. Smaller values result in more aggressive correction. 
-#' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales the distance from a cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. Smaller values of sigma make soft kmeans cluster approach hard clustering. 
-#' @param nclust Number of clusters in Harmony model. nclust=1 equivalent to simple linear regression. 
-#' @param tau Protection against overclustering small datasets with large ones. tau is the expected number of cells per cluster. 
-#' @param block.size What proportion of cells to update during clustering. Between 0 to 1, default 0.05. Larger values may be faster but less accurate. 
+#' @param theta Diversity clustering penalty parameter. Specify for each variable in group.by.vars. 
+#' Default theta=2. theta=0 does not encourage any diversity. Larger values of theta result in 
+#' more diverse clusters. 
+#' @param lambda Ridge regression penalty parameter. Specify for each variable in group.by.vars. 
+#' Default lambda=1. Lambda must be strictly positive. Smaller values result in more aggressive 
+#' correction. 
+#' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales the distance from a 
+#' cell to cluster centroids. Larger values of sigma result in cells assigned to more clusters. 
+#' Smaller values of sigma make soft kmeans cluster approach hard clustering. 
+#' @param nclust Number of clusters in model. nclust=1 equivalent to simple linear regression. 
+#' @param tau Protection against overclustering small datasets with large ones. tau is the 
+#' expected number of cells per cluster. 
+#' @param block.size What proportion of cells to update during clustering. Between 0 to 1, default 
+#' 0.05. Larger values may be faster but less accurate. 
 #' @param max.iter.cluster Maximum number of rounds to run clustering at each round of Harmony. 
-#' @param epsilon.cluster Convergence tolerance for clustering round of Harmony. Set to -Inf to never stop early. 
-#' @param max.iter.harmony Maximum number of rounds to run Harmony. One round of Harmony involves one clustering and one correction step. 
+#' @param epsilon.cluster Convergence tolerance for clustering round of Harmony. Set to -Inf 
+#' to never stop early. 
+#' @param max.iter.harmony Maximum number of rounds to run Harmony. One round of Harmony involves 
+#' one clustering and one correction step. 
 #' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to never stop early. 
-#' @param plot_convergence Whether to print the convergence plot of the clustering objective function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
+#' @param plot_convergence Whether to print the convergence plot of the clustering objective 
+#' function. TRUE to plot, FALSE to suppress. This can be useful for debugging. 
 #' @param verbose Whether to print progress messages. TRUE to print, FALSE to suppress.
-#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have batch variables values matching reference_values will not be moved.  
+#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells that have 
+#' batch variables values matching reference_values will not be moved.  
 #' 
-#' @return Seurat object. Harmony dimensions placed into object@dr$harmony. For downstream Seurat analyses, use reduction.use='harmony' and reduction.type='harmony'.
+#' @return Seurat object. Harmony dimensions placed into object@dr$harmony. For downstream 
+#' Seurat analyses, use reduction.use='harmony' and reduction.type='harmony'.
 #' 
 #' @export 
 #' 
 #' @examples
-#'
-#' \dontrun{
-#' seuratObject <- RunHarmony(seuratObject, 'orig.ident')
-#' ## Harmony cell embeddings
-#' seuratObject@dr$harmony@cell.embeddings[1:5, 1:10] 
-#' ## Harmony gene loadings
-#' seuratObject@dr$harmony@gene.loadings[1:5, 1:10] 
-#' p1 <- DimPlot(object = seuratObject, reduction.use = 'harmony', pt.size = .1, group.by = 'stim', do.return = T)
-#' p2 <- VlnPlot(object = seuratObject, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
-#' plot_grid(p1,p2)
+#'                           
+#' if (requireNamespace("Seurat", quietly = TRUE)) {
+#'   seuratObject <- RunHarmony(cell_lines_small_seurat, 'orig.ident')
+#'   ## Harmony cell embeddings
+#'   seuratObject@dr$harmony@cell.embeddings[seq_len(5), seq_len(10)] 
+#'   ## Harmony gene loadings
+#'   seuratObject@dr$harmony@gene.loadings[seq_len(5), seq_len(10)] 
+#'   p1 <- DimPlot(seuratObject, reduction.use = 'harmony', group.by = 'stim', do.return = TRUE)
+#'   p2 <- VlnPlot(seuratObject, features.plot = 'Harmony1', group.by = 'stim', do.return = TRUE)
+#'   plot_grid(p1,p2)
 #' }
 RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = NULL, sigma = 0.1, 
                        nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10, 
@@ -207,8 +245,8 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
     stop("PCA must be computed before running Harmony")
   }
   if (missing(dims.use)) {
-    dims.use <- 1:ncol(object@dr$pca@cell.embeddings)        
-  } else if (!all(dims.use %in% 1:ncol(object@dr$pca@cell.embeddings))) {
+    dims.use <- seq_len(ncol(object@dr$pca@cell.embeddings))
+  } else if (!all(dims.use %in% seq_len(ncol(object@dr$pca@cell.embeddings)))) {
     stop("trying to use more dimensions than computed with PCA. Rereun PCA with more dimensions or use fewer PCs")
   }
   if (length(dims.use) == 1) {
@@ -236,12 +274,12 @@ RunHarmony <- function(object, group.by.vars, dims.use, theta = NULL, lambda = N
                                 plot_convergence, FALSE, verbose, reference_values)
   
   rownames(harmonyEmbed) <- row.names(object@meta.data)
-  colnames(harmonyEmbed) <- paste0("harmony_", 1:ncol(harmonyEmbed))
+  colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
   
   object <- object %>%
     Seurat::SetDimReduction(reduction.type = "harmony", slot = "cell.embeddings", new.data = harmonyEmbed) %>%
     Seurat::SetDimReduction(reduction.type = "harmony", slot = "key", new.data = "Harmony") %>%
-    Seurat::ProjectDim(reduction.type = "harmony", replace.dim = T, do.print = F)
+    Seurat::ProjectDim(reduction.type = "harmony", replace.dim = TRUE, do.print = FALSE)
   
   return(object)
   

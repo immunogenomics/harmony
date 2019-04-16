@@ -5,16 +5,19 @@
 #' @keywords internal
 #' @export
 #' @importFrom dplyr %>%
+#' @examples
+#' x <- 5 %>% sum(10)
+#' 
 #' @usage lhs \%>\% rhs
 NULL
 
 
 onehot <- function(x) {
   data.frame(x) %>% 
-    tibble::rowid_to_column("id") %>% 
+    tibble::rowid_to_column("row_id") %>% 
     dplyr::mutate(dummy = 1) %>% 
     tidyr::spread(x, dummy, fill = 0) %>% 
-    dplyr::select(-id) %>% as.matrix
+    dplyr::select(-row_id) %>% as.matrix
 }
 
 scaleData <- function(A, margin = 1, thresh = 10) {
@@ -47,7 +50,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
     return(0)
   }
   
-  for (iter in 1:iter_harmony) {
+  for (iter in seq_len(iter_harmony)) {
     if (verbose) {
         message(gettextf('Harmony %d/%d', iter, iter_harmony))        
     }
@@ -88,8 +91,8 @@ HarmonyConvergencePlot <- function(harmonyObj, round_start=1, round_end=Inf, do_
   ## ignore initial value
   ## break down kmeans objective into rounds
   obj_fxn <- data.frame(
-    kmeans_idx = Reduce(c, lapply(harmonyObj$kmeans_rounds, function(rounds) {1:rounds})),
-    harmony_idx = Reduce(c, lapply(1:length(harmonyObj$kmeans_rounds), function(i) {rep(i, harmonyObj$kmeans_rounds[i])})),
+    kmeans_idx = Reduce(c, lapply(harmonyObj$kmeans_rounds, function(rounds) {seq_len(rounds)})),
+    harmony_idx = Reduce(c, lapply(seq_len(length(harmonyObj$kmeans_rounds)), function(i) {rep(i, harmonyObj$kmeans_rounds[i])})),
     val = utils::tail(harmonyObj$objective_kmeans, -1)
   ) %>%
     subset(harmony_idx >= round_start & harmony_idx <= round_end) %>% 
@@ -98,10 +101,10 @@ HarmonyConvergencePlot <- function(harmonyObj, round_start=1, round_end=Inf, do_
   
   plt <- obj_fxn %>% ggplot2::ggplot(ggplot2::aes(idx, val, col = harmony_idx)) + 
     ggplot2::geom_point(shape = 21) + 
-    labs(y = "Objective Function", x = "Iteration Number")
+    ggplot2::labs(y = "Objective Function", x = "Iteration Number")
   
   if (do_wrap) {
-    plt <- plt + facet_grid(.~harmony_idx, scales = 'free', space = 'free_x')
+    plt <- plt + ggplot2::facet_grid(.~harmony_idx, scales = 'free', space = 'free_x')
   } 
   return(plt)
 }

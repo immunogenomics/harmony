@@ -1,6 +1,8 @@
 context('Test main Harmony integration function: HarmonyMatrix')
+library(harmony)
+data(cell_lines_small)
 
-obj <- HarmonyMatrix(cell_lines_small$pca_embeddings, cell_lines_small$meta_data, 
+obj <- HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 
                      theta = 1, nclust = 50, lambda = .1,
                      max.iter.cluster = 10, max.iter.harmony = 5,
                      'dataset', do_pca = FALSE, return_object = TRUE, verbose = FALSE)    
@@ -27,11 +29,11 @@ test_that('there are no null values in the corrected embedding', {
 
 
 test_that('increasing theta decreases chi-squared between Cluster and Batch assignment', {
-    obj0 <- HarmonyMatrix(cell_lines_small$pca_embeddings, cell_lines_small$meta_data, 
+    obj0 <- HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 
                          theta = 0, nclust = 20, lambda = .1,
                          max.iter.cluster = 5, max.iter.harmony = 2,
                          'dataset', do_pca = FALSE, return_object = TRUE, verbose = FALSE)    
-    obj1 <- HarmonyMatrix(cell_lines_small$pca_embeddings, cell_lines_small$meta_data, 
+    obj1 <- HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 
                          theta = 1, nclust = 20, lambda = .1,
                          max.iter.cluster = 5, max.iter.harmony = 2,
                          'dataset', do_pca = FALSE, return_object = TRUE, verbose = FALSE)    
@@ -44,12 +46,12 @@ test_that('increasing theta decreases chi-squared between Cluster and Batch assi
 
 test_that('error messages work', {
     expect_error(
-        HarmonyMatrix(cell_lines_small$pca_embeddings, cell_lines_small$meta_data, do_pca = FALSE)
+        HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, do_pca = FALSE)
     )
     expect_error(
-        HarmonyMatrix(cell_lines_small$pca_embeddings, cell_lines_small$meta_data, 'fake_variable', do_pca = FALSE)
+        HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'fake_variable', do_pca = FALSE)
     )
     expect_error(
-        HarmonyMatrix(cell_lines_small$pca_embeddings, head(cell_lines_small$meta_data, -1), 'dataset', do_pca = FALSE)
+        HarmonyMatrix(cell_lines_small$scaled_pcs, head(cell_lines_small$meta_data, -1), 'dataset', do_pca = FALSE)
     )
 })

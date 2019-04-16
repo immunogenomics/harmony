@@ -19,10 +19,8 @@ vignette: >
 
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-library(data.table)
-library(tidyverse)
-library(ggthemes)
-library(ggrepel)
+library(dplyr)
+library(ggplot2)
 library(harmony)
 library(patchwork)
 ```
@@ -53,7 +51,7 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
         
     plt <- plt_df %>% 
         ggplot(aes_string("X1", "X2", col = label_name, fill = label_name)) + 
-        theme_tufte(base_size = base_size) + 
+        theme_test(base_size = base_size) + 
         theme(panel.background = element_rect(fill = NA, color = "black")) + 
         guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1, shape = 16, size = 4)), alpha = FALSE) +
         scale_color_manual(values = palette_use) + 
@@ -70,10 +68,10 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
     if (no_guides)
         plt <- plt + guides(col = FALSE, fill = FALSE, alpha = FALSE)
     
-    if (do_labels) 
-        plt <- plt + geom_label_repel(data = data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), by = label_name], label.size = NA,
-                                      aes_string(label = label_name), color = "white", size = pt_size, alpha = 1, segment.size = 0) + 
-        guides(col = FALSE, fill = FALSE)
+    # if (do_labels) 
+    #     plt <- plt + geom_label(data = data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), by = label_name], label.size = NA,
+    #                                   aes_string(label = label_name), color = "white", size = pt_size, alpha = 1, segment.size = 0) + 
+    #     guides(col = FALSE, fill = FALSE)
     return(plt)
 }
 
@@ -83,7 +81,7 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
 
 Harmony is an algorithm for performing integration of single cell genomics datasets. Please check out our latest [preprint on bioRxiv](https://www.biorxiv.org/content/10.1101/461954v2). 
 
-![](../docs/main.jpg)
+![](main.jpg)
 
 # Installation
 
@@ -109,8 +107,9 @@ We library normalized the cells, log transformed the counts, and scaled the gene
 
 
 ```{r}
-V <- harmony::cell_lines$scaled_pcs
-meta_data <- harmony::cell_lines$meta_data
+data(cell_lines)
+V <- cell_lines$scaled_pcs
+meta_data <- cell_lines$meta_data
 
 ```
 
@@ -152,7 +151,7 @@ You can also run Harmony as part of an established pipeline in several packages,
 
 ## Detailed breakdown of the Harmony algorithm
 
-For more details on how each part of Harmony works, consult our more detailed vignette "Detailed Walkthrough of Harmony Algorithm". 
+For more details on how each part of Harmony works, consult our more detailed vignette ["Detailed Walkthrough of Harmony Algorithm"](software.broadinstitute.org/harmony/vignettes/walkthrough.html). 
 
 # Session Info
 
