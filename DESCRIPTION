@@ -1,14 +1,17 @@
 Package: harmony
 Title: Fast, sensitive, and accurate integration of single cell data
-Version: 0.1.0
-Author: Ilya Korsunsky [aut]
+biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
+Version: 0.99.0
+Authors@R: c(
+    person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", role = "cre", comment = c(ORCID = "0000-0003-4848-3948")),
+    person("Nghia", "Millard", role = "aut"))
 Maintainer: Ilya Korsunsky <ilya.korsunsky@gmail.com>
-Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function, interfaces to external frameworks, and utility functions to help assess performance of the integration. 
+Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function and interfaces to external frameworks.
+URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 6.1.1
-Depends: R (>= 3.4.0), Rcpp
+Depends: R (>= 3.5.0), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
   dplyr, 
@@ -17,7 +20,16 @@ Imports:
   irlba,
   Matrix,
   methods,
-  tibble
+  tibble,
+  rlang
 Suggests:
-  Seurat,
-  testthat
+    Seurat,
+    cowplot,
+    testthat,
+    knitr,
+    rmarkdown,
+    patchwork,
+    MUDAN,
+    igraph,
+    Rtsne
+VignetteBuilder: knitr

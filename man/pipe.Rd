@@ -6,7 +6,14 @@
 \usage{
 lhs \%>\% rhs
 }
+\value{
+return value of rhs function.
+}
 \description{
 Pipe operator
+}
+\examples{
+x <- 5 \%>\% sum(10)
+
 }
 \keyword{internal}
