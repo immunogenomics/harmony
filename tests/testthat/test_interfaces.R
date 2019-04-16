@@ -1,5 +1,7 @@
 context('Test Harmony interfaces to external packages')
 
+library(harmony)
+
 check_seurat2 <- function() {
     if (!requireNamespace('Seurat', quietly = TRUE)) {
         skip('Seurat V2 not available')
@@ -13,6 +15,7 @@ check_seurat2 <- function() {
 
 test_that('Seurat V2 interface works', {
     check_seurat2()
+    data(cell_lines_small_seurat)
     library(Seurat)
     cell_lines_small_seurat <- RunHarmony(cell_lines_small_seurat, "dataset", theta = 1, nclust = 50, lambda = .1,
                        max.iter.cluster = 5, max.iter.harmony = 2, verbose = FALSE)

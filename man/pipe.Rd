@@ -9,4 +9,8 @@ lhs \%>\% rhs
 \description{
 Pipe operator
 }
+\examples{
+x <- 5 \%>\% sum(10)
+
+}
 \keyword{internal}

@@ -1,6 +1,6 @@
 # Harmony
 
-![ ](docs/main.jpg)
+![ ](vignettes/main.jpg)
 
 *Scalable integration of single cell RNAseq data for batch correction and meta analysis*
 
@@ -21,13 +21,13 @@ Try out Harmony on your single cell dataset! If you already have PCA embeddings 
 
 ```
 library(harmony)
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset")
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", do_pca=FALSE)
 ```
 
 Now your cell embeddings will be less dependent on your batch variable. Do you want to align the data even more? Consider increasing the alignment parameter: 
 
 ```
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", theta = 4)
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", theta = 4, do_pca=FALSE)
 ```
 
 ## Harmony in a Seurat workflow
@@ -46,13 +46,13 @@ This vignette is based on the original in [Seurat](https://satijalab.org/seurat/
 Harmony is able to integrate over multiple covariates. The workflow is the same as above. All you need to do is specify the covariates to integrate. 
 
 ```
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"))
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"), do_pca=FALSE)
 ```
 
 Again, if you'd like to integrate one of the variables even more, try increasing theta for that variable. Below, we leave theta=2 for *dataset* and *donor* and ratchet theta up to 4 for *batch_id*. 
 
 ```
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"), theta = c(2, 2, 4))
+my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"), theta = c(2, 2, 4), do_pca=FALSE)
 ```
 
 You can also specify multiple covariates in your Seurat analysis pipeline: 
