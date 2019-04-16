@@ -16,11 +16,23 @@ check_seurat2 <- function() {
 test_that('Seurat V2 interface works', {
     check_seurat2()
     data(cell_lines_small_seurat)
+    obj <- cell_lines_small_seurat
     library(Seurat)
-    cell_lines_small_seurat <- RunHarmony(cell_lines_small_seurat, "dataset", theta = 1, nclust = 50, lambda = .1,
-                       max.iter.cluster = 5, max.iter.harmony = 2, verbose = FALSE)
-    expect_true('harmony' %in% names(cell_lines_small_seurat@dr))
-    expect_equal(sum(is.na(cell_lines_small_seurat@dr$harmony@cell.embeddings)), 0)
-    expect_equal(dim(cell_lines_small_seurat@dr$harmony@cell.embeddings), dim(cell_lines_small_seurat@dr$pca@cell.embeddings))
+    obj <- RunHarmony(obj, "dataset", theta = 1, nclust = 50, lambda = .1,
+                       max.iter.cluster = 5, max.iter.harmony = 2, 
+                       verbose = FALSE)
+    
+    expect_true(
+      tryCatch({
+        V <- Seurat::GetCellEmbeddings(obj, 'harmony')
+        return(TRUE)
+      }, error = function(e) {
+        return(FALSE)
+      })
+    )
+    V <- Seurat::GetCellEmbeddings(obj, 'harmony')
+    V_pca <- Seurat::GetCellEmbeddings(obj, 'pca')
+    expect_equal(sum(is.na(V)), 0)
+    expect_equal(dim(V), dim(V_pca))
 })
 

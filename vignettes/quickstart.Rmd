@@ -1,6 +1,7 @@
 ---
 title: "Quick start to Harmony"
-author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single cell data with Harmony"
+author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single 
+cell data with Harmony"
 output:
   BiocStyle::html_document:
     code_folding: show
@@ -24,14 +25,15 @@ library(patchwork)
 ```
 
 ```{r, echo=FALSE}
-colors_use <- c(`jurkat` = paste0("#", paste0(toupper(as.hexmode(c(129, 15, 124))), collapse = "")),
-  `t293` = paste0("#", paste0(toupper(as.hexmode(c(208, 158, 45))), collapse = "")),
-   `half` = paste0("#", paste0(toupper(as.hexmode(c(0, 109, 44))), collapse = "")))
+
+colors_use <- c(`jurkat` = '#810F7C', `t293` = '#D09E2D',`half` = '#006D2C')
 
 
-do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_labels = TRUE, nice_names, 
+do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
+                       do_labels = TRUE, nice_names, 
                        palette_use = colors_use,
-                       pt_size = 4, point_size = .5, base_size = 12, do_points = TRUE, do_density = FALSE, h = 6, w = 8) {
+                       pt_size = 4, point_size = .5, base_size = 12, 
+                       do_points = TRUE, do_density = FALSE, h = 6, w = 8) {
     umap_use <- umap_use[, 1:2]
     colnames(umap_use) <- c('X1', 'X2')
     plt_df <- umap_use %>% data.frame() %>% 
@@ -51,7 +53,9 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
         ggplot(aes_string("X1", "X2", col = label_name, fill = label_name)) + 
         theme_test(base_size = base_size) + 
         theme(panel.background = element_rect(fill = NA, color = "black")) + 
-        guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1, shape = 16, size = 4)), alpha = FALSE) +
+        guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1,
+                                                        shape = 16, size = 4)), 
+               alpha = FALSE) +
         scale_color_manual(values = palette_use) + 
         scale_fill_manual(values = palette_use) +    
         theme(plot.title = element_text(hjust = .5)) + 
@@ -66,10 +70,16 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
     if (no_guides)
         plt <- plt + guides(col = FALSE, fill = FALSE, alpha = FALSE)
     
-    # if (do_labels) 
-    #     plt <- plt + geom_label(data = data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), by = label_name], label.size = NA,
-    #                                   aes_string(label = label_name), color = "white", size = pt_size, alpha = 1, segment.size = 0) + 
-    #     guides(col = FALSE, fill = FALSE)
+    if (do_labels) {
+      data_labels <- data.table(plt_df)[, .(X1 = mean(X1), X2 = mean(X2)), 
+                                        by = label_name]
+    }
+      
+        plt <- plt + geom_label(data = data_labels, label.size = NA,
+                                      aes_string(label = label_name), 
+                                color = "white", size = pt_size, alpha = 1,
+                                segment.size = 0) +
+        guides(col = FALSE, fill = FALSE)
     return(plt)
 }
 
@@ -77,7 +87,9 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE, do_lab
 
 # Introduction
 
-Harmony is an algorithm for performing integration of single cell genomics datasets. Please check out our latest [preprint on bioRxiv](https://www.biorxiv.org/content/10.1101/461954v2). 
+Harmony is an algorithm for performing integration of single cell genomics
+datasets. Please check out our latest 
+[preprint on bioRxiv](https://www.biorxiv.org/content/10.1101/461954v2). 
 
 ![](main.jpg)
 
@@ -96,13 +108,18 @@ BiocManager::install("harmony", version = "3.8")
 
 The example below follows Figure 2 in the manuscript. 
 
-We downloaded 3 cell line datasets from the 10X website. The first two (jurkat and 293t) come from pure cell lines while the *half* dataset is a 50:50 mixture of Jurkat and HEK293T cells. We inferred cell type with the canonical marker XIST, since the two cell lines come from 1 male and 1 female donor. 
+We downloaded 3 cell line datasets from the 10X website. The first two (jurkat
+and 293t) come from pure cell lines while the *half* dataset is a 50:50
+mixture of Jurkat and HEK293T cells. We inferred cell type with the canonical 
+marker XIST, since the two cell lines come from 1 male and 1 female donor. 
 
-* https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat
-* https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/293t
-* https://support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat:293t_50:50
+* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat
+* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/293t
+* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat:293t_50:50
 
-We library normalized the cells, log transformed the counts, and scaled the genes. Then we performed PCA and kept the top 20 PCs. The PCA embeddings and meta data are available as part of this package. 
+We library normalized the cells, log transformed the counts, and scaled the 
+genes. Then we performed PCA and kept the top 20 PCs. The PCA embeddings and 
+meta data are available as part of this package. 
 
 
 ```{r}
@@ -112,7 +129,7 @@ meta_data <- cell_lines$meta_data
 
 ```
 
-Initially, the cells cells cluster by both dataset (left) and cell type (right). 
+Initially, the cells cluster by both dataset (left) and cell type (right). 
 
 ```{r}
 do_scatter(V, meta_data, 'dataset') + 
@@ -122,7 +139,11 @@ do_scatter(V, meta_data, 'cell_type') +
 NULL
 ```
 
-Let's run Harmony to remove the influence of dataset-of-origin from the embedding. By default, Harmony accepts a normalized gene expression matrix and performs PCA. Since here we already have the PCs, we specify *do_pca=FALSE*. The matrix *harmony_embeddings* is the matrix of Harmony corrected PCA embeddings. 
+Let's run Harmony to remove the influence of dataset-of-origin from the
+embedding. By default, Harmony accepts a normalized gene expression matrix and
+performs PCA. Since here we already have the PCs, we specify *do_pca=FALSE*.
+The matrix *harmony_embeddings* is the matrix of Harmony corrected PCA
+embeddings. 
 
 ```{r}
 harmony_embeddings <- harmony::HarmonyMatrix(
@@ -131,7 +152,8 @@ harmony_embeddings <- harmony::HarmonyMatrix(
 
 ```
 
-After Harmony, the datasets are now mixed (left) and the cell types are still separate (right). 
+After Harmony, the datasets are now mixed (left) and the cell types are still
+separate (right). 
 
 ```{r}
 do_scatter(harmony_embeddings, meta_data, 'dataset') + 
@@ -145,12 +167,16 @@ NULL
 
 ## Interfacing to software packages
 
-You can also run Harmony as part of an established pipeline in several packages, such as Seurat, MUDAN, and scran. For these vignettes, please [visit our website](software.broadinstitute.org/harmony). 
+You can also run Harmony as part of an established pipeline in several
+packages, such as Seurat, MUDAN, and scran. For these vignettes, please
+[visit our website](software.broadinstitute.org/harmony). 
 
 
 ## Detailed breakdown of the Harmony algorithm
 
-For more details on how each part of Harmony works, consult our more detailed vignette ["Detailed Walkthrough of Harmony Algorithm"](software.broadinstitute.org/harmony/vignettes/walkthrough.html). 
+For more details on how each part of Harmony works, consult our more detailed 
+[vignette](software.broadinstitute.org/harmony/vignettes/walkthrough.html)
+"Detailed Walkthrough of Harmony Algorithm".
 
 # Session Info
 

@@ -17,8 +17,8 @@ onehot <- function(x) {
   data.frame(x) %>% 
     tibble::rowid_to_column("row_id") %>% 
     dplyr::mutate(dummy = 1) %>% 
-    tidyr::spread(x, dummy, fill = 0) %>% 
-    dplyr::select(-row_id) %>% as.matrix
+    tidyr::spread(x, .data$dummy, fill = 0) %>% 
+    dplyr::select(-.data$row_id) %>% as.matrix
 }
 
 scaleData <- function(A, margin = 1, thresh = 10) {
@@ -83,29 +83,39 @@ init_cluster <- function(harmonyObj) {
     stop('before initializing cluster, run setup')
   }
   
-  harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), centers = harmonyObj$K, iter.max = 25, nstart = 10)$centers)
+  harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), centers = harmonyObj$K,
+                                  iter.max = 25, nstart = 10)$centers)
   harmonyObj$init_cluster_cpp()
 }
 
 
-HarmonyConvergencePlot <- function(harmonyObj, round_start=1, round_end=Inf, do_wrap=FALSE) {  
+HarmonyConvergencePlot <- function(harmonyObj, round_start=1, round_end=Inf,
+                                   do_wrap=FALSE) {  
   ## ignore initial value
   ## break down kmeans objective into rounds
   obj_fxn <- data.frame(
-    kmeans_idx = Reduce(c, lapply(harmonyObj$kmeans_rounds, function(rounds) {seq_len(rounds)})),
-    harmony_idx = Reduce(c, lapply(seq_len(length(harmonyObj$kmeans_rounds)), function(i) {rep(i, harmonyObj$kmeans_rounds[i])})),
+    kmeans_idx = Reduce(c, lapply(harmonyObj$kmeans_rounds, function(rounds) {
+        seq_len(rounds)
+      })),
+    harmony_idx = Reduce(c, lapply(
+        seq_len(length(harmonyObj$kmeans_rounds)),
+        function(i) {rep(i, harmonyObj$kmeans_rounds[i])})
+      ),
     val = utils::tail(harmonyObj$objective_kmeans, -1)
   ) %>%
-    subset(harmony_idx >= round_start & harmony_idx <= round_end) %>% 
+    subset(.data$harmony_idx >= round_start) %>% 
+    subset(.data$harmony_idx <= round_end) %>% 
     tibble::rowid_to_column("idx") 
   
   
-  plt <- obj_fxn %>% ggplot2::ggplot(ggplot2::aes(idx, val, col = harmony_idx)) + 
+  plt <- obj_fxn %>% ggplot2::ggplot(ggplot2::aes(.data$idx, .data$val,
+                                                  col = .data$harmony_idx)) + 
     ggplot2::geom_point(shape = 21) + 
     ggplot2::labs(y = "Objective Function", x = "Iteration Number")
   
   if (do_wrap) {
-    plt <- plt + ggplot2::facet_grid(.~harmony_idx, scales = 'free', space = 'free_x')
+    plt <- plt + ggplot2::facet_grid(.~.data$harmony_idx, scales = 'free',
+                                     space = 'free_x')
   } 
   return(plt)
 }

@@ -20,12 +20,16 @@ Imports:
   irlba,
   Matrix,
   methods,
-  tibble
+  tibble,
+  rlang
 Suggests:
     Seurat,
+    cowplot,
     testthat,
     knitr,
     rmarkdown,
     patchwork,
-    MUDAN
+    MUDAN,
+    igraph,
+    Rtsne
 VignetteBuilder: knitr
