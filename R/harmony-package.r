@@ -7,6 +7,7 @@
 #' @importFrom Rcpp loadModule
 #' @importFrom methods new
 #' @importFrom methods as
+#' @importFrom methods is
 #' @importFrom rlang .data
 loadModule("harmony_module", TRUE)
 NULL

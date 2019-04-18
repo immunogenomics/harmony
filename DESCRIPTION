@@ -27,6 +27,7 @@ Imports:
     rlang
 Suggests:
     Seurat,
+    SingleCellExperiment,
     cowplot,
     testthat,
     knitr,
