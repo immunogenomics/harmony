@@ -97,7 +97,8 @@ HarmonyMatrix <- function(
     ##    if theta given, check correct length
     ##    very small batch size and tau=0: suggest tau>0
     ##    is PCA correct? 
-    if (!'data.frame' %in% class(meta_data)) {
+    if (!(is(meta_data, 'data.frame') | is(meta_data, 'DataFrame'))) {
+#     if (!c('data.frame', '') %in% class(meta_data)) {
         if (length(meta_data) %in% dim(data_mat)) {
             meta_data <- data.frame(batch_variable = meta_data)
             vars_use <- 'batch_variable'
@@ -203,138 +204,5 @@ HarmonyMatrix <- function(
             res <- t(res)
         return(res)      
     }
-}
-
-#' Harmony wrapper for Seurat
-#' 
-#' Use this to run the Harmony algorithm on a Seurat object. 
-#' 
-#' @param object Seurat object. Must have PCA computed. 
-#' @param group.by.vars Which variable(s) to remove (character vector).
-#' @param dims.use Which PCA dimensions to use for Harmony. By default, use all
-#' @param theta Diversity clustering penalty parameter. Specify for each 
-#' variable in group.by.vars. Default theta=2. theta=0 does not encourage any
-#'  diversity. Larger values of theta result in more diverse clusters. 
-#' @param lambda Ridge regression penalty parameter. Specify for each variable 
-#' in group.by.vars. Default lambda=1. Lambda must be strictly positive. 
-#' Smaller values result in more aggressive correction. 
-#' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales 
-#' the distance from a cell to cluster centroids. Larger values of sigma result
-#'  in cells assigned to more clusters. Smaller values of sigma make soft 
-#'  kmeans cluster approach hard clustering. 
-#' @param nclust Number of clusters in model. nclust=1 equivalent to simple
-#'  linear regression. 
-#' @param tau Protection against overclustering small datasets with large ones.
-#'  tau is the expected number of cells per cluster. 
-#' @param block.size What proportion of cells to update during clustering.
-#'  Between 0 to 1, default 0.05. Larger values may be faster but less accurate 
-#' @param max.iter.cluster Maximum number of rounds to run clustering at each 
-#' round of Harmony. 
-#' @param epsilon.cluster Convergence tolerance for clustering round of Harmony
-#'  Set to -Inf to never stop early. 
-#' @param max.iter.harmony Maximum number of rounds to run Harmony. One round
-#'  of Harmony involves one clustering and one correction step. 
-#' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to
-#'  never stop early. 
-#' @param plot_convergence Whether to print the convergence plot of the 
-#' clustering objective function. TRUE to plot, FALSE to suppress. This can be
-#'  useful for debugging. 
-#' @param verbose Whether to print progress messages. TRUE to print, FALSE to
-#'  suppress.
-#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells
-#' that have batch variables values matching reference_values will not be moved
-#' 
-#' @return Seurat object. Harmony dimensions placed into dimensional reduction 
-#'  object harmony. For downstream Seurat analyses, use reduction.use='harmony'
-#'  and reduction.type='harmony'.
-#' 
-#' @export 
-#' 
-#' @examples
-#'                           
-#' if (requireNamespace("Seurat", quietly = TRUE)) {
-#'   data(cell_lines_small_seurat)
-#'   seuratObject <- RunHarmony(cell_lines_small_seurat, 'dataset')
-#'   ## Harmony cell embeddings
-#'   harmony_embedding <- Seurat::GetCellEmbeddings(seuratObject, 'harmony')
-#'   harmony_embedding[seq_len(5), seq_len(10)] 
-#'   ## Harmony gene loadings
-#'   harmony_loadings <- Seurat::GetGeneLoadings(seuratObject, 'harmony')
-#'   harmony_loadings[seq_len(5), seq_len(10)] 
-#'   
-#'   p1 <- Seurat::DimPlot(seuratObject, reduction.use = 'harmony', 
-#'                         group.by = 'dataset', do.return = TRUE)
-#'   p2 <- Seurat::VlnPlot(seuratObject, features.plot = 'Harmony1', 
-#'                         group.by = 'dataset', do.return = TRUE)
-#'   cowplot::plot_grid(p1,p2)
-#' }
-RunHarmony <- function(
-    object, group.by.vars, dims.use, theta = NULL, 
-    lambda = NULL, sigma = 0.1, nclust = 100, tau = 0, 
-    block.size = 0.05, max.iter.harmony = 10, 
-    max.iter.cluster = 20, epsilon.cluster = 1e-5, 
-    epsilon.harmony = 1e-4, plot_convergence = FALSE, 
-    verbose = TRUE, reference_values = NULL
-    ) {
-    if (!requireNamespace("Seurat", quietly = TRUE)) {
-        stop("failed to load Seurat library")
-    }
-    
-    if (!"seurat" %in% class(object)) {
-        stop("must pass a Seurat object to RunHarmony function. Did you mean to
-            use the HarmonyMatrix function?")
-    }
-    
-    tryCatch(
-        pca_embedding <- Seurat::GetCellEmbeddings(object, 'pca'), 
-        error = function(e) {
-            stop("PCA must be computed before running Harmony")
-        }
-    )
-    
-    if (missing(dims.use)) {
-        dims.use <- seq_len(ncol(pca_embedding))
-    } 
-    dims_avail <- seq_len(ncol(pca_embedding))
-    if (!all(dims.use %in% dims_avail)) {
-        stop("trying to use more dimensions than computed with PCA. Rereun 
-            PCA with more dimensions or use fewer PCs")
-    }
-    if (length(dims.use) == 1) {
-        stop("only specified one dimension in dims.use")
-    }
-    
-    metavars_df <- Seurat::FetchData(object, group.by.vars)
-    
-    if (verbose) {
-        message(gettextf("running Harmony using %d PCs", length(dims.use)))    
-    }
-    
-    
-    harmonyEmbed <- HarmonyMatrix(
-        pca_embedding,
-        metavars_df,
-        group.by.vars, FALSE, 0, 
-        theta, lambda, sigma, nclust, tau, block.size, 
-        max.iter.harmony, max.iter.cluster,
-        epsilon.cluster, epsilon.harmony,
-        plot_convergence, FALSE, verbose, 
-        reference_values)
-    
-    rownames(harmonyEmbed) <- row.names(pca_embedding)
-    colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
-    
-    object <- object %>%
-        Seurat::SetDimReduction(reduction.type = "harmony", 
-                                slot = "cell.embeddings", 
-                                new.data = harmonyEmbed) %>%
-        Seurat::SetDimReduction(reduction.type = "harmony", 
-                                slot = "key", 
-                                new.data = "Harmony") %>%
-        Seurat::ProjectDim(reduction.type = "harmony", 
-                            replace.dim = TRUE, do.print = FALSE)
-    
-    return(object)
-    
 }
 

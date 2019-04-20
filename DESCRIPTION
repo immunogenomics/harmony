@@ -18,6 +18,7 @@ Depends: R (>= 3.5.0), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
     dplyr, 
+    cowplot,
     tidyr,
     ggplot2, 
     irlba,
@@ -27,7 +28,7 @@ Imports:
     rlang
 Suggests:
     Seurat,
-    cowplot,
+    SingleCellExperiment,
     testthat,
     knitr,
     rmarkdown,
