@@ -20,7 +20,7 @@ vignette: >
 library(dplyr)
 library(ggplot2)
 library(harmony)
-library(patchwork)
+library(cowplot)
 
 ```
 
@@ -135,11 +135,13 @@ meta_data <- cell_lines$meta_data
 Initially, the cells cluster by both dataset (left) and cell type (right). 
 
 ```{r}
-do_scatter(V, meta_data, 'dataset') + 
-    labs(title = 'Colored by dataset') +
-    do_scatter(V, meta_data, 'cell_type') + 
-    labs(title = 'Colored by cell type') +
-    NULL
+p1 <- do_scatter(V, meta_data, 'dataset') + 
+    labs(title = 'Colored by dataset')
+p2 <- do_scatter(V, meta_data, 'cell_type') + 
+    labs(title = 'Colored by cell type')
+
+cowplot::plot_grid(p1, p2)
+
 ```
 
 Let's run Harmony to remove the influence of dataset-of-origin from the
@@ -159,11 +161,12 @@ After Harmony, the datasets are now mixed (left) and the cell types are still
 separate (right). 
 
 ```{r}
-do_scatter(harmony_embeddings, meta_data, 'dataset') + 
-    labs(title = 'Colored by dataset') +
-    do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
-    labs(title = 'Colored by cell type') +
-    NULL
+p1 <- do_scatter(harmony_embeddings, meta_data, 'dataset') + 
+    labs(title = 'Colored by dataset')
+p2 <- do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
+    labs(title = 'Colored by cell type')
+cowplot::plot_grid(p1, p2, nrow = 1)
+
 ```
 
 # Next Steps
@@ -185,6 +188,7 @@ For more details on how each part of Harmony works, consult our more detailed
 
 ```{r}
 sessionInfo()
+
 ```
 
 
