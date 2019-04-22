@@ -32,9 +32,5 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    patchwork,
-    MUDAN,
-    igraph,
-    Rtsne,
     BiocStyle
 VignetteBuilder: knitr
