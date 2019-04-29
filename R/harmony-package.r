@@ -26,6 +26,7 @@
 #' @importFrom methods new
 #' @importFrom methods as
 #' @importFrom methods is
+#' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
 loadModule("harmony_module", TRUE)
 NULL
