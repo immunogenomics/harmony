@@ -1,7 +1,7 @@
 Package: harmony
 Title: Fast, sensitive, and accurate integration of single cell data
 biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", 
         role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
@@ -12,6 +12,7 @@ Authors@R: c(
     person("Soumya", "Raychaudhuri", 
         role = c("aut"), comment = c(ORCID = "0000-0002-1901-8265"))
     )
+Maintainer: Ilya Korsunky <ilya.korsunsky@gmail.com>
 Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi.org/10.1101/461954>. Package includes a standalone Harmony function and interfaces to external frameworks.
 URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
