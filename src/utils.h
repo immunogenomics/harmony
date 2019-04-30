@@ -25,7 +25,7 @@ MATTYPE safe_entropy(const MATTYPE& X) {
 
 // Overload pow to work on a MATTYPErix and vector
 MATTYPE pow(MATTYPE A, const VECTYPE & T) {
-  for (int c = 0; c < A.n_cols; c++) {
+  for (unsigned c = 0; c < A.n_cols; c++) {
     A.col(c) = pow(A.col(c), as_scalar(T.row(c)));
   }
   return(A);
@@ -52,7 +52,7 @@ MATTYPE merge_R(const MATTYPE & R, float thresh = 0.8) {
   // sum over equivalence classes
   uvec uclasses = unique(equiv_classes);
   MATTYPE R_new = zeros<MATTYPE>(uclasses.n_elem, R.n_cols); 
-  for (int i = 0; i < R_new.n_rows; i++) {
+  for (unsigned i = 0; i < R_new.n_rows; i++) {
     uvec idx = find(equiv_classes == uclasses(i)); 
     R_new.row(i) = sum(R.rows(idx), 0);
   }
