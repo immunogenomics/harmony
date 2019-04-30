@@ -7,7 +7,7 @@ void cosine_normalize(MATTYPE& X, int margin, bool do_safe) {
       X.row(r) = X.row(r) / norm(X.row(r), 2);
     }     
   } else {
-    for (int c = 0; c < X.n_cols; c++) {
+    for (unsigned c = 0; c < X.n_cols; c++) {
       if (do_safe)
         X.col(c) = X.col(c) / X.col(c).max(); 
       X.col(c) = X.col(c) / norm(X.col(c), 2);
@@ -91,7 +91,7 @@ MATTYPE scaleRows_dgc(const VECTYPE& x, const VECTYPE& p, const VECTYPE& i,
     }
         
     // count for the zeros
-    for (unsigned r = 0; r < nrow; r++) {
+    for (int r = 0; r < nrow; r++) {
         sd_vec(r) += nz(r) * mean_vec(r) * mean_vec(r);
     }
     
