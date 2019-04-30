@@ -108,8 +108,8 @@ HarmonyConvergencePlot <- function(
         ),
         val = utils::tail(harmonyObj$objective_kmeans, -1)
     ) %>%
-        subset(.data$harmony_idx >= round_start) %>% 
-        subset(.data$harmony_idx <= round_end) %>% 
+        dplyr::filter(.data$harmony_idx >= round_start) %>% 
+        dplyr::filter(.data$harmony_idx <= round_end) %>% 
         tibble::rowid_to_column("idx") 
     
     
