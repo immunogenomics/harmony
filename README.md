@@ -67,9 +67,10 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 Harmony will soon be able to correct for read depth, cell cycle state, and other non-categorical variables. 
 
 
-## Additional tutorials
+## Use Harmony with other packages 
 
-- [Getting Started with Harmony (with MUDAN library)](docs/getting_started.pdf)
-- Using Harmony with Seurat
+- [Seurat V2](docs/SeuratV2.html)
+- [Seurat V3](docs/SeuratV3.html)
+- [MUDAN](docs/mudan.html)
 
 
