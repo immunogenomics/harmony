@@ -62,15 +62,10 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 ```
 
 
-## Harmony with numerical covariates 
-
-Harmony will soon be able to correct for read depth, cell cycle state, and other non-categorical variables. 
-
-
 ## Use Harmony with other packages 
 
-- [Seurat V2](docs/SeuratV2.html)
-- [Seurat V3](docs/SeuratV3.html)
-- [MUDAN](docs/mudan.html)
+- [Seurat V2](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/SeuratV2.html)
+- [Seurat V3](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/SeuratV3.html)
+- [MUDAN](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/mudan.html)
 
 
