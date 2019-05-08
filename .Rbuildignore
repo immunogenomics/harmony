@@ -1,1 +1,5 @@
-^docs$ ## docs for webpage
+^docs$
+^docs/SeuratV2.html$
+^docs/SeuratV3.html$
+^docs/advanced.html$
+^docs/mudan.html$
