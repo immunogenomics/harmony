@@ -187,7 +187,7 @@ RunHarmony.seurat <- function(
     if (length(dims.use) == 1) {
         stop("only specified one dimension in dims.use")
     }
-    metavars_df <- Seurat::FetchData(object, group.by.vars)    
+    metavars_df <- Seurat::FetchData(object, group.by.vars)
     
     harmonyEmbed <- HarmonyMatrix(
         pca_embedding,
