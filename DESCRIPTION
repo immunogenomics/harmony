@@ -18,7 +18,7 @@ License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 Depends: Rcpp
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+LinkingTo: Rcpp, RcppArmadillo
 Imports:
     dplyr, 
     cowplot,
