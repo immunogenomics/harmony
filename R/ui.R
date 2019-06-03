@@ -139,7 +139,7 @@ HarmonyMatrix <- function(
     }
     
     if (is.null(nclust)) {
-        nclust <- min(round(N / 20), 100)
+        nclust <- min(round(N / 30), 100)
     }
     if (is.null(theta)) {
         theta <- rep(2, length(vars_use))
