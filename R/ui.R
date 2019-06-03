@@ -81,8 +81,8 @@
 #' 
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
-    npcs=20, theta = NULL, lambda = NULL, sigma = 0.1, 
-    nclust = 100, tau = 0, block.size = 0.05, 
+    npcs = 20, theta = NULL, lambda = NULL, sigma = 0.1, 
+    nclust = NULL, tau = 0, block.size = 0.05, 
     max.iter.harmony = 10, max.iter.cluster = 200, 
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
@@ -138,6 +138,9 @@ HarmonyMatrix <- function(
         }
     }
     
+    if (is.null(nclust)) {
+        nclust <- min(round(N / 20), 100)
+    }
     if (is.null(theta)) {
         theta <- rep(2, length(vars_use))
     }
