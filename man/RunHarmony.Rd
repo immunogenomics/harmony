@@ -10,14 +10,14 @@
 RunHarmony(object, group.by.vars, ...)
 
 \method{RunHarmony}{seurat}(object, group.by.vars, dims.use = NULL,
-  theta = NULL, lambda = NULL, sigma = 0.1, nclust = 100,
+  theta = NULL, lambda = NULL, sigma = 0.1, nclust = NULL,
   tau = 0, block.size = 0.05, max.iter.harmony = 10,
   max.iter.cluster = 20, epsilon.cluster = 1e-05,
   epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
   reference_values = NULL, reduction.save = "harmony", ...)
 
 \method{RunHarmony}{Seurat}(object, group.by.vars, dims.use = NULL,
-  theta = NULL, lambda = NULL, sigma = 0.1, nclust = 100,
+  theta = NULL, lambda = NULL, sigma = 0.1, nclust = NULL,
   tau = 0, block.size = 0.05, max.iter.harmony = 10,
   max.iter.cluster = 20, epsilon.cluster = 1e-05,
   epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
@@ -26,7 +26,7 @@ RunHarmony(object, group.by.vars, ...)
 
 \method{RunHarmony}{SingleCellExperiment}(object, group.by.vars,
   dims.use = NULL, theta = NULL, lambda = NULL, sigma = 0.1,
-  nclust = 100, tau = 0, block.size = 0.05, max.iter.harmony = 10,
+  nclust = NULL, tau = 0, block.size = 0.05, max.iter.harmony = 10,
   max.iter.cluster = 20, epsilon.cluster = 1e-05,
   epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
   reference_values = NULL, reduction.save = "HARMONY", ...)

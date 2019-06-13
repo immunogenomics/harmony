@@ -60,6 +60,12 @@ MATTYPE merge_R(const MATTYPE & R, float thresh = 0.8) {
 }
 
 // [[Rcpp::export]]
+MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R) {
+    return arma::normalise(Z_cos * R.t(), 2, 0);
+}
+
+
+// [[Rcpp::export]]
 MATTYPE scaleRows_dgc(const VECTYPE& x, const VECTYPE& p, const VECTYPE& i, 
                         int ncol, int nrow, float thresh) {
     // (0) fill in non-zero elements

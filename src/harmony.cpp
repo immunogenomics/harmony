@@ -55,24 +55,36 @@ void harmony::allocate_buffers() {
 
 
 
-void harmony::init_cluster_cpp() {
+void harmony::init_cluster_cpp(unsigned C) {
   // kmeans is called outside, in the R function
   cosine_normalize(Y, 0, false); // normalize columns
   
   // (2) ASSIGN CLUSTER PROBABILITIES
   // using a nice property of cosine distance,
   // compute squared distance directly with cross product
-  dist_mat = 2 * (1 - Y.t() * Z_cos); // initial estimate based on Y_0 and Z_0
-  R = - dist_mat;
-  R.each_col() /= sigma;
-  R.each_row() -= max(R, 0);  
-  R = exp(R);
-  R.each_row() /= sum(R, 0);
+  dist_mat = 2 * (1 - Y.t() * Z_cos); 
   
+  // if C > 0, only initialize the clusters not set by the user
+  // with cluster_prior
+  if (C > 0 && C < K) {
+      MATTYPE Rtmp = -dist_mat.rows(C, K-1);
+      Rtmp.each_col() /= sigma.rows(C, K-1);
+      Rtmp.each_row() -= max(Rtmp, 0);
+      Rtmp = exp(Rtmp);
+      Rtmp.each_row() /= sum(Rtmp, 0);
+      R.rows(C, K-1) = Rtmp;
+  } else {
+      R = -dist_mat;
+      R.each_col() /= sigma;
+      R.each_row() -= max(R, 0);  
+      R = exp(R);
+      R.each_row() /= sum(R, 0);
+  }
+
   // (3) BATCH DIVERSITY STATISTICS
   E = sum(R, 1) * Pr_b.t();
   O = R * Phi.t();
-  
+
   compute_objective();
   objective_harmony.push_back(objective_kmeans.back());
   ran_init = true;
@@ -125,6 +137,8 @@ bool harmony::check_convergence(int type) {
 
 
 
+
+
 int harmony::cluster_cpp() {
   int err_status = 0;
   int iter; 
@@ -140,7 +154,7 @@ int harmony::cluster_cpp() {
       return(-1);
     
     // STEP 1: Update Y
-    Y = normalise(Z_cos * R.t(), 2, 0);
+    Y = compute_Y(Z_cos, R);
     dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
     // STEP 3: Update R

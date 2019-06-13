@@ -30,7 +30,7 @@ public:
   
   /* METHODS */
   void moe_correct_ridge_cpp();
-  void init_cluster_cpp();
+  void init_cluster_cpp(unsigned C);
   int cluster_cpp();
   
   void allocate_buffers();

@@ -46,6 +46,9 @@
 #' @param reference_values (Advanced Usage) Defines reference dataset(s). 
 #' Cells that have batch variables values matching reference_values will not 
 #' be moved.  
+#' @param cluster_prior (Advanced Usage) Provides user defined clusters for 
+#' cluster initialization. If the number of provided clusters C is less than K, 
+#' Harmony will initialize K-C clusters with kmeans. C cannot exceed K.  
 #' 
 #' @return By default, matrix with corrected PCA embeddings. If return_object 
 #' is TRUE, returns the full Harmony object (R6 reference class type). 
@@ -86,7 +89,7 @@ HarmonyMatrix <- function(
     max.iter.harmony = 10, max.iter.cluster = 200, 
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
-    verbose = TRUE, reference_values = NULL
+    verbose = TRUE, reference_values = NULL, cluster_prior = NULL
 ) {
     
     
@@ -192,7 +195,7 @@ HarmonyMatrix <- function(
         Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
         epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
     )
-    init_cluster(harmonyObj)
+    init_cluster(harmonyObj, cluster_prior)
     harmonize(harmonyObj, max.iter.harmony, verbose)
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
     
