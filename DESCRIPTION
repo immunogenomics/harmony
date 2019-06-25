@@ -1,5 +1,5 @@
 Package: harmony
-Title: Fast, sensitive, and accurate integration of single cell data
+Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
 biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
 Version: 0.99.9
 Authors@R: c(
@@ -17,7 +17,7 @@ URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
-Depends: Rcpp
+Depends: R(>= 2.10), Rcpp
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
     dplyr, 
