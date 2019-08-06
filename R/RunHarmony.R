@@ -276,7 +276,7 @@ RunHarmony.Seurat <- function(
     )
   } else {
     available.dimreduc <- names(methods::slot(object = object, name = 'reductions'))
-    if (!reduction %in% available.dimreduc) {
+    if (!(reduction %in% available.dimreduc)) {
       stop("Requested dimension reduction is not present in the Seurat object")
     }
     embedding <- Seurat::Embeddings(object, reduction = reduction)
