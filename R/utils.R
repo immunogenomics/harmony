@@ -39,6 +39,11 @@ moe_correct_ridge <- function(harmonyObj) {
 }
 
 
+moe_ridge_get_betas <- function(harmonyObj) {
+    harmonyObj$moe_ridge_get_betas_cpp()
+}
+
+
 cluster <- function(harmonyObj) {
     if (harmonyObj$ran_init == FALSE) {
         stop('before clustering, run init_cluster')

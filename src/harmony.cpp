@@ -191,7 +191,6 @@ int harmony::update_R() {
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
 
-  
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   for (int i = 0; i < ceil(1. / block_size); i++) {    
     // gather cell updates indices
@@ -230,6 +229,14 @@ void harmony::moe_correct_ridge_cpp() {
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
+CUBETYPE harmony::moe_ridge_get_betas_cpp() {
+  CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
+  for (unsigned k = 0; k < K; k++) { 
+    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+    W_cube.slice(k) = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+  }
+  return W_cube;
+}
 
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
@@ -251,7 +258,6 @@ RCPP_MODULE(harmony_module) {
   .field("dist_mat", &harmony::dist_mat)
   .field("ran_setup", &harmony::ran_setup)
   .field("ran_init", &harmony::ran_init)
-  
   
   .field("N", &harmony::N)
   .field("K", &harmony::K)
@@ -279,6 +285,7 @@ RCPP_MODULE(harmony_module) {
   .method("init_cluster_cpp", &harmony::init_cluster_cpp)
   .method("cluster_cpp", &harmony::cluster_cpp)
   .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
+  .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
   
   ;
 }

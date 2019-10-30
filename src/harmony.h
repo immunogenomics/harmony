@@ -30,6 +30,7 @@ public:
   
   /* METHODS */
   void moe_correct_ridge_cpp();
+  CUBETYPE moe_ridge_get_betas_cpp();
   void init_cluster_cpp(unsigned C);
   int cluster_cpp();
   
