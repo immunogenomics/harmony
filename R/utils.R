@@ -106,20 +106,32 @@ init_cluster <- function(harmonyObj, cluster_prior=NULL) {
 
         ## if needed, initialize K-C clusters        
         if (C < harmonyObj$K) {
-            Ynew <- t(stats::kmeans(t(harmonyObj$Z_cos), 
-                                    centers = harmonyObj$K - C,
-                                    iter.max = 25, nstart = 10)$centers)
+            cluster_res <- flexclust::cclust(
+                t(harmonyObj$Z_cos), 
+                harmonyObj$K - C, 
+                dist = "euclidean", 
+                method = "hardcl",
+                weights=harmonyObj$weights
+            )
+            Ynew <- t(cluster_res@centers)
             harmonyObj$Y[, seq(1+C, harmonyObj$K)] <- Ynew
         }
         
         harmonyObj$init_cluster_cpp(C)
     } else {
-        harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), 
-                                        centers = harmonyObj$K,
-                                        iter.max = 25, nstart = 10)$centers)
+        cluster_res <- flexclust::cclust(
+            t(harmonyObj$Z_cos), 
+            harmonyObj$K, 
+            dist = "euclidean", 
+            method = "hardcl",
+            weights=harmonyObj$weights
+        )
+        harmonyObj$Y <- t(cluster_res@centers)
+#         harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), 
+#                                         centers = harmonyObj$K,
+#                                         iter.max = 25, nstart = 10)$centers)
         harmonyObj$init_cluster_cpp(0)
     }
-
 }
 
 

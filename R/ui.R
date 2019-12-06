@@ -89,7 +89,8 @@ HarmonyMatrix <- function(
     max.iter.harmony = 10, max.iter.cluster = 200, 
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
-    verbose = TRUE, reference_values = NULL, cluster_prior = NULL
+    verbose = TRUE, reference_values = NULL, cluster_prior = NULL,
+    weights = NULL
 ) {
     
     
@@ -130,6 +131,9 @@ HarmonyMatrix <- function(
     } 
     
     N <- nrow(meta_data)
+    if (is.null(weights)) {
+        weights <- rep(1, N)
+    }
     cells_as_cols <- TRUE
     if (ncol(data_mat) != N) {
         if (nrow(data_mat) == N) {
@@ -160,8 +164,11 @@ HarmonyMatrix <- function(
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
         t(onehot(meta_data[[var_use]]))
     }))
-    N_b <- rowSums(phi)
-    Pr_b <- N_b / N
+#     N_b <- rowSums(phi)
+#     Pr_b <- N_b / N
+    N_b <- as.numeric(phi %*% matrix(weights, ncol = 1)) # weighted representation across clusters
+    Pr_b <- prop.table(N_b)
+    
     B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
         length(unique(meta_data[[var_use]]))
     }))
@@ -191,9 +198,9 @@ HarmonyMatrix <- function(
     ## RUN HARMONY
     harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
     harmonyObj$setup(
-        data_mat, phi, phi_moe, 
-        Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
-        epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
+        data_mat, phi, phi_moe, Pr_b,
+        sigma, theta, max.iter.cluster,epsilon.cluster,
+        epsilon.harmony, nclust, tau, block.size, lambda_mat, weights, verbose
     )
     init_cluster(harmonyObj, cluster_prior)
     harmonize(harmonyObj, max.iter.harmony, verbose)

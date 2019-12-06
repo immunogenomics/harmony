@@ -11,7 +11,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __
                     VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
                     float __epsilon_kmeans, float __epsilon_harmony, 
                     int __K, float tau, float __block_size, 
-                    MATTYPE __lambda, bool __verbose) {
+                    MATTYPE __lambda, VECTYPE __weights, bool __verbose) {
   
   Z_corr = MATTYPE(__Z);
   Z_orig = MATTYPE(__Z);
@@ -22,12 +22,12 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __
   Phi_moe = __Phi_moe;
   N = Z_corr.n_cols;
   Pr_b = __Pr_b;
+  weights = __weights; 
   B = Phi.n_rows;
   d = Z_corr.n_rows; 
   window_size = 3;
   epsilon_kmeans = __epsilon_kmeans;
   epsilon_harmony = __epsilon_harmony;
-  
   
   lambda = __lambda;
   sigma = __sigma;
@@ -41,7 +41,6 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __
   allocate_buffers();
   ran_setup = true;
 }
-
 
 void harmony::allocate_buffers() {
   _scale_dist = zeros<MATTYPE>(K, N);    
@@ -82,8 +81,11 @@ void harmony::init_cluster_cpp(unsigned C) {
   }
 
   // (3) BATCH DIVERSITY STATISTICS
-  E = sum(R, 1) * Pr_b.t();
-  O = R * Phi.t();
+//   E = sum(R, 1) * Pr_b.t();
+//   O = R * Phi.t();
+  Rw = R * arma::diagmat(weights);
+  E = sum(Rw, 1) * Pr_b.t();
+  O = Rw * Phi.t();
 
   compute_objective();
   objective_harmony.push_back(objective_kmeans.back());
@@ -92,10 +94,14 @@ void harmony::init_cluster_cpp(unsigned C) {
 }
 
 void harmony::compute_objective() {
-  float kmeans_error = as_scalar(accu(R % dist_mat)); 
-  float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
-  float _cross_entropy;
-  _cross_entropy = as_scalar(accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + 1) / (E + 1))) * Phi)));
+  float kmeans_error = arma::as_scalar(accu((R * arma::diagmat(weights)) % dist_mat)); 
+  float _entropy = arma::as_scalar(accu((safe_entropy(R).each_col() % sigma) * arma::diagmat(weights))); // NEW: vector sigma
+  float _cross_entropy = arma::as_scalar(accu(((R.each_col() % sigma) * arma::diagmat(weights)) % ((arma::repmat(theta.t(), K, 1) % log((O + 1) / (E + 1))) * Phi)));
+    
+//   float kmeans_error = as_scalar(accu(R % dist_mat)); 
+//   float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
+//   float _cross_entropy;
+//   _cross_entropy = as_scalar(accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + 1) / (E + 1))) * Phi)));
   objective_kmeans.push_back(kmeans_error + _entropy + _cross_entropy);
   objective_kmeans_dist.push_back(kmeans_error);
   objective_kmeans_entropy.push_back(_entropy); 
@@ -154,7 +160,7 @@ int harmony::cluster_cpp() {
       return(-1);
     
     // STEP 1: Update Y
-    Y = compute_Y(Z_cos, R);
+    Y = compute_Y(Z_cos, R, weights);
     dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
     // STEP 3: Update R
@@ -201,8 +207,9 @@ int harmony::update_R() {
     cells_update = update_order.rows(idx_list); 
     
     // Step 1: remove cells
-    E -= sum(R.cols(cells_update), 1) * Pr_b.t();
-    O -= R.cols(cells_update) * Phi.cols(cells_update).t();
+    Rw.cols(cells_update) = R.cols(cells_update) * arma::diagmat(weights.rows(cells_update));
+    E -= sum(Rw.cols(cells_update), 1) * Pr_b.t();
+    O -= Rw.cols(cells_update) * Phi.cols(cells_update).t();
 
     // Step 2: recompute R for removed cells
     R.cols(cells_update) = _scale_dist.cols(cells_update);    
@@ -210,8 +217,9 @@ int harmony::update_R() {
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
     
     // Step 3: put cells back 
-    E += sum(R.cols(cells_update), 1) * Pr_b.t();
-    O += R.cols(cells_update) * Phi.cols(cells_update).t(); 
+    Rw.cols(cells_update) = R.cols(cells_update) * arma::diagmat(weights.rows(cells_update));
+    E += sum(Rw.cols(cells_update), 1) * Pr_b.t();
+    O += Rw.cols(cells_update) * Phi.cols(cells_update).t(); 
     
   }
   return 0;
@@ -221,10 +229,20 @@ int harmony::update_R() {
 void harmony::moe_correct_ridge_cpp() {
   Z_corr = Z_orig;
   for (int k = 0; k < K; k++) { 
-    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+    // use weights during beta estimation 
+    Phi_Rk = Phi_moe * arma::diagmat(R.row(k) % weights.t());
     W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+//     W.rows(idx_fixed).zeros(); // do not remove fixed effects
     W.row(0).zeros(); // do not remove the intercept 
+
+    // do not use weights in correction
+    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
     Z_corr -= W.t() * Phi_Rk;
+
+//     Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+//     W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+//     W.row(0).zeros(); // do not remove the intercept 
+//     Z_corr -= W.t() * Phi_Rk;
   }
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
@@ -263,6 +281,7 @@ RCPP_MODULE(harmony_module) {
   .field("K", &harmony::K)
   .field("B", &harmony::B)
   .field("d", &harmony::d)
+  .field("weights", &harmony::weights)
   .field("W", &harmony::W)
   .field("max_iter_kmeans", &harmony::max_iter_kmeans)
   

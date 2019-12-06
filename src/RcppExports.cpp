@@ -8,14 +8,15 @@
 using namespace Rcpp;
 
 // compute_Y
-MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R);
-RcppExport SEXP _harmony_compute_Y(SEXP Z_cosSEXP, SEXP RSEXP) {
+MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R, const VECTYPE& weights);
+RcppExport SEXP _harmony_compute_Y(SEXP Z_cosSEXP, SEXP RSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const MATTYPE& >::type Z_cos(Z_cosSEXP);
     Rcpp::traits::input_parameter< const MATTYPE& >::type R(RSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_Y(Z_cos, R));
+    Rcpp::traits::input_parameter< const VECTYPE& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_Y(Z_cos, R, weights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -39,7 +40,7 @@ END_RCPP
 RcppExport SEXP _rcpp_module_boot_harmony_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_harmony_compute_Y", (DL_FUNC) &_harmony_compute_Y, 2},
+    {"_harmony_compute_Y", (DL_FUNC) &_harmony_compute_Y, 3},
     {"_harmony_scaleRows_dgc", (DL_FUNC) &_harmony_scaleRows_dgc, 6},
     {"_rcpp_module_boot_harmony_module", (DL_FUNC) &_rcpp_module_boot_harmony_module, 0},
     {NULL, NULL, 0}
