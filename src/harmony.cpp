@@ -43,7 +43,7 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __
 }
 
 void harmony::allocate_buffers() {
-  _scale_dist = zeros<MATTYPE>(K, N);    
+  _scale_dist = zeros<MATTYPE>(K, N); 
   dist_mat = zeros<MATTYPE>(K, N);    
   O = zeros<MATTYPE>(K, B);
   E = zeros<MATTYPE>(K, B);  
@@ -160,7 +160,8 @@ int harmony::cluster_cpp() {
       return(-1);
     
     // STEP 1: Update Y
-    Y = compute_Y(Z_cos, R, weights);
+//     Y = compute_Y(Z_cos, R, weights);
+    Y = compute_Y();
     dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
     // STEP 3: Update R
@@ -224,6 +225,21 @@ int harmony::update_R() {
   }
   return 0;
 }
+
+MATTYPE harmony::compute_Y() {
+//   unsigned B = Phi.n_rows;
+//   unsigned N = Phi.n_cols;
+//   unsigned K = R.n_rows;
+//   unsigned d = Z.n_rows;
+//   MATTYPE Yres(K, d); 
+  for (unsigned k = 0; k < K; k++) { 
+    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+    Y.col(k) = W.row(0).t();
+  }
+  return arma::normalise(Y, 2, 0);
+}
+
 
 
 void harmony::moe_correct_ridge_cpp() {

@@ -59,13 +59,13 @@ MATTYPE merge_R(const MATTYPE & R, float thresh = 0.8) {
   return R_new;  
 }
 
-// [[Rcpp::export]]
-MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R, const VECTYPE& weights) {
-//     return arma::normalise(Z_cos * R.t(), 2, 0);
-    MATTYPE Rw = R * arma::diagmat(weights);
-    Rw = arma::diagmat(1 / arma::sum(Rw, 1)) * (Rw * Z_cos.t());
-    return arma::normalise(Rw.t(), 2, 0);
-}
+// // [[Rcpp::export]]
+// MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R, const VECTYPE& weights) {
+// //     return arma::normalise(Z_cos * R.t(), 2, 0);
+//     MATTYPE Rw = R * arma::diagmat(weights);
+//     Rw = arma::diagmat(1 / arma::sum(Rw, 1)) * (Rw * Z_cos.t());
+//     return arma::normalise(Rw.t(), 2, 0);
+// }
 
 
 // [[Rcpp::export]]
