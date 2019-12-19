@@ -234,7 +234,7 @@ MATTYPE harmony::compute_Y() {
 //   MATTYPE Yres(K, d); 
   for (unsigned k = 0; k < K; k++) { 
     Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
-    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_cos.t();
     Y.col(k) = W.row(0).t();
   }
   return arma::normalise(Y, 2, 0);
