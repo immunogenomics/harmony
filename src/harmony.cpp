@@ -192,14 +192,16 @@ int harmony::update_R() {
   _scale_dist = exp(_scale_dist);
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
-  for (int i = 0; i < ceil(1. / block_size); i++) {    
+  int n_blocks = (int)(ceil(1.0 / block_size));
+  int cells_per_block = (N / n_blocks) + 1;
+  for (int i = 0; i < n_blocks; i++) {
     // gather cell updates indices
-    int idx_min = i * N * block_size;
-    int idx_max = min((int)((i + 1) * N * block_size), N - 1);
-    if (idx_min > idx_max) break; // TODO: fix the loop logic so that this never happens
-    uvec idx_list = linspace<uvec>(idx_min, idx_max, idx_max - idx_min + 1);
-    cells_update = update_order.rows(idx_list); 
-    
+    int idx_min = i * cells_per_block;
+    int idx_max = min(idx_min + cells_per_block, N);
+    if (idx_min > idx_max) break;
+    uvec idx_list = linspace<uvec>(idx_min, idx_max - 1, idx_max - idx_min);
+    cells_update = update_order.rows(idx_list);
+
     // Step 1: remove cells
     E -= sum(R.cols(cells_update), 1) * Pr_b.t();
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
