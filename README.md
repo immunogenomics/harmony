@@ -1,6 +1,6 @@
 # Harmony
 
-![ ](vignettes/main.jpg)
+![ ](vignettes/logo.png)
 
 *Fast, sensitive and accurate integration of single-cell data with Harmony*
 
