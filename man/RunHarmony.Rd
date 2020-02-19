@@ -2,34 +2,31 @@
 % Please edit documentation in R/RunHarmony.R
 \name{RunHarmony}
 \alias{RunHarmony}
-\alias{RunHarmony.seurat}
-\alias{RunHarmony.Seurat}
 \alias{RunHarmony.SingleCellExperiment}
 \title{Harmony single cell integration}
 \usage{
 RunHarmony(object, group.by.vars, ...)
 
-\method{RunHarmony}{seurat}(object, group.by.vars, dims.use = NULL,
-  theta = NULL, lambda = NULL, sigma = 0.1, nclust = NULL,
-  tau = 0, block.size = 0.05, max.iter.harmony = 10,
-  max.iter.cluster = 20, epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
-  reference_values = NULL, reduction.save = "harmony", ...)
-
-\method{RunHarmony}{Seurat}(object, group.by.vars, dims.use = NULL,
-  theta = NULL, lambda = NULL, sigma = 0.1, nclust = NULL,
-  tau = 0, block.size = 0.05, max.iter.harmony = 10,
-  max.iter.cluster = 20, epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
-  reference_values = NULL, reduction.save = "harmony",
-  assay.use = "RNA", ...)
-
-\method{RunHarmony}{SingleCellExperiment}(object, group.by.vars,
-  dims.use = NULL, theta = NULL, lambda = NULL, sigma = 0.1,
-  nclust = NULL, tau = 0, block.size = 0.05, max.iter.harmony = 10,
-  max.iter.cluster = 20, epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04, plot_convergence = FALSE, verbose = TRUE,
-  reference_values = NULL, reduction.save = "HARMONY", ...)
+\method{RunHarmony}{SingleCellExperiment}(
+  object,
+  group.by.vars,
+  dims.use = NULL,
+  theta = NULL,
+  lambda = NULL,
+  sigma = 0.1,
+  nclust = NULL,
+  tau = 0,
+  block.size = 0.05,
+  max.iter.harmony = 10,
+  max.iter.cluster = 20,
+  epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04,
+  plot_convergence = FALSE,
+  verbose = TRUE,
+  reference_values = NULL,
+  reduction.save = "HARMONY",
+  ...
+)
 }
 \arguments{
 \item{object}{Pipeline object. Must have PCA computed.}
@@ -92,14 +89,6 @@ to try Harmony with multiple parameters and save them as e.g.
 by default).}
 }
 \value{
-Seurat (version 2) object. Harmony dimensions placed into 
-dimensional reduction object harmony. For downstream Seurat analyses, 
-use reduction.use='harmony' and reduction.type='harmony'.
-
-Seurat (version 3) object. Harmony dimensions placed into 
-dimensional reduction object harmony. For downstream Seurat analyses, 
-use reduction='harmony'.
-
 SingleCellExperiment object. After running RunHarmony, the corrected
 cell embeddings can be accessed with reducedDim(object, "Harmony").
 }
@@ -107,7 +96,7 @@ cell embeddings can be accessed with reducedDim(object, "Harmony").
 Run Harmony algorithm with Seurat and SingleCellAnalysis pipelines.
 }
 \examples{
-
+\dontrun{
 ## Seurat Version 2
 if (requireNamespace("Seurat", quietly = TRUE)) {
     pkg_version <- packageVersion('Seurat')
@@ -190,5 +179,5 @@ if (requireNamespace("SingleCellExperiment", quietly = TRUE)) {
         ggplot2::theme_test(base_size = 12) + 
         ggplot2::labs(title = 'Cell embeddings after Harmony')
 }
-
+}
 }

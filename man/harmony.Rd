@@ -3,7 +3,6 @@
 \docType{package}
 \name{harmony}
 \alias{harmony}
-\alias{harmony-package}
 \title{Harmony: fast, accurate, and robust single cell integration.}
 \description{
 Algorithm for single cell integration.

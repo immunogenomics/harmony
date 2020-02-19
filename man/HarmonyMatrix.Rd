@@ -4,13 +4,28 @@
 \alias{HarmonyMatrix}
 \title{Main Harmony interface}
 \usage{
-HarmonyMatrix(data_mat, meta_data, vars_use, do_pca = TRUE, npcs = 20,
-  theta = NULL, lambda = NULL, sigma = 0.1, nclust = NULL,
-  tau = 0, block.size = 0.05, max.iter.harmony = 10,
-  max.iter.cluster = 200, epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04, plot_convergence = FALSE,
-  return_object = FALSE, verbose = TRUE, reference_values = NULL,
-  cluster_prior = NULL)
+HarmonyMatrix(
+  data_mat,
+  meta_data,
+  vars_use,
+  do_pca = TRUE,
+  npcs = 20,
+  theta = NULL,
+  lambda = NULL,
+  sigma = 0.1,
+  nclust = NULL,
+  tau = 0,
+  block.size = 0.05,
+  max.iter.harmony = 10,
+  max.iter.cluster = 200,
+  epsilon.cluster = 1e-05,
+  epsilon.harmony = 1e-04,
+  plot_convergence = FALSE,
+  return_object = FALSE,
+  verbose = TRUE,
+  reference_values = NULL,
+  cluster_prior = NULL
+)
 }
 \arguments{
 \item{data_mat}{Matrix of normalized gene expession (default) or PCA 
