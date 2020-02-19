@@ -146,15 +146,17 @@ HarmonyMatrix <- function(
     }
     if (is.null(theta)) {
         theta <- rep(2, length(vars_use))
+    } else if (length(theta) != length(vars_use)) {
+        stop('Please specify theta for each variable')
     }
     if (is.null(lambda)) {
         lambda <- rep(1, length(vars_use))
+    } else if (length(lambda) != length(vars_use)) {
+        stop('Please specify lambda for each variable')
     }    
     if (length(sigma) == 1 & nclust > 1) {
         sigma <- rep(sigma, nclust)
     }
-    ## TODO: if theta or lambda doesn't match number of variables, fix this
-    
     
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
