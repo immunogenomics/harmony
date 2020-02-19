@@ -211,16 +211,16 @@ RunHarmony.seurat <- function(
         reference_values)
     
     rownames(harmonyEmbed) <- row.names(pca_embedding)
-    colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
+    colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
     
     object <- object %>%
-        Seurat::SetDimReduction(reduction.type = "harmony", 
+        Seurat::SetDimReduction(reduction.type = reduction.save, 
                                 slot = "cell.embeddings", 
                                 new.data = harmonyEmbed) %>%
-        Seurat::SetDimReduction(reduction.type = "harmony", 
+        Seurat::SetDimReduction(reduction.type = reduction.save, 
                                 slot = "key", 
-                                new.data = "Harmony") %>%
-        Seurat::ProjectDim(reduction.type = "harmony", 
+                                new.data = reduction.save) %>%
+        Seurat::ProjectDim(reduction.type = reduction.save, 
                             replace.dim = TRUE, do.print = FALSE)
     
     return(object)
@@ -317,13 +317,13 @@ RunHarmony.Seurat <- function(
   )
 
   rownames(harmonyEmbed) <- row.names(embedding)
-  colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
+  colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
 
   suppressWarnings({
     harmonydata <- Seurat::CreateDimReducObject(
       embeddings = harmonyEmbed,
       assay = assay.use,
-      key = "harmony"
+      key = reduction.save
     )
   })
 
@@ -331,7 +331,7 @@ RunHarmony.Seurat <- function(
   if (project.dim) {
     object <- Seurat::ProjectDim(
       object,
-      reduction = "harmony",
+      reduction = reduction.save,
       overwrite = TRUE,
       verbose = FALSE
     )
@@ -412,7 +412,7 @@ RunHarmony.SingleCellExperiment <- function(
     )
     
     rownames(harmonyEmbed) <- row.names(metavars_df)
-    colnames(harmonyEmbed) <- paste0("harmony_", seq_len(ncol(harmonyEmbed)))
+    colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
     SingleCellExperiment::reducedDim(object, reduction.save) <- harmonyEmbed
     
     return(object)
