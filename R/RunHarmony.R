@@ -322,6 +322,7 @@ RunHarmony.Seurat <- function(
   suppressWarnings({
     harmonydata <- Seurat::CreateDimReducObject(
       embeddings = harmonyEmbed,
+      stdev = as.numeric(apply(harmonyEmbed, 2, sd)),
       assay = assay.use,
       key = reduction.save
     )
