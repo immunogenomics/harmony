@@ -2,9 +2,13 @@
 
 ![ ](vignettes/main.jpg)
 
-*Scalable integration of single cell RNAseq data for batch correction and meta analysis*
+*Fast, sensitive and accurate integration of single-cell data with Harmony*
 
-Check out the latest preprint of Harmony on [bioRxiv](https://www.biorxiv.org/content/early/2018/11/04/461954)
+Check out the manuscript in Nature Methods: 
+- [nature website](https://www.nature.com/articles/s41592-019-0619-0)
+- [read link](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
+
+For Python users, check out the [harmonypy package](https://github.com/slowkow/harmonypy) by Kamil Slowikowski. 
 
 # System requirements 
 
