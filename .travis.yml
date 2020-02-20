@@ -1,24 +1,19 @@
-# Sample .travis.yml for R projects
-
 language: r
+os: linux
+cache: packages
+warnings_are_errors: true
+r_check_args: "--no-manual --timings"
 
 bioc_packages:
     - BiocStyle
     - SingleCellExperiment
 
-matrix:
+jobs:
   include:
   - r: release
     os: osx
   - r: release
     os: linux
-#  - r: devel
-#    os: linux
-
-sudo: false
-cache: packages
-warnings_are_errors: true
-r_check_args: "--no-manual --timings"
 
 env:
  global:

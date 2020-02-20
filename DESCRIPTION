@@ -28,10 +28,10 @@ Imports:
     Matrix,
     methods,
     tibble,
-    rlang
+    rlang,
+    SingleCellExperiment
 Suggests:
     Seurat,
-    SingleCellExperiment,
     testthat,
     knitr,
     rmarkdown,
