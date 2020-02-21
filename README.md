@@ -1,6 +1,9 @@
-# Harmony
+Harmony <img src="man/figures/logo.png" width="181px" align="right" />
+===========
 
-![ ](vignettes/logo.png)
+[![Travis-CI Build Status](https://travis-ci.org/immunogenomics/harmony.svg?branch=master)](https://travis-ci.org/immunogenomics/harmony)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/immunogenomics/harmony?branch=master&svg=true)](https://ci.appveyor.com/project/immunogenomics/harmony)
+[![DOI](https://zenodo.org/badge/doi/10.1038/s41592-019-0619-0.svg)](https://doi.org/10.1038/s41592-019-0619-0)
 
 *Fast, sensitive and accurate integration of single-cell data with Harmony*
 
@@ -18,7 +21,7 @@ Harmony has been tested on R versions >= 3.4. Please consult the DESCRIPTION fil
 
 To run Harmony, open R and install directly from github using the following commands: 
 
-```
+```r
 library(devtools)
 install_github("immunogenomics/harmony")
 ```
@@ -37,7 +40,7 @@ Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/
 
 The Harmony algorithm iteratively corrects PCA embeddings. To input your own low dimensional embeddings directly, set `do_pca=FALSE`. Harmony is packaged with a small dataset 
 
-```
+```r
 library(harmony)
 my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", do_pca=FALSE)
 ```
@@ -46,7 +49,7 @@ my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", 
 
 You can also run Harmony on a sparse matrix of library size normalized expression counts. Harmony will scale these counts, run PCA, and finally perform integration. 
 
-```
+```r
 library(harmony)
 my_harmony_embeddings <- HarmonyMatrix(normalized_counts, meta_data, "dataset")
 ```
@@ -60,7 +63,7 @@ You can run Harmony within your Seurat workflow. You'll only need to make two ch
 
 For example, run Harmony and then UMAP in two lines.  
 
-```
+```r
 seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
@@ -79,13 +82,16 @@ You can run Harmony with functions from the [MUDAN package](https://github.com/j
 
 Harmony can integrate over multiple covariates. To do this, specify a vector covariates to integrate. 
 
-```
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"), do_pca=FALSE)
+```r
+my_harmony_embeddings <- HarmonyMatrix(
+  my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"),
+  do_pca = FALSE
+)
 ```
 
 Do the same with your Seurat object: 
 
-```
+```r
 seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 ```
 
