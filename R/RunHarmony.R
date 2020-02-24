@@ -43,90 +43,6 @@
 #' by default). 
 #' @param ... other parameters 
 #' 
-#' @examples
-#' 
-#' ## Seurat Version 2
-#' if (requireNamespace("Seurat", quietly = TRUE)) {
-#'     pkg_version <- packageVersion('Seurat')
-#'     if (pkg_version >= "2.0" & pkg_version < "3.0") {
-#'         data(cell_lines_small_seurat_v2)
-#'         seuratObject <- RunHarmony(cell_lines_small_seurat_v2, 'dataset', 
-#'                                    lambda = .1, verbose = FALSE)
-#' 
-#'         ## Harmony cell embeddings
-#'         harmony_embedding <- Seurat::GetCellEmbeddings(
-#'             seuratObject, 'harmony'
-#'         )
-#'         harmony_embedding[seq_len(5), seq_len(5)] 
-#' 
-#'         ## Harmony gene loadings
-#'         harmony_loadings <- Seurat::GetGeneLoadings(
-#'             seuratObject, 'harmony'
-#'         )
-#'         harmony_loadings[seq_len(5), seq_len(5)] 
-#' 
-#'         p1 <- Seurat::DimPlot(seuratObject, reduction.use = 'harmony', 
-#'                       group.by = 'dataset', do.return = TRUE)
-#'         p2 <- Seurat::VlnPlot(seuratObject, features.plot = 'Harmony1', 
-#'                       group.by = 'dataset', do.return = TRUE)
-#'         cowplot::plot_grid(p1,p2)
-#'     }
-#' }
-#' 
-#' ## Seurat Version 3
-#' if (requireNamespace("Seurat", quietly = TRUE)) {
-#'     pkg_version <- packageVersion('Seurat')
-#'     if (pkg_version >= "3.0" & pkg_version < "4.0") {
-#'         data(cell_lines_small_seurat_v3)
-#'         seuratObject <- RunHarmony(cell_lines_small_seurat_v3, 'dataset', 
-#'                                    lambda = .1, verbose = FALSE)
-#'         ## Harmony cell embeddings
-#'         harmony_embedding <- Seurat::Embeddings(seuratObject, 'harmony')
-#'         harmony_embedding[seq_len(5), seq_len(5)] 
-#'         ## Harmony gene loadings
-#'         harmony_loadings <- Seurat::Loadings(seuratObject, 'harmony')
-#'         harmony_loadings[seq_len(5), seq_len(5)] 
-#' 
-#'         p1 <- Seurat::DimPlot(seuratObject, reduction = 'harmony', 
-#'                               group.by = 'dataset', do.return = TRUE)
-#'         p2 <- Seurat::VlnPlot(seuratObject, features = 'harmony_1', 
-#'                               group.by = 'dataset', do.return = TRUE)
-#'         cowplot::plot_grid(p1, p2)
-#'     }
-#' }
-#' 
-#' ## SingleCellExperiment 
-#' if (requireNamespace("SingleCellExperiment", quietly = TRUE)) {
-#' 
-#'     data(cell_lines_small_sce)
-#'     sceObject <- RunHarmony(cell_lines_small_sce, 'dataset',
-#'                             lambda = .1, verbose = FALSE)
-#' 
-#'     ## Harmony cell embeddings
-#'     harmony_embedding <- SingleCellExperiment::reducedDim(
-#'         sceObject, 'HARMONY'
-#'     )
-#'     harmony_embedding[seq_len(5), seq_len(5)]
-#' 
-#'     ## Plot the Harmonized embeddings
-#'     ## Colored by batch and cell type
-#'     SingleCellExperiment::reducedDim(sceObject, 'HARMONY') %>% 
-#'         cbind(SingleCellExperiment::colData(sceObject)) %>% 
-#'         data.frame() %>% 
-#'     tidyr::gather(key, val, dataset, cell_type) %>%
-#'     dplyr::mutate(key = dplyr::case_when(
-#'         key == 'dataset' ~ 'Dataset batch', 
-#'         key == 'cell_type' ~ 'Known cell types'
-#'     )) %>% 
-#'     dplyr::sample_frac(1L, FALSE) %>% 
-#'     ggplot2::ggplot(ggplot2::aes(x = harmony_1, 
-#'                                  y = harmony_2, 
-#'                                  color = val)) + 
-#'         ggplot2::geom_point() + 
-#'         ggplot2::facet_wrap(~key) + 
-#'         ggplot2::theme_test(base_size = 12) + 
-#'         ggplot2::labs(title = 'Cell embeddings after Harmony')
-#' }
 #' 
 #' @rdname RunHarmony
 #' @export 
@@ -134,97 +50,6 @@ RunHarmony <- function(object, group.by.vars, ...) {
     UseMethod("RunHarmony")
 }
 
-#' @rdname RunHarmony
-#' @return Seurat (version 2) object. Harmony dimensions placed into 
-#' dimensional reduction object harmony. For downstream Seurat analyses, 
-#' use reduction.use='harmony' and reduction.type='harmony'.
-#' @export
-RunHarmony.seurat <- function(
-    object, 
-    group.by.vars, 
-    dims.use = NULL, 
-    theta = NULL, 
-    lambda = NULL, 
-    sigma = 0.1, 
-    nclust = NULL, 
-    tau = 0, 
-    block.size = 0.05, 
-    max.iter.harmony = 10, 
-    max.iter.cluster = 20, 
-    epsilon.cluster = 1e-5, 
-    epsilon.harmony = 1e-4, 
-    plot_convergence = FALSE, 
-    verbose = TRUE, 
-    reference_values = NULL,
-    reduction.save = "harmony",
-    ...
-) {
-    
-    tryCatch(
-        pca_embedding <- Seurat::GetCellEmbeddings(
-            object, reduction.type = 'pca'
-        ), 
-        error = function(e) {
-            if (verbose) {
-                message('Harmony needs PCA. Trying to run PCA now.')
-            }            
-            tryCatch(
-                object <- Seurat::RunPCA(object, do.print = verbose), 
-                error = function(e) {
-                    stop('Harmony needs PCA. Tried to run PCA and failed.')
-                }
-            )
-        }
-    )    
-    if (is.null(dims.use)) {
-        dims.use <- seq_len(ncol(pca_embedding))
-    } 
-    dims_avail <- seq_len(ncol(pca_embedding))
-    if (!all(dims.use %in% dims_avail)) {
-        stop("trying to use more dimensions than computed with PCA. Rereun 
-            PCA with more dimensions or use fewer PCs")
-    }
-    if (length(dims.use) == 1) {
-        stop("only specified one dimension in dims.use")
-    }
-    metavars_df <- Seurat::FetchData(object, group.by.vars)
-    
-    harmonyEmbed <- HarmonyMatrix(
-        pca_embedding,
-        metavars_df,
-        group.by.vars, 
-        FALSE, 
-        0, 
-        theta, 
-        lambda, 
-        sigma, 
-        nclust, 
-        tau, 
-        block.size, 
-        max.iter.harmony, 
-        max.iter.cluster,
-        epsilon.cluster, 
-        epsilon.harmony,
-        plot_convergence, 
-        FALSE, 
-        verbose, 
-        reference_values)
-    
-    rownames(harmonyEmbed) <- row.names(pca_embedding)
-    colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
-    
-    object <- object %>%
-        Seurat::SetDimReduction(reduction.type = reduction.save, 
-                                slot = "cell.embeddings", 
-                                new.data = harmonyEmbed) %>%
-        Seurat::SetDimReduction(reduction.type = reduction.save, 
-                                slot = "key", 
-                                new.data = reduction.save) %>%
-        Seurat::ProjectDim(reduction.type = reduction.save, 
-                            replace.dim = TRUE, do.print = FALSE)
-    
-    return(object)
-    }
 
 
 #' @rdname RunHarmony
@@ -257,25 +82,26 @@ RunHarmony.Seurat <- function(
   project.dim = TRUE,
   ...
 ) {
-  if (reduction == 'pca') {
+  if (reduction == "pca") {
     tryCatch(
-      embedding <- Seurat::Embeddings(object, reduction = 'pca'),
+      embedding <- Seurat::Embeddings(object, reduction = "pca"),
       error = function(e) {
         if (verbose) {
-          message('Harmony needs PCA. Trying to run PCA now.')
+          message("Harmony needs PCA. Trying to run PCA now.")
         }
         tryCatch(
           object <- Seurat::RunPCA(
-            object, assay = assay.use, verbose = verbose
+            object,
+            assay = assay.use, verbose = verbose
           ),
           error = function(e) {
-            stop('Harmony needs PCA. Tried to run PCA and failed.')
+            stop("Harmony needs PCA. Tried to run PCA and failed.")
           }
         )
       }
     )
   } else {
-    available.dimreduc <- names(methods::slot(object = object, name = 'reductions'))
+    available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
     if (!(reduction %in% available.dimreduc)) {
       stop("Requested dimension reduction is not present in the Seurat object")
     }
@@ -322,7 +148,7 @@ RunHarmony.Seurat <- function(
   suppressWarnings({
     harmonydata <- Seurat::CreateDimReducObject(
       embeddings = harmonyEmbed,
-      stdev = as.numeric(apply(harmonyEmbed, 2, sd)),
+      stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
       assay = assay.use,
       key = reduction.save
     )
@@ -338,7 +164,7 @@ RunHarmony.Seurat <- function(
     )
   }
   return(object)
- }
+}
 
 
 

@@ -3,3 +3,6 @@
 ^docs/SeuratV3.html$
 ^docs/advanced.html$
 ^docs/mudan.html$
+^.*\.Rproj$
+^\.Rproj\.user$
+^.travis.yml$
