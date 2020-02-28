@@ -85,7 +85,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
 }
 
 
-init_cluster <- function(harmonyObj, cluster_prior=NULL) {
+init_cluster <- function(harmonyObj, cluster_prior=NULL, use_weights=FALSE) {
     if (harmonyObj$ran_setup == FALSE) {
         stop('before initializing cluster, run setup')
     }
@@ -106,30 +106,48 @@ init_cluster <- function(harmonyObj, cluster_prior=NULL) {
 
         ## if needed, initialize K-C clusters        
         if (C < harmonyObj$K) {
-            cluster_res <- flexclust::cclust(
-                t(harmonyObj$Z_cos), 
-                harmonyObj$K - C, 
-                dist = "euclidean", 
-                method = "hardcl",
-                weights=harmonyObj$weights
-            )
-            Ynew <- t(cluster_res@centers)
+#             cluster_res <- flexclust::cclust(
+#                 t(harmonyObj$Z_cos), 
+#                 harmonyObj$K - C, 
+#                 dist = "euclidean", 
+#                 method = "hardcl",
+#                 weights=harmonyObj$weights
+#             )
+#             Ynew <- t(cluster_res@centers)
+            if (use_weights) {
+                Ynew <- soft_kmeans_weighted(
+                    harmonyObj$Z_cos, 
+                    harmonyObj$K - C,
+                    harmonyObj$weights)$Y
+            } else {
+                Ynew <- t(stats::kmeans(t(harmonyObj$Z_cos), 
+                                        centers = harmonyObj$K - C,
+                                        iter.max = 25, nstart = 10)$centers)
+            }
+            
             harmonyObj$Y[, seq(1+C, harmonyObj$K)] <- Ynew
         }
         
         harmonyObj$init_cluster_cpp(C)
     } else {
-        cluster_res <- flexclust::cclust(
-            t(harmonyObj$Z_cos), 
-            harmonyObj$K, 
-            dist = "euclidean", 
-            method = "hardcl",
-            weights=harmonyObj$weights
-        )
-        harmonyObj$Y <- t(cluster_res@centers)
-#         harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), 
-#                                         centers = harmonyObj$K,
-#                                         iter.max = 25, nstart = 10)$centers)
+#         cluster_res <- flexclust::cclust(
+#             t(harmonyObj$Z_cos), 
+#             harmonyObj$K, 
+#             dist = "euclidean", 
+#             method = "hardcl",
+#             weights=harmonyObj$weights
+#         )
+#         harmonyObj$Y <- t(cluster_res@centers)
+        if (use_weights) {
+            harmonyObj$Y <- soft_kmeans_weighted(
+                harmonyObj$Z_cos, 
+                harmonyObj$K,
+                harmonyObj$weights)$Y
+        } else {
+            harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), 
+                                            centers = harmonyObj$K,
+                                            iter.max = 25, nstart = 10)$centers)
+        }
         harmonyObj$init_cluster_cpp(0)
     }
 }
@@ -168,10 +186,26 @@ HarmonyConvergencePlot <- function(
     return(plt)
 }
 
-
-
-
-
+soft_kmeans_weighted <- function(X, k, w, sigma=0.1, iter.max=25, nstart=10, tol=1e-3) {
+    seeds <- sample(1e6, nstart)
+#     if (!missing(w)) {
+        score_curr <- Inf
+        for (iter in seq_len(nstart)) {
+            set.seed(seeds[iter])
+            mediods <- sample(ncol(X), k, prob = w)
+            res_new <- soft_kmeans_weighted_cpp(X[, mediods], X, w, iter.max, sigma, tol)
+            score_new <- tail(res_new$scores, 1)
+            if (score_new < score_curr) {
+                res <- res_new
+                score_curr <- score_new
+            }
+        }
+#     } else {
+#         Y <- stats::kmeans(t(Z), k, iter.max, nstart)$centers %>% t() ## D x K
+#         res <- soft_kmeans_cpp(Y, Z, iter.max, sigma)        
+#     }
+    return(res)
+}
 
 
 

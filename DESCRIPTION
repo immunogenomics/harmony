@@ -28,8 +28,7 @@ Imports:
     Matrix,
     methods,
     tibble,
-    rlang,
-    flexclust
+    rlang
 Suggests:
     Seurat,
     SingleCellExperiment,

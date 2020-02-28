@@ -427,7 +427,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/Users/ikorsuns/Dropbox (Partners HealthCare)/playground/harmony'
+ac_pwd='/data/srlab/ik936/harmony'
 srcdir='.'
 test -n "$AWK" || AWK=awk
 # The default lists apply if the user does not specify any file.
@@ -589,8 +589,8 @@ S["host_alias"]=""
 S["build_alias"]=""
 S["LIBS"]=""
 S["ECHO_T"]=""
-S["ECHO_N"]=""
-S["ECHO_C"]="\\c"
+S["ECHO_N"]="-n"
+S["ECHO_C"]=""
 S["DEFS"]="-DPACKAGE_NAME=\\\"harmonyFast\\\" -DPACKAGE_TARNAME=\\\"harmonyfast\\\" -DPACKAGE_VERSION=\\\"0.1.0\\\" -DPACKAGE_STRING=\\\"harmonyFast\\ 0.1.0\\\" -DPACKAGE_BUGRE"\
 "PORT=\\\"\\\" -DPACKAGE_URL=\\\"\\\""
 S["mandir"]="${datarootdir}/man"

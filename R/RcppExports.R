@@ -5,3 +5,11 @@ scaleRows_dgc <- function(x, p, i, ncol, nrow, thresh) {
     .Call('_harmony_scaleRows_dgc', PACKAGE = 'harmony', x, p, i, ncol, nrow, thresh)
 }
 
+soft_kmeans_score_cpp <- function(R, w, dist_mat, sigma) {
+    .Call('_harmony_soft_kmeans_score_cpp', PACKAGE = 'harmony', R, w, dist_mat, sigma)
+}
+
+soft_kmeans_weighted_cpp <- function(Y, Z, w, max_iter, sigma, tol) {
+    .Call('_harmony_soft_kmeans_weighted_cpp', PACKAGE = 'harmony', Y, Z, w, max_iter, sigma, tol)
+}
+

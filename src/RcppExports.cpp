@@ -23,11 +23,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// soft_kmeans_score_cpp
+double soft_kmeans_score_cpp(const arma::mat& R, const arma::rowvec& w, const arma::mat& dist_mat, float sigma);
+RcppExport SEXP _harmony_soft_kmeans_score_cpp(SEXP RSEXP, SEXP wSEXP, SEXP dist_matSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type R(RSEXP);
+    Rcpp::traits::input_parameter< const arma::rowvec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type dist_mat(dist_matSEXP);
+    Rcpp::traits::input_parameter< float >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(soft_kmeans_score_cpp(R, w, dist_mat, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// soft_kmeans_weighted_cpp
+List soft_kmeans_weighted_cpp(arma::mat Y, arma::mat Z, const arma::rowvec& w, unsigned max_iter, float sigma, float tol);
+RcppExport SEXP _harmony_soft_kmeans_weighted_cpp(SEXP YSEXP, SEXP ZSEXP, SEXP wSEXP, SEXP max_iterSEXP, SEXP sigmaSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::rowvec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< unsigned >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< float >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< float >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(soft_kmeans_weighted_cpp(Y, Z, w, max_iter, sigma, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP _rcpp_module_boot_harmony_module();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_harmony_scaleRows_dgc", (DL_FUNC) &_harmony_scaleRows_dgc, 6},
+    {"_harmony_soft_kmeans_score_cpp", (DL_FUNC) &_harmony_soft_kmeans_score_cpp, 4},
+    {"_harmony_soft_kmeans_weighted_cpp", (DL_FUNC) &_harmony_soft_kmeans_weighted_cpp, 6},
     {"_rcpp_module_boot_harmony_module", (DL_FUNC) &_rcpp_module_boot_harmony_module, 0},
     {NULL, NULL, 0}
 };

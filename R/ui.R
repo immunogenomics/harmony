@@ -90,7 +90,7 @@ HarmonyMatrix <- function(
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
     verbose = TRUE, reference_values = NULL, cluster_prior = NULL,
-    weights = NULL
+    weights = NULL, use_weights_init=FALSE
 ) {
     
     
@@ -202,7 +202,7 @@ HarmonyMatrix <- function(
         sigma, theta, max.iter.cluster,epsilon.cluster,
         epsilon.harmony, nclust, tau, block.size, lambda_mat, weights, verbose
     )
-    init_cluster(harmonyObj, cluster_prior)
+    init_cluster(harmonyObj, cluster_prior, use_weights_init)
     harmonize(harmonyObj, max.iter.harmony, verbose)
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
     
