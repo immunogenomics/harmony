@@ -1,3 +1,8 @@
+// [[Rcpp::export]]
+void update_dist_mat(MATTYPE& dist_mat, const MATTYPE& Y, const MATTYPE& Z_cos) {
+    dist_mat = 2 * (1 - Y.t() * Z_cos); 
+}
+
 void cosine_normalize(MATTYPE& X, int margin, bool do_safe) {
   // to avoid Inf values, first divide by max 
   if (margin == 1) {
@@ -14,7 +19,6 @@ void cosine_normalize(MATTYPE& X, int margin, bool do_safe) {
     }    
   } 
 }
-
 
 MATTYPE safe_entropy(const MATTYPE& X) {
   MATTYPE A = X % log(X);

@@ -7,6 +7,18 @@
 
 using namespace Rcpp;
 
+// update_dist_mat
+void update_dist_mat(MATTYPE& dist_mat, const MATTYPE& Y, const MATTYPE& Z_cos);
+RcppExport SEXP _harmony_update_dist_mat(SEXP dist_matSEXP, SEXP YSEXP, SEXP Z_cosSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< MATTYPE& >::type dist_mat(dist_matSEXP);
+    Rcpp::traits::input_parameter< const MATTYPE& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const MATTYPE& >::type Z_cos(Z_cosSEXP);
+    update_dist_mat(dist_mat, Y, Z_cos);
+    return R_NilValue;
+END_RCPP
+}
 // scaleRows_dgc
 MATTYPE scaleRows_dgc(const VECTYPE& x, const VECTYPE& p, const VECTYPE& i, int ncol, int nrow, float thresh);
 RcppExport SEXP _harmony_scaleRows_dgc(SEXP xSEXP, SEXP pSEXP, SEXP iSEXP, SEXP ncolSEXP, SEXP nrowSEXP, SEXP threshSEXP) {
@@ -57,6 +69,7 @@ END_RCPP
 RcppExport SEXP _rcpp_module_boot_harmony_module();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_harmony_update_dist_mat", (DL_FUNC) &_harmony_update_dist_mat, 3},
     {"_harmony_scaleRows_dgc", (DL_FUNC) &_harmony_scaleRows_dgc, 6},
     {"_harmony_soft_kmeans_score_cpp", (DL_FUNC) &_harmony_soft_kmeans_score_cpp, 4},
     {"_harmony_soft_kmeans_weighted_cpp", (DL_FUNC) &_harmony_soft_kmeans_weighted_cpp, 6},

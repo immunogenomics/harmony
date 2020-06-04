@@ -26,7 +26,7 @@ public:
              VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
              float __epsilon_kmeans, float __epsilon_harmony, 
              int __K, float tau, float __block_size, 
-             MATTYPE __lambda, VECTYPE __weights, bool __verbose);
+             MATTYPE __lambda, VECTYPE __weights, bool __verbose, bool __use_weights);
   
   /* METHODS */
   void moe_correct_ridge_cpp();
@@ -34,12 +34,20 @@ public:
   MATTYPE compute_Y();
   void init_cluster_cpp(unsigned C);
   int cluster_cpp();
-  
+
+  // support for cluster_R_r
+  void update_scale_dist();
+  void remove_cells();
+  void recompute_R();
+  void replace_cells();    
+    
   void allocate_buffers();
   void compute_objective(); 
   int update_R();
   bool check_convergence(int type);
 
+  void set_cells_update(const uvec& new_cells_update);
+    
   /* FIELDS */
   MATTYPE R, Rw, Z_orig, Z_corr, Z_cos, Y, Y_unnormed, Phi, Phi_moe; 
   VECTYPE Pr_b, theta, N_b, sigma, sigma_prior, weights;
@@ -58,7 +66,7 @@ public:
   MATTYPE W;
   
   // flags
-  bool ran_setup, ran_init, verbose; // do_merge_R;
+  bool ran_setup, ran_init, verbose, use_weights; // do_merge_R;
   
 };
 

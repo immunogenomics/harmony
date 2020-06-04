@@ -86,11 +86,11 @@ HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
     npcs = 20, theta = NULL, lambda = NULL, sigma = 0.1, 
     nclust = NULL, tau = 0, block.size = 0.05, 
-    max.iter.harmony = 10, max.iter.cluster = 200, 
+    max.iter.harmony = 10, max.iter.cluster = 20, 
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
     verbose = TRUE, reference_values = NULL, cluster_prior = NULL,
-    weights = NULL, use_weights_init=FALSE
+    weights = NULL#, use_weights=FALSE
 ) {
     
     
@@ -132,8 +132,15 @@ HarmonyMatrix <- function(
     
     N <- nrow(meta_data)
     if (is.null(weights)) {
-        weights <- rep(1, N)
+        use_weights <- FALSE
+        ## for the CPP method
+        weights <- rep(1, 2)
+    } else {
+        use_weights <- TRUE
     }
+#     if (is.null(weights)) {
+#         weights <- rep(1, N)
+#     }
     cells_as_cols <- TRUE
     if (ncol(data_mat) != N) {
         if (nrow(data_mat) == N) {
@@ -164,10 +171,13 @@ HarmonyMatrix <- function(
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
         t(onehot(meta_data[[var_use]]))
     }))
-#     N_b <- rowSums(phi)
-#     Pr_b <- N_b / N
-    N_b <- as.numeric(phi %*% matrix(weights, ncol = 1)) # weighted representation across clusters
-    Pr_b <- prop.table(N_b)
+    if (use_weights) {
+        N_b <- as.numeric(phi %*% matrix(weights, ncol = 1)) # weighted representation across clusters
+        Pr_b <- prop.table(N_b)
+    } else {
+        N_b <- rowSums(phi)
+        Pr_b <- N_b / N
+    }
     
     B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
         length(unique(meta_data[[var_use]]))
@@ -200,9 +210,10 @@ HarmonyMatrix <- function(
     harmonyObj$setup(
         data_mat, phi, phi_moe, Pr_b,
         sigma, theta, max.iter.cluster,epsilon.cluster,
-        epsilon.harmony, nclust, tau, block.size, lambda_mat, weights, verbose
+        epsilon.harmony, nclust, tau, block.size, lambda_mat, weights, verbose, use_weights
     )
-    init_cluster(harmonyObj, cluster_prior, use_weights_init)
+
+    init_cluster(harmonyObj, cluster_prior)
     harmonize(harmonyObj, max.iter.harmony, verbose)
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
     

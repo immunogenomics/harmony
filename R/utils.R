@@ -85,7 +85,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
 }
 
 
-init_cluster <- function(harmonyObj, cluster_prior=NULL, use_weights=FALSE) {
+init_cluster <- function(harmonyObj, cluster_prior=NULL) {
     if (harmonyObj$ran_setup == FALSE) {
         stop('before initializing cluster, run setup')
     }
@@ -114,7 +114,7 @@ init_cluster <- function(harmonyObj, cluster_prior=NULL, use_weights=FALSE) {
 #                 weights=harmonyObj$weights
 #             )
 #             Ynew <- t(cluster_res@centers)
-            if (use_weights) {
+            if (harmonyObj$use_weights) {
                 Ynew <- soft_kmeans_weighted(
                     harmonyObj$Z_cos, 
                     harmonyObj$K - C,
@@ -138,7 +138,7 @@ init_cluster <- function(harmonyObj, cluster_prior=NULL, use_weights=FALSE) {
 #             weights=harmonyObj$weights
 #         )
 #         harmonyObj$Y <- t(cluster_res@centers)
-        if (use_weights) {
+        if (harmonyObj$use_weights) {
             harmonyObj$Y <- soft_kmeans_weighted(
                 harmonyObj$Z_cos, 
                 harmonyObj$K,
