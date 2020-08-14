@@ -205,6 +205,10 @@ HarmonyMatrix <- function(
         phi_moe <- rbind(rep(1, N), phi)
     }
     
+    message('use_weights')
+    print(use_weights)
+    message('use_weights')
+                               
     ## RUN HARMONY
     harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
     harmonyObj$setup(
@@ -212,6 +216,9 @@ HarmonyMatrix <- function(
         sigma, theta, max.iter.cluster,epsilon.cluster,
         epsilon.harmony, nclust, tau, block.size, lambda_mat, weights, verbose, use_weights
     )
+    message('use_weights')
+    print(harmonyObj$use_weights)
+    message('use_weights')
 
     init_cluster(harmonyObj, cluster_prior)
     harmonize(harmonyObj, max.iter.harmony, verbose)
