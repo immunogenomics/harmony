@@ -34,11 +34,13 @@ scaleData <- function(A, margin = 1, thresh = 10) {
     return(res)
 }
 
+
 moe_correct_ridge <- function(harmonyObj) {
     harmonyObj$moe_correct_ridge_cpp()
 }
 
 
+#' @export
 moe_ridge_get_betas <- function(harmonyObj) {
     harmonyObj$moe_ridge_get_betas_cpp()
 }
