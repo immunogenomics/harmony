@@ -5,7 +5,9 @@
 \alias{cell_lines_small_sce}
 \title{Same as cell_lines_small but as SingleCellExperiment object. 
 Expression matrices filled in with dummy values.}
-\format{An object of class \code{SingleCellExperiment} with 20 rows and 300 columns.}
+\format{
+An object of class \code{SingleCellExperiment} with 20 rows and 300 columns.
+}
 \source{
 \url{support.10xgenomics.com/single-cell-gene-expression/datasets}
 }

@@ -5,7 +5,9 @@
 \alias{cell_lines_small_seurat_v2}
 \title{Same as cell_lines_small but as Seurat Version 2 object. 
 Expression matrices filled in with dummy values.}
-\format{An object of class \code{seurat} of length 1.}
+\format{
+An object of class \code{seurat} of length 1.
+}
 \source{
 \url{support.10xgenomics.com/single-cell-gene-expression/datasets}
 }

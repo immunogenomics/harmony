@@ -1,7 +1,7 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
 biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
-Version: 1.0
+Version: 0.1.0
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", 
         role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
@@ -20,8 +20,9 @@ Description: Implementation of the Harmony algorithm for single cell integration
 URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Depends: R(>= 3.4.0), Rcpp
+LazyData: true
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
     dplyr, 
@@ -38,6 +39,5 @@ Suggests:
     Seurat,
     testthat,
     knitr,
-    rmarkdown,
-    BiocStyle
+    rmarkdown
 VignetteBuilder: knitr

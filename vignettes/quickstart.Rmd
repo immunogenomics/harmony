@@ -3,29 +3,19 @@ title: "Quick start to Harmony"
 author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single 
 cell data with Harmony"
 output:
-  BiocStyle::html_document:
-    code_folding: show
-    number_sections: yes
-    toc: yes  
-    fig_width: 7
-    fig_height: 2.5
+  html_document:
+    theme: united
+    df_print: kable
+  pdf_document: default
 vignette: >
     %\VignetteIndexEntry{Quick start to Harmony}
     %\VignetteEngine{knitr::rmarkdown}
     %\VignetteEncoding{UTF-8} 
 ---
   
-  
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
-library(dplyr)
-library(ggplot2)
-library(harmony)
-library(cowplot)
-
-```
 
 ```{r, echo=FALSE}
-
+library(ggplot2)
 colors_use <- c(`jurkat` = '#810F7C', `t293` = '#D09E2D',`half` = '#006D2C')
 
 
@@ -50,7 +40,7 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
     }
     
     plt <- plt_df %>% 
-        ggplot(aes_string("X1", "X2", col = label_name, fill = label_name)) + 
+        ggplot2::ggplot(aes_string("X1", "X2", col = label_name, fill = label_name)) + 
         theme_test(base_size = base_size) + 
         theme(panel.background = element_rect(fill = NA, color = "black")) + 
         guides(color = guide_legend(override.aes = list(stroke = 1, alpha = 1,
@@ -98,14 +88,18 @@ datasets. Please check out our latest
 
 # Installation
 
-Install Harmony with standard Bioconductor commands. 
+Install Harmony with standard commands. 
 
 ```{r eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("harmony", version = "3.8")
-
+install.packages('harmony')
 ```
+
+Once Harmony is installed, load it up! 
+
+```{r}
+library(harmony)
+```
+
 
 # Integrating cell line datasets from 10X
 

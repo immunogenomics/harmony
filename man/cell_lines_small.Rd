@@ -4,7 +4,9 @@
 \name{cell_lines_small}
 \alias{cell_lines_small}
 \title{Same as cell_lines but smaller (300 cells).}
-\format{An object of class \code{list} of length 2.}
+\format{
+An object of class \code{list} of length 2.
+}
 \source{
 \url{support.10xgenomics.com/single-cell-gene-expression/datasets}
 }
