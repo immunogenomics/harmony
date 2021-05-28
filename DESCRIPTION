@@ -1,6 +1,5 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
-biocViews: BatchEffect, GeneExpression, RNASeq, SingleCell, Transcriptomics
 Version: 0.1.0
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com", 

@@ -82,7 +82,7 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
 
 Harmony is an algorithm for performing integration of single cell genomics
 datasets. Please check out our latest 
-[preprint on bioRxiv](https://www.biorxiv.org/content/10.1101/461954v2). 
+[manuscript on Nature Methods](https://www.nature.com/articles/s41592-019-0619-0). 
 
 ![](main.jpg)
 
