@@ -19,14 +19,18 @@ Harmony has been tested on R versions >= 3.4. Please consult the DESCRIPTION fil
 
 # Installation
 
-To run Harmony, open R and install directly from github using the following commands: 
+To run Harmony, open R and install harmony from CRAN: 
+
+```r
+install.packages("harmony")
+```
+
+If you'd like the latest development version, install from this github directly: 
 
 ```r
 library(devtools)
 install_github("immunogenomics/harmony")
 ```
-
-Installation may include compiling C++ code from source, so it can take a few minutes. 
 
 # Usage/Demos
 
