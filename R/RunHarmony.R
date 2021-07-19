@@ -58,6 +58,8 @@ RunHarmony <- function(object, group.by.vars, ...) {
 #' dimensional reduction object harmony. For downstream Seurat analyses,
 #' use reduction='harmony'.
 #' @export
+#' @importFrom rlang `%||%`
+#' @importFrom Seurat DefaultAssay
 RunHarmony.Seurat <- function(
   object,
   group.by.vars,
