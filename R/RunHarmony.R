@@ -85,7 +85,7 @@ RunHarmony.Seurat <- function(
   project.dim = TRUE,
   ...
 ) {
-  assay.use <- assay.use rlang::'%||%' Seurat::DefaultAssay(object)
+  assay.use <- assay.use %||% Seurat::DefaultAssay(object)
   if (reduction == "pca") {
     tryCatch(
       embedding <- Seurat::Embeddings(object, reduction = "pca"),
