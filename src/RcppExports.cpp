@@ -7,6 +7,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // compute_Y
 MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R);
 RcppExport SEXP _harmony_compute_Y(SEXP Z_cosSEXP, SEXP RSEXP) {
