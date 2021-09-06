@@ -23,6 +23,7 @@ RoxygenNote: 7.1.1
 Depends: R(>= 3.4.0), Rcpp
 LazyData: true
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+biocViews:
 Imports:
     dplyr, 
     cowplot,
