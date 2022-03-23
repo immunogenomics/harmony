@@ -14,11 +14,9 @@ NULL
 
 
 onehot <- function(x) {
-    data.frame(x) %>% 
-        tibble::rowid_to_column("row_id") %>% 
-        dplyr::mutate(dummy = 1) %>% 
-        tidyr::spread(x, .data$dummy, fill = 0) %>% 
-        dplyr::select(-.data$row_id) %>% as.matrix
+    res <- model.matrix(~0 + x)
+    colnames(res) <- gsub('^x(.*)', '\\1', colnames(res))
+    return(res)
 }
 
 scaleData <- function(A, margin = 1, thresh = 10) {
