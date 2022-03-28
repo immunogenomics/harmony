@@ -44,6 +44,7 @@
 #'
 #'
 #' @rdname RunHarmony
+#' @importFrom rlang `%||%`
 #' @export
 RunHarmony <- function(object, group.by.vars, ...) {
     UseMethod("RunHarmony")
@@ -57,6 +58,7 @@ RunHarmony <- function(object, group.by.vars, ...) {
 #' @return Seurat (version 3) object. Harmony dimensions placed into
 #' dimensional reduction object harmony. For downstream Seurat analyses,
 #' use reduction='harmony'.
+#' @importFrom rlang `%||%`
 #' @export
 RunHarmony.Seurat <- function(
   object,
@@ -81,7 +83,7 @@ RunHarmony.Seurat <- function(
   project.dim = TRUE,
   ...
 ) {
-  assay.use <- assay.use %||% DefaultAssay(object)
+  assay.use <- assay.use %||% Seurat::DefaultAssay(object)
   if (reduction == "pca") {
     tryCatch(
       embedding <- Seurat::Embeddings(object, reduction = "pca"),
