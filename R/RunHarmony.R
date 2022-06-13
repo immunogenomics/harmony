@@ -254,7 +254,8 @@ RunHarmony.Seurat <- function(
   reference_values = NULL,
   reduction.save = "harmony",
   assay.use = 'RNA',
-  project.dim = TRUE,
+  project.dim = TRUE,  
+  weight.by = NULL,
   ...
 ) {
   if (reduction == 'pca') {
@@ -294,6 +295,20 @@ RunHarmony.Seurat <- function(
   }
   metavars_df <- Seurat::FetchData(object, group.by.vars)
 
+  ## if using weights, set them up here
+  if (is.null(weight.by)) {
+    weights <- NULL
+  } else {
+    if (!weight.by %in% colnames(object@meta.data)) {
+        stop('Weighting variable not in meta.data')
+    }
+    y <- object@meta.data[[weight.by]]
+    if (!is(y, 'character') & !is(y, 'factor')) {
+        stop('Weighting variable must either encode factor or character type. Numerical not permitted.')
+    }
+    weights <- as.numeric(((1 / table(y))[y]) * (length(y) / length(unique(y))))
+  }
+    
   harmonyEmbed <- HarmonyMatrix(
     embedding,
     metavars_df,
@@ -313,7 +328,8 @@ RunHarmony.Seurat <- function(
     plot_convergence,
     FALSE,
     verbose,
-    reference_values
+    reference_values,
+    weights = weights
   )
 
   rownames(harmonyEmbed) <- row.names(embedding)
@@ -338,7 +354,6 @@ RunHarmony.Seurat <- function(
   }
   return(object)
  }
-
 
 
 #' @rdname RunHarmony
