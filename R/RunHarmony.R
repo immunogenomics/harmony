@@ -39,7 +39,7 @@
 #' @param reduction.save Keyword to save Harmony reduction. Useful if you want
 #' to try Harmony with multiple parameters and save them as e.g.
 #' 'harmony_theta0', 'harmony_theta1', 'harmony_theta2'
-#' @param assay.use (Seurat V3 only) Which assay to Harmonize with (Default Assay as default).
+#' @param assay.use (Seurat V3 only) Which assay to run PCA on if no PCA present?
 #' @param ... other parameters
 #'
 #'
@@ -81,32 +81,30 @@ RunHarmony.Seurat <- function(
   project.dim = TRUE,
   ...
 ) {
-  assay.use <- assay.use %||% DefaultAssay(object)
-  if (reduction == "pca") {
-    tryCatch(
-      embedding <- Seurat::Embeddings(object, reduction = "pca"),
-      error = function(e) {
-        if (verbose) {
-          message("Harmony needs PCA. Trying to run PCA now.")
-        }
-        tryCatch(
-          object <- Seurat::RunPCA(
-            object,
-            assay = assay.use, verbose = verbose
-          ),
-          error = function(e) {
-            stop("Harmony needs PCA. Tried to run PCA and failed.")
-          }
-        )
+  if (!requireNamespace('Seurat', quietly = TRUE)) {
+    stop("Running Harmony on a Seurat object requires Seurat")
+  }
+  assay.use <- assay.use %||% Seurat::DefaultAssay(object)
+  if (reduction == "pca" && !reduction %in% Seurat::Reductions(object = object)) {
+    if (isTRUE(x = verbose)) {
+      message("Harmony needs PCA. Trying to run PCA now.")
+    }
+    object <- tryCatch(
+      expr = Seurat::RunPCA(
+        object = object,
+        assay = assay.use,
+        verbose = verbose,
+        reduction.name = reduction
+      ),
+      error = function(...) {
+        stop("Harmony needs PCA. Tried to run PCA and failed.")
       }
     )
-  } else {
-    available.dimreduc <- names(methods::slot(object = object, name = "reductions"))
-    if (!(reduction %in% available.dimreduc)) {
-      stop("Requested dimension reduction is not present in the Seurat object")
-    }
-    embedding <- Seurat::Embeddings(object, reduction = reduction)
   }
+  if (!reduction %in% Seurat::Reductions(object = object)) {
+    stop("Requested dimension reduction is not present in the Seurat object")
+  }
+  embedding <- Seurat::Embeddings(object, reduction = reduction)
   if (is.null(dims.use)) {
     dims.use <- seq_len(ncol(embedding))
   }
@@ -118,7 +116,11 @@ RunHarmony.Seurat <- function(
   if (length(dims.use) == 1) {
     stop("only specified one dimension in dims.use")
   }
-  metavars_df <- Seurat::FetchData(object, group.by.vars)
+  metavars_df <- Seurat::FetchData(
+    object,
+    group.by.vars,
+    cells = Seurat::Cells(x = object[[reduction]])
+  )
 
   harmonyEmbed <- HarmonyMatrix(
     embedding,
@@ -142,19 +144,16 @@ RunHarmony.Seurat <- function(
     reference_values
   )
 
-  rownames(harmonyEmbed) <- row.names(embedding)
-  colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
+  reduction.key <- Seurat::Key(reduction.save, quiet = TRUE)
+  rownames(harmonyEmbed) <- rownames(embedding)
+  colnames(harmonyEmbed) <- paste0(reduction.key, seq_len(ncol(harmonyEmbed)))
 
-  suppressWarnings({
-    harmonydata <- Seurat::CreateDimReducObject(
-      embeddings = harmonyEmbed,
-      stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
-      assay = assay.use,
-      key = reduction.save
-    )
-  })
-
-  object[[reduction.save]] <- harmonydata
+  object[[reduction.save]] <- Seurat::CreateDimReducObject(
+    embeddings = harmonyEmbed,
+    stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
+    assay = Seurat::DefaultAssay(object = object[[reduction]]),
+    key = reduction.key
+  )
   if (project.dim) {
     object <- Seurat::ProjectDim(
       object,
