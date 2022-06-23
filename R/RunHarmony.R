@@ -229,7 +229,8 @@ RunHarmony.seurat <- function(
 
 #' @rdname RunHarmony
 #' @param reduction Name of dimension reduction to use. Default is PCA.
-#' @param project.dim Project dimension reduction loadings. Default TRUE.
+#' @param project.dim Project dimension reduction loadings. Default FALSE
+#' PCA feature loadings are added by default. 
 #' @return Seurat (version 3) object. Harmony dimensions placed into
 #' dimensional reduction object harmony. For downstream Seurat analyses,
 #' use reduction='harmony'.
@@ -254,7 +255,7 @@ RunHarmony.Seurat <- function(
   reference_values = NULL,
   reduction.save = "harmony",
   assay.use = 'RNA',
-  project.dim = TRUE,
+  project.dim = FALSE,
   ...
 ) {
   if (reduction == 'pca') {
@@ -322,6 +323,7 @@ RunHarmony.Seurat <- function(
   suppressWarnings({
     harmonydata <- Seurat::CreateDimReducObject(
       embeddings = harmonyEmbed,
+      loadings = Seurat::Loadings(object = object, reduction = reduction)[, dims.use],
       assay = assay.use,
       key = "harmony"
     )
@@ -335,7 +337,7 @@ RunHarmony.Seurat <- function(
       overwrite = TRUE,
       verbose = FALSE
     )
-  }
+  } 
   return(object)
  }
 
