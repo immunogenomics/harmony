@@ -208,7 +208,7 @@ int harmony::update_R() {
 
     // Step 2: recompute R for removed cells
     R.cols(cells_update) = _scale_dist.cols(cells_update);    
-    R.cols(cells_update) = R.cols(cells_update) % (pow((E + 1) / (O + 1), theta) * Phi.cols(cells_update));
+    R.cols(cells_update) = R.cols(cells_update) % (harmony_pow((E + 1) / (O + 1), theta) * Phi.cols(cells_update));
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
     
     // Step 3: put cells back 
