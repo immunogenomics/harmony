@@ -1,2 +1,7 @@
 # harmony v0.1.0
 * Initial release to CRAN
+
+# harmony v0.1.1
+* Updates pow to harmony_pow to avoid collision with new Armadillo pow function 
+
+

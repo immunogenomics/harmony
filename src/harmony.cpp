@@ -288,7 +288,6 @@ RCPP_MODULE(harmony_module) {
   .method("cluster_cpp", &harmony::cluster_cpp)
   .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
   .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
-  
   ;
 }
 

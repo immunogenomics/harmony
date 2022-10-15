@@ -7,3 +7,5 @@
 ^\.Rproj\.user$
 ^.travis.yml$
 appveyor.yml
+^CRAN-SUBMISSION$
+^cran-comments\.md$

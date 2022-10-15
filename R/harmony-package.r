@@ -29,5 +29,6 @@
 #' @importFrom cowplot plot_grid
 #' @importFrom rlang .data
 #' @importFrom rlang `%||%`
+#' @importFrom stats model.matrix
 loadModule("harmony_module", TRUE)
 NULL
