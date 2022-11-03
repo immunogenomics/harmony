@@ -10,7 +10,7 @@
   scaled_pcs: data.table of 9478 rows (cells) and 20 columns (PCs)
 }
 \source{
-\url{support.10xgenomics.com/single-cell-gene-expression/datasets}
+\url{https://www.10xgenomics.com}
 }
 \usage{
 cell_lines

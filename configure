@@ -1,6 +1,0 @@
-#!/bin/bash
-if [ $(uname) == "Linux" ]
-then
-  echo 'CXX_STD = CXX11' > ./src/Makevars
-  echo 'PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)' >> ./src/Makevars
-fi

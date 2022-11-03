@@ -15,7 +15,7 @@ Authors@R: c(
     person("Soumya", "Raychaudhuri",
         role = c("aut"), comment = c(ORCID = "0000-0002-1901-8265"))
     )
-Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <https://doi.org/10.1038/s41592-019-0619-0>. Package includes a standalone Harmony function and interfaces to external frameworks.
+Description: Implementation of the Harmony algorithm for single cell integration, described in Korsunsky et al <doi:10.1038/s41592-019-0619-0>. Package includes a standalone Harmony function and interfaces to external frameworks.
 URL: software.broadinstitute.org/harmony
 License: GPL-3 + file LICENSE
 Encoding: UTF-8

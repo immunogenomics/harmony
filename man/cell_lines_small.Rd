@@ -8,7 +8,7 @@
 An object of class \code{list} of length 2.
 }
 \source{
-\url{support.10xgenomics.com/single-cell-gene-expression/datasets}
+\url{https://www.10xgenomics.com}
 }
 \usage{
 cell_lines_small

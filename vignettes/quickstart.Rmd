@@ -169,13 +169,13 @@ cowplot::plot_grid(p1, p2, nrow = 1)
 
 You can also run Harmony as part of an established pipeline in several
 packages, such as Seurat, MUDAN, and scran. For these vignettes, please
-[visit our website](software.broadinstitute.org/harmony). 
+[visit our website](https://portals.broadinstitute.org/harmony/). 
 
 
 ## Detailed breakdown of the Harmony algorithm
 
 For more details on how each part of Harmony works, consult our more detailed 
-[vignette](software.broadinstitute.org/harmony/vignettes/walkthrough.html)
+[vignette](https://portals.broadinstitute.org/harmony/advanced.html)
 "Detailed Walkthrough of Harmony Algorithm".
 
 # Session Info
