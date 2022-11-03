@@ -3,7 +3,6 @@ inst/doc
 .DS_Store
 .ipynb_checkpoints
 **/.ipynb_checkpoints
-src/Makevars
 src/*.o
 src/*.so
 config.log
