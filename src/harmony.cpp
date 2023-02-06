@@ -10,9 +10,13 @@ public:
   Timepoint start;
   std::string task_name;
   double& timer;
+  double initial;
   Timer(std::string _task_name, double& _timer): timer(_timer){
     this->task_name = _task_name;
     this->start = high_resolution_clock::now();
+  }
+  double getLapse(){
+    return duration_cast<duration<double>>(high_resolution_clock::now() - this->start).count();
   }
   
   ~Timer(){
@@ -171,52 +175,59 @@ int harmony::cluster_cpp() {
   // R has assumed to not change
   // so update Y to match new integrated data
   dist_mat = 2 * (1 - Y.t() * Z_cos); // Z_cos was changed
-  double compute_Y_timer, update_R_timer, compute_objective_timer;
-  compute_Y_timer = update_R_timer = compute_objective_timer = 0;
-  
+  double compute_Y_timer, update_R_timer, compute_objective_timer, iter_timer;
+  compute_Y_timer = update_R_timer = compute_objective_timer, iter_timer = 0;
+  double last_iter;
   for (iter = 0; iter < max_iter_kmeans; iter++) {
-    p.increment();
+    // p.increment();
     if (Progress::check_abort())
       return(-1);
     
-    // STEP 1: Update Y
     {
-      Timer t("compute_Y", compute_Y_timer);
-      Y = compute_Y(Z_cos, R);
-    }
-    
-
-    // Calculate distances (taking advantage the cosine similarity property)
-    dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
-
-    // STEP 3: Update R
-    {
-      Timer t("update_R", update_R_timer);
-      err_status = update_R();
-    }
-    
-    if (err_status != 0) {
-      // Rcout << "Compute R failed. Exiting from clustering." << endl;
-      return err_status;
-    }
-    
-    // STEP 4: Check for convergence
-    {
-      Timer t("compute_objective", compute_objective_timer);
-      compute_objective();
-    }
-    
-    if (iter > window_size) {
-      bool convergence_status = check_convergence(0); 
-      if (convergence_status) {
-        //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
-        iter++;
-        // Rcout << "Clustered for " << iter << " iterations" << endl;
-        break;        
+      
+      Timer titer("iter_timer", iter_timer);
+      // STEP 1: Update Y
+      {
+	Timer t("compute_Y", compute_Y_timer);
+	Y = compute_Y(Z_cos, R);
       }
+    
+
+      // Calculate distances (taking advantage the cosine similarity property)
+      dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
+
+      // STEP 3: Update R
+      {
+	Timer t("update_R", update_R_timer);
+	err_status = update_R();
+      }
+    
+      if (err_status != 0) {
+	// Rcout << "Compute R failed. Exiting from clustering." << endl;
+	return err_status;
+      }
+    
+      // STEP 4: Check for convergence
+      {
+	Timer t("compute_objective", compute_objective_timer);
+	compute_objective();
+      }
+    
+      if (iter > window_size) {
+	bool convergence_status = check_convergence(0); 
+	if (convergence_status) {
+	  //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
+	  iter++;
+	  // Rcout << "Clustered for " << iter << " iterations" << endl;
+	  break;        
+	}
+      }
+      Rcout << "\riter: " << iter << " took " << titer.getLapse() << " seconds. Avg.: "<< iter_timer/(iter+1);
     }
+    
   }
-  
+
+  Rcout << std::endl;
   kmeans_rounds.push_back(iter);
   objective_harmony.push_back(objective_kmeans.back());
   Rcout << "compute_Y(): " << compute_Y_timer<< std::endl;
