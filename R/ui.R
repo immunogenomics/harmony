@@ -164,6 +164,7 @@ HarmonyMatrix <- function(
     }))
     N_b <- rowSums(phi)
     Pr_b <- N_b / N
+    
     B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
         length(unique(meta_data[[var_use]]))
     }))
@@ -183,7 +184,6 @@ HarmonyMatrix <- function(
         b_keep <- which(!row.names(phi) %in% reference_values)
         phi_moe <- phi[b_keep, , drop = FALSE]
         phi_moe[, cells_ref] <- 0
-        
         phi_moe <- rbind(rep(1, N), phi_moe)
         lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]    
     } else {
@@ -193,7 +193,7 @@ HarmonyMatrix <- function(
     ## RUN HARMONY
     harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
     harmonyObj$setup(
-        data_mat, phi, phi_moe, 
+        data_mat, phi, phi_moe,
         Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
         epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
     )

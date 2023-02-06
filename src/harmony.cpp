@@ -1,5 +1,29 @@
 #include "harmony.h"
 #include "utils.h"
+#include <chrono>
+
+
+using namespace std::chrono;
+typedef high_resolution_clock::time_point Timepoint;
+class Timer{
+public:
+  Timepoint start;
+  std::string task_name;
+  double& timer;
+  Timer(std::string _task_name, double& _timer): timer(_timer){
+    this->task_name = _task_name;
+    this->start = high_resolution_clock::now();
+  }
+  
+  ~Timer(){
+    auto time_span = duration_cast<duration<double>>(high_resolution_clock::now() - this->start);
+    timer += time_span.count();
+    // Rcout << "Task: " << this->task_name << " took " << time_span.count() << " seconds" <<std::endl;
+  }
+  
+  
+};
+
 
 
 // NOTE: This is a dummy constructor, needed by Rcpp
@@ -92,10 +116,12 @@ void harmony::init_cluster_cpp(unsigned C) {
 }
 
 void harmony::compute_objective() {
-  float kmeans_error = as_scalar(accu(R % dist_mat)); 
+  float kmeans_error = as_scalar(accu(R % dist_mat));
   float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
   float _cross_entropy;
   _cross_entropy = as_scalar(accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + 1) / (E + 1))) * Phi)));
+
+  // Push back the data
   objective_kmeans.push_back(kmeans_error + _entropy + _cross_entropy);
   objective_kmeans_dist.push_back(kmeans_error);
   objective_kmeans_entropy.push_back(_entropy); 
@@ -136,36 +162,50 @@ bool harmony::check_convergence(int type) {
 }
 
 
-
-
-
 int harmony::cluster_cpp() {
   int err_status = 0;
   int iter; 
   Progress p(max_iter_kmeans, verbose);
-
+  
   // Z_cos has changed
   // R has assumed to not change
   // so update Y to match new integrated data
   dist_mat = 2 * (1 - Y.t() * Z_cos); // Z_cos was changed
+  double compute_Y_timer, update_R_timer, compute_objective_timer;
+  compute_Y_timer = update_R_timer = compute_objective_timer = 0;
+  
   for (iter = 0; iter < max_iter_kmeans; iter++) {
     p.increment();
     if (Progress::check_abort())
       return(-1);
     
     // STEP 1: Update Y
-    Y = compute_Y(Z_cos, R);
+    {
+      Timer t("compute_Y", compute_Y_timer);
+      Y = compute_Y(Z_cos, R);
+    }
+    
+
+    // Calculate distances (taking advantage the cosine similarity property)
     dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
 
     // STEP 3: Update R
-    err_status = update_R();
+    {
+      Timer t("update_R", update_R_timer);
+      err_status = update_R();
+    }
+    
     if (err_status != 0) {
       // Rcout << "Compute R failed. Exiting from clustering." << endl;
       return err_status;
     }
     
     // STEP 4: Check for convergence
-    compute_objective();
+    {
+      Timer t("compute_objective", compute_objective_timer);
+      compute_objective();
+    }
+    
     if (iter > window_size) {
       bool convergence_status = check_convergence(0); 
       if (convergence_status) {
@@ -176,18 +216,22 @@ int harmony::cluster_cpp() {
       }
     }
   }
+  
   kmeans_rounds.push_back(iter);
   objective_harmony.push_back(objective_kmeans.back());
+  Rcout << "compute_Y(): " << compute_Y_timer<< std::endl;
+  Rcout << "compute_objective(): " << compute_objective_timer<< std::endl;
+  Rcout << "update_R(): " << update_R_timer<< std::endl;
   return 0;
 }
 
 
 
 
-int harmony::update_R() {  
+int harmony::update_R() {
   update_order = shuffle(linspace<uvec>(0, N - 1, N));
-  _scale_dist = -dist_mat;
-  _scale_dist.each_col() /= sigma; // NEW: vector sigma          
+  _scale_dist = -dist_mat; // K x N
+  _scale_dist.each_col() /= sigma; // NEW: vector sigma
   _scale_dist.each_row() -= max(_scale_dist, 0);
   _scale_dist = exp(_scale_dist);
 
@@ -207,13 +251,13 @@ int harmony::update_R() {
     O -= R.cols(cells_update) * Phi.cols(cells_update).t();
 
     // Step 2: recompute R for removed cells
-    R.cols(cells_update) = _scale_dist.cols(cells_update);    
+    R.cols(cells_update) = _scale_dist.cols(cells_update);
     R.cols(cells_update) = R.cols(cells_update) % (harmony_pow((E + 1) / (O + 1), theta) * Phi.cols(cells_update));
     R.cols(cells_update) = normalise(R.cols(cells_update), 1, 0); // L1 norm columns
     
     // Step 3: put cells back 
     E += sum(R.cols(cells_update), 1) * Pr_b.t();
-    O += R.cols(cells_update) * Phi.cols(cells_update).t(); 
+    O += R.cols(cells_update) * Phi.cols(cells_update).t();
     
   }
   return 0;
@@ -221,19 +265,27 @@ int harmony::update_R() {
 
 
 void harmony::moe_correct_ridge_cpp() {
-  Z_corr = Z_orig;
-  for (int k = 0; k < K; k++) { 
-    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
-    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
-    W.row(0).zeros(); // do not remove the intercept 
-    Z_corr -= W.t() * Phi_Rk;
+  double timer=0, timer_inv=0;
+  {
+    Timer t("moe_correct_ridge_cpp", timer);
+    Z_corr = Z_orig;
+    for (int k = 0; k < K; k++) { 
+      Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
+      {
+	Timer t("arma::inv", timer_inv);
+	W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
+      }
+      W.row(0).zeros(); // do not remove the intercept 
+				Z_corr -= W.t() * Phi_Rk;
+    }
+    Z_cos = arma::normalise(Z_corr, 2, 0);
   }
-  Z_cos = arma::normalise(Z_corr, 2, 0);
+  Rcout << "moe_correct_ridge_cpp(): " << timer << std::endl;
 }
 
 CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
-  for (unsigned k = 0; k < K; k++) { 
+  for (unsigned k = 0; k < K; k++) {
     Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
     W_cube.slice(k) = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
   }
