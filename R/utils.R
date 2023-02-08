@@ -37,21 +37,6 @@ moe_correct_ridge <- function(harmonyObj) {
     harmonyObj$moe_correct_ridge_cpp()
 }
 
-
-#' Get beta Utility 
-#' 
-#' Utility function to get ridge regression coefficients from trained
-#' Harmony object 
-#' 
-#' @param harmonyObj Trained harmony object. Get this by running 
-#' HarmonyMatrix function with return_object=TRUE.
-#' @return Returns nothing, modifies object in place. 
-#' @export
-moe_ridge_get_betas <- function(harmonyObj) {
-    harmonyObj$moe_ridge_get_betas_cpp()
-}
-
-
 cluster <- function(harmonyObj) {
     if (harmonyObj$ran_init == FALSE) {
         stop('before clustering, run init_cluster')
