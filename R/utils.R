@@ -12,38 +12,6 @@
 #' @return return value of rhs function. 
 NULL
 
-
-onehot <- function(x) {
-    res <- model.matrix(~0 + x)
-    colnames(res) <- gsub('^x(.*)', '\\1', colnames(res))
-    return(res)
-}
-
-scaleData <- function(A, margin = 1, thresh = 10) {
-    if (!"dgCMatrix" %in% class(A))
-        A <- methods::as(A, "dgCMatrix")
-    
-    if (margin != 1) A <- t(A)
-    
-    res <- scaleRows_dgc(A@x, A@p, A@i, ncol(A), nrow(A), thresh)
-    if (margin != 1) res <- t(res)
-    row.names(res) <- row.names(A)
-    colnames(res) <- colnames(A)
-    return(res)
-}
-
-
-moe_correct_ridge <- function(harmonyObj) {
-    harmonyObj$moe_correct_ridge_cpp()
-}
-
-cluster <- function(harmonyObj) {
-    if (harmonyObj$ran_init == FALSE) {
-        stop('before clustering, run init_cluster')
-    }
-    harmonyObj$cluster_cpp()
-}
-
 harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
     if (iter_harmony < 1) {
         return(0)
@@ -55,7 +23,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
         }
         
         # STEP 1: do clustering
-        err_status <- cluster(harmonyObj)
+        err_status <- harmonyObj$cluster_cpp()
         if (err_status == -1) {
             stop('terminated by user')
         } else if (err_status != 0) {
@@ -64,7 +32,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
         }
         
         # STEP 2: regress out covariates
-        moe_correct_ridge(harmonyObj)
+        harmonyObj$moe_correct_ridge_cpp()
         
         # STEP 3: check for convergence
         if (harmonyObj$check_convergence(1)) {
@@ -107,10 +75,7 @@ init_cluster <- function(harmonyObj, cluster_prior=NULL) {
         
         harmonyObj$init_cluster_cpp(C)
     } else {
-        harmonyObj$Y <- t(stats::kmeans(t(harmonyObj$Z_cos), 
-                                        centers = harmonyObj$K,
-                                        iter.max = 25, nstart = 10)$centers)
-        harmonyObj$init_cluster_cpp(0)
+        
     }
 
 }

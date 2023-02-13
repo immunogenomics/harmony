@@ -52,7 +52,7 @@
 #' 
 #' @return By default, matrix with corrected PCA embeddings. If return_object 
 #' is TRUE, returns the full Harmony object (R6 reference class type). 
-#' 
+#'
 #' @export 
 #' 
 #' @examples
@@ -89,7 +89,7 @@ HarmonyMatrix <- function(
     max.iter.harmony = 10, max.iter.cluster = 200, 
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
     plot_convergence = FALSE, return_object = FALSE, 
-    verbose = TRUE, reference_values = NULL, cluster_prior = NULL
+    verbose = TRUE, reference_values = NULL, cluster_prior = NULL, Y = NULL
 ) {
     
     
@@ -101,7 +101,6 @@ HarmonyMatrix <- function(
     ##    very small batch size and tau=0: suggest tau>0
     ##    is PCA correct? 
     if (!(is(meta_data, 'data.frame') | is(meta_data, 'DataFrame'))) {
-#     if (!c('data.frame', '') %in% class(meta_data)) {
         if (length(meta_data) %in% dim(data_mat)) {
             meta_data <- data.frame(batch_variable = meta_data)
             vars_use <- 'batch_variable'
@@ -116,90 +115,117 @@ HarmonyMatrix <- function(
                         sQuote('stim'))
         stop(msg)
     }
+
+    ## Number of cells
+    N <- nrow(meta_data)
+    
+    ## Check if we need to transpose our data
+    if (nrow(data_mat) == N) {
+        message("Transposing data matrix")
+        data_mat <- Matrix::t(data_mat)
+    }
+
+    if (ncol(data_mat) != N) {
+        stop("number of labels do not correspond to number of 
+                samples in data matrix")
+    }
     
     if (do_pca) {
-        if (ncol(data_mat) != nrow(meta_data)) {
-            data_mat <- Matrix::t(data_mat)
-        }
-        
         pca_res <- data_mat %>%
             scaleData() %>% 
             irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, 
                                 scale. = FALSE)
         data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
-    } 
-    
-    N <- nrow(meta_data)
-    cells_as_cols <- TRUE
-    if (ncol(data_mat) != N) {
-        if (nrow(data_mat) == N) {
-            data_mat <- t(data_mat)
-            cells_as_cols <- FALSE
-        } else {
-            stop("number of labels do not correspond to number of 
-                samples in data matrix")
-        }
     }
     
+    
+
+    # determine K if null
     if (is.null(nclust)) {
         nclust <- min(round(N / 30), 100)
     }
+    
+    # determine theta if null
     if (is.null(theta)) {
         theta <- rep(2, length(vars_use))
     } else if (length(theta) != length(vars_use)) {
         stop('Please specify theta for each variable')
     }
+    # determine lamda if null
     if (is.null(lambda)) {
         lambda <- rep(1, length(vars_use))
     } else if (length(lambda) != length(vars_use)) {
         stop('Please specify lambda for each variable')
-    }    
+    }
+    
+    # determine sigma if it is a scalar
     if (length(sigma) == 1 & nclust > 1) {
         sigma <- rep(sigma, nclust)
     }
     
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
-        t(onehot(meta_data[[var_use]]))
+        res <- model.matrix(~0 + as.factor(meta_data[[var_use]]))
+        t(res)
     }))
+
+    ## ## number of cells per batch
     N_b <- rowSums(phi)
-    Pr_b <- N_b / N
+    ## ## Probability of batches Not used anywhere in R!
+    ## Pr_b <- N_b / N
+
+    ## Number of factors per covariate
     B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
-        length(unique(meta_data[[var_use]]))
+        nlevels(as.factor(meta_data[[var_use]]))
     }))
-    theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
-        rep(theta[b], B_vec[b])))
-    theta <- theta * (1 - exp(-(N_b / (nclust * tau)) ^ 2))
     
+    ## Calculate theta (#covariates) x (#levels)
+    theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
+        rep(theta[b], B_vec[b])))
+
+    ## Theta scaling
+    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
+    
+    ## Calculate lambda (#covariates) x (#levels)
     lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
         rep(lambda[b], B_vec[b])))
     lambda_mat <- diag(c(0, lambda))
     
-    ## TODO: check that each ref val matches exactly one covariate
-    ## TODO: check that you haven't marked all cells as reference! 
-    if (!is.null(reference_values)) {
-        idx <- which(row.names(phi) %in% reference_values)
-        cells_ref <- which(colSums(phi[idx, , drop = FALSE] == 1) >= 1)
-        b_keep <- which(!row.names(phi) %in% reference_values)
-        phi_moe <- phi[b_keep, , drop = FALSE]
-        phi_moe[, cells_ref] <- 0
+    ## ## TODO: check that each ref val matches exactly one covariate
+    ## ## TODO: check that you haven't marked all cells as reference! 
+    ## if (!is.null(reference_values)) {
+    ##     idx <- which(row.names(phi) %in% reference_values)
+    ##     cells_ref <- which(colSums(phi[idx, , drop = FALSE] == 1) >= 1)
+    ##     b_keep <- which(!row.names(phi) %in% reference_values)
+    ##     phi_moe <- phi[b_keep, , drop = FALSE]
+    ##     phi_moe[, cells_ref] <- 0
         
-        phi_moe <- rbind(rep(1, N), phi_moe)
-        lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]    
-    } else {
-        phi_moe <- rbind(rep(1, N), phi)
-    }
+    ##     phi_moe <- rbind(rep(1, N), phi_moe)
+    ##     lambda_mat <- lambda_mat[c(1, b_keep + 1), c(1, b_keep + 1)]
+    ## }
     
     ## RUN HARMONY
-    harmonyObj <- new(harmony, 0) ## 0 is a dummy variable - will change later
+    harmonyObj <- new(harmony)
+    
     harmonyObj$setup(
-        data_mat, phi, phi_moe, 
-        Pr_b, sigma, theta, max.iter.cluster,epsilon.cluster,
+        data_mat, phi,
+        sigma, theta, max.iter.cluster, epsilon.cluster,
         epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
-    )
-    init_cluster(harmonyObj, cluster_prior)
+        )
+    
+    if (!is.null(Y)) {
+        harmonyObj$setY(Y)
+    }
+    
+    harmonyObj$init_cluster_cpp(0)
+    
+    ## if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
+
+    
+
     harmonize(harmonyObj, max.iter.harmony, verbose)
-    if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
+
+
     
     ## Return either the R6 Harmony object or the corrected PCA matrix
     if (return_object) {
