@@ -26,8 +26,9 @@ MATTYPE safe_entropy(const MATTYPE& X) {
 
 // Overload pow to work on a MATTYPErix and vector
 MATTYPE harmony_pow(MATTYPE A, const VECTYPE& T) {
+
   for (unsigned c = 0; c < A.n_cols; c++) {
-    A.col(c) = pow(A.col(c), as_scalar(T.row(c)));
+    A.unsafe_col(c) = pow(A.unsafe_col(c), as_scalar(T.row(c)));
   }
   return(A);
 }
