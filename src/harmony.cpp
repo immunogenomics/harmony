@@ -5,6 +5,7 @@
 #include "utils.h"
 
 
+
 struct TimerMeta{
   double elapsed = 0;
   double last = 0;
@@ -18,7 +19,7 @@ static std::map<std::string, TimerMeta> timers;
 using namespace std::chrono;
 typedef high_resolution_clock::time_point Timepoint;
 class Timer{
-public:
+ public:
   Timepoint start;
   std::string task_name;
   double& timer;
@@ -51,7 +52,8 @@ harmony::harmony() :
     window_size(3),
     ran_setup(false),
     ran_init(false),
-    verbose(false)
+    verbose(false),
+    Yset(false)
 {}
 
 
@@ -62,19 +64,22 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi,
                     int __K, float tau, float __block_size,
                     MATTYPE __lambda, bool __verbose) {
   
-  Z_orig = MATTYPE(__Z);
+  Z_orig = __Z;
   Z_cos = arma::normalise(__Z, 2, 0);
   Z_corr = zeros(size(Z_orig));
   
   
-  Phi = __Phi;
-  Pr_b = sum(Phi, 1);
+  
 
   // Algorithm constants
   N = Z_corr.n_cols;
   B = Phi.n_rows;
   d = Z_corr.n_rows;
 
+  Phi = __Phi;
+  Pr_b = sum(Phi, 1) / N;
+
+  
   epsilon_kmeans = __epsilon_kmeans;
   epsilon_harmony = __epsilon_harmony;
 
@@ -91,10 +96,12 @@ void harmony::setup(MATTYPE& __Z, MATTYPE& __Phi,
   
   allocate_buffers();
   ran_setup = true;
+  
 }
 
 
 void harmony::allocate_buffers() {
+  
   _scale_dist = zeros<MATTYPE>(K, N);
   dist_mat = zeros<MATTYPE>(K, N);
   O = E = zeros<MATTYPE>(K, B);
@@ -103,7 +110,7 @@ void harmony::allocate_buffers() {
   Phi_moe = join_cols(intcpt, Phi);
   
   W = zeros<MATTYPE>(B + 1, d);
-  Phi_Rk = zeros<MATTYPE>(B + 1, N);  
+  // Phi_Rk = zeros<MATTYPE>(B + 1, N);  
   
 }
 
@@ -121,20 +128,20 @@ void harmony::init_cluster_cpp(unsigned C) {
   }else{
     Rcerr << "Ommiting computation hard k-means"  <<std::endl;
   }
-
-  // Cosine normalization of columns
+  
+  // Cosine normalization of data centrods
   Y = arma::normalise(Y, 2, 0);
-  
-  dist_mat = 2 * (1 - Y.t() * Z_cos);
-  R = dist_mat;
-  R.each_col() /= sigma;
-  R = exp(-dist_mat);
-  R.each_row() /= sum(R, 0);
-  
+
   // (2) ASSIGN CLUSTER PROBABILITIES
   // using a nice property of cosine distance,
   // compute squared distance directly with cross product
   dist_mat = 2 * (1 - Y.t() * Z_cos);
+  
+  R = -dist_mat;
+  R.each_col() /= sigma;
+  R = exp(R);
+  R.each_row() /= sum(R, 0);
+  
   
   // (3) BATCH DIVERSITY STATISTICS
   E = sum(R, 1) * Pr_b.t();
@@ -166,29 +173,29 @@ void harmony::compute_objective() {
 bool harmony::check_convergence(int type) {
   float obj_new, obj_old;
   switch (type) {
-  case 0: 
-    // Clustering 
-    // compute new window mean
-    obj_old = 0;
-    obj_new = 0;
-    for (unsigned i = 0; i < window_size; i++) {
-      obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
-      obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
-    }
-    if ((obj_old - obj_new) / abs(obj_old) < epsilon_kmeans) {
-      return(true); 
-    } else {
-      return(false);
-    }
-  case 1:
-    // Harmony
-    obj_old = objective_harmony[objective_harmony.size() - 2];
-    obj_new = objective_harmony[objective_harmony.size() - 1];
-    if ((obj_old - obj_new) / abs(obj_old) < epsilon_harmony) {
-      return(true);              
-    } else {
-      return(false);              
-    }
+    case 0: 
+      // Clustering 
+      // compute new window mean
+      obj_old = 0;
+      obj_new = 0;
+      for (unsigned i = 0; i < window_size; i++) {
+        obj_old += objective_kmeans[objective_kmeans.size() - 2 - i];
+        obj_new += objective_kmeans[objective_kmeans.size() - 1 - i];
+      }
+      if ((obj_old - obj_new) / abs(obj_old) < epsilon_kmeans) {
+        return(true); 
+      } else {
+        return(false);
+      }
+    case 1:
+      // Harmony
+      obj_old = objective_harmony[objective_harmony.size() - 2];
+      obj_new = objective_harmony[objective_harmony.size() - 1];
+      if ((obj_old - obj_new) / abs(obj_old) < epsilon_harmony) {
+        return(true);              
+      } else {
+        return(false);              
+      }
   }
   
   // gives warning if we don't give default return value
@@ -209,59 +216,65 @@ int harmony::cluster_cpp() {
     {
       Timer t2(timers["iteration_cluster_cpp"]);
       // p.increment();
-    if (Progress::check_abort())
-      return(-1);
+      if (Progress::check_abort())
+        return(-1);
     
-    // STEP 1: Update Y (cluster centroids)
-    {
-      Timer t(timers["cluster_centroids"]);
-      Y = arma::normalise(Z_cos * R.t(), 2, 0);
-    }
+      // STEP 1: Update Y (cluster centroids)
+      {
+        Timer t(timers["cluster_centroids"]);
+        Y = arma::normalise(Z_cos * R.t(), 2, 0);
+      }
 
 
-    {
-      Timer t(timers["distmat_centroids"]);
-      dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
-    }
+      {
+        Timer t(timers["distmat_centroids"]);
+        dist_mat = 2 * (1 - Y.t() * Z_cos); // Y was changed
+      }
         
-    // STEP 3: Update R
-    {
-      Timer t(timers["update_R_all"]);
-      err_status = update_R();
-    }
+      // STEP 3: Update R
+      {
+        Timer t(timers["update_R_all"]);
+        err_status = update_R();
+      }
         
     
-    if (err_status != 0) {
-      // Rcout << "Compute R failed. Exiting from clustering." << endl;
-      return err_status;
-    }
+      if (err_status != 0) {
+        // Rcout << "Compute R failed. Exiting from clustering." << endl;
+        return err_status;
+      }
     
-    // STEP 4: Check for convergence
-    {
-      Timer t(timers["compute_objective"]);
-      compute_objective();
-    }
+      // STEP 4: Check for convergence
+      {
+        Timer t(timers["compute_objective"]);
+        compute_objective();
+      }
     
-    if (iter > window_size) {
-      bool convergence_status = check_convergence(0);
-      if (convergence_status) {
-        //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
-        iter++;
-        // Rcout << "Clustered for " << iter << " iterations" << endl;
-        break;
+      if (iter > window_size) {
+        bool convergence_status = check_convergence(0);
+        if (convergence_status) {
+          //        Rcout << "... Breaking Clustering ..., status = " << convergence_status << endl;
+          iter++;
+          // Rcout << "Clustered for " << iter << " iterations" << endl;
+          break;
+        }
       }
     }
+    // Rcout << "Iteration: "<< iter <<
+    //     " error: " << this->objective_kmeans.back()  <<
+    //     " dist_error "<< objective_kmeans_dist.back() <<
+    //     " cros_error "<< objective_kmeans_cross.back() <<
+    //     " entr_error "<< objective_kmeans_entropy.back() << std::endl;
+        
+    // Rcout << "In iteration "<< iter << " " << (timers["iteration_cluster_cpp"].elapsed - timers["iteration_cluster_cpp"].last) / 1000 << std::endl;
+    for(auto& v : timers){
+      // Rcout <<"\tTask " << v.first << " took " << v.second.elapsed - v.second.last <<" Overall: " << v.second.elapsed/1000 << std::endl;
     }
-    Rcout << "Iteration: "<< iter <<
+
+    Rcout <<
         " error: " << this->objective_kmeans.back()  <<
         " dist_error "<< objective_kmeans_dist.back() <<
         " cros_error "<< objective_kmeans_cross.back() <<
         " entr_error "<< objective_kmeans_entropy.back() << std::endl;
-        
-    Rcout << "In iteration "<< iter << " " << (timers["iteration_cluster_cpp"].elapsed - timers["iteration_cluster_cpp"].last) / 1000 << std::endl;
-    for(auto& v : timers){
-      Rcout <<"\tTask " << v.first << " took " << v.second.elapsed - v.second.last <<" Overall: " << v.second.elapsed/1000 << std::endl;
-    }
   }
 
   Rcout << std::endl;
@@ -273,11 +286,18 @@ int harmony::cluster_cpp() {
 
 
 
+
+
 int harmony::update_R() {
+  uvec indices = linspace<uvec>(0, N - 1, N);
+  update_order = shuffle(indices);
+  // Sort back when done according to this
+  uvec reverse_index(N, arma::fill::zeros);
+  reverse_index.rows(update_order) = indices;
   
   {
-    Timer t(timers["update_R_transform"]);
-    update_order = shuffle(linspace<uvec>(0, N - 1, N));
+    Timer t(timers["update_R_transform"]);    
+    
     _scale_dist = -dist_mat; // K x N
     _scale_dist.each_col() /= sigma; // NEW: vector sigma
     // _scale_dist.each_row() -= max(_scale_dist, 0);
@@ -287,29 +307,18 @@ int harmony::update_R() {
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   unsigned n_blocks = (int)(ceil(1.0 / block_size));
   unsigned cells_per_block = (N / n_blocks) + 1;
-
-  // Sort back when done according to this
-  uvec reverse_index = linspace<uvec>(0, N - 1, N);
-  reverse_index = reverse_index(update_order);
-
+  
   // Allocate new matrices
   Timer* tp = new Timer(timers["R_update_alloc"]);
   MATTYPE R_randomized = R.cols(update_order);
-  MATTYPE Phi_randomized = Phi.cols(update_order);
-  MATTYPE Phi_t_randomized = Phi_randomized.t();
+  arma::sp_mat Phi_randomized(Phi.cols(update_order));
+  arma::sp_mat Phi_t_randomized(Phi_randomized.t());
   MATTYPE _scale_dist_randomized = _scale_dist.cols(update_order);
   delete tp;
   
 
 
-    for (unsigned i = 0; i < n_blocks; i++) {
-      // gather cell updates indices
-      // unsigned idx_min = i * cells_per_block;
-      // unsigned idx_max = min(idx_min + cells_per_block, N);
-      // if (idx_min > idx_max) break;
-      // uvec idx_list = linspace<uvec>(idx_min, idx_max - 1, idx_max - idx_min);
-      // cells_update = update_order.rows(idx_list);
-    
+  for (unsigned i = 0; i < n_blocks; i++) {    
     unsigned idx_max = min((i+1) * cells_per_block, N-1);
 
     
@@ -334,7 +343,8 @@ int harmony::update_R() {
       // Step 2: recompute R for removed cells
       Rcells = _scale_distcells;
       Rcells = Rcells % (harmony_pow((E + 1) / (O + 1), theta) * Phicells);
-      Rcells.each_row() /= sum(Rcells, 0); // normalise(Rcells, 1, 0); // L1 norm columns
+      // Rcells.each_row() /= sum(Rcells, 0);
+      Rcells = normalise(Rcells, 1, 0); // L1 norm columns
     }
     {
       Timer t(timers["R_update_OE_addback"]);
@@ -346,7 +356,7 @@ int harmony::update_R() {
   }
   
   this->R = R_randomized.cols(reverse_index);
-  this->Phi = Phi_randomized.cols(reverse_index);
+  // this->Phi = Phi_randomized.cols(reverse_index);
   
   return 0;
 }
@@ -354,19 +364,36 @@ int harmony::update_R() {
 
 void harmony::moe_correct_ridge_cpp() {
 
+  Progress p(K, false);
+  arma::sp_mat _Phi_moe(Phi_moe), _lambda(lambda), _Rk(N, N);
+  
   Z_corr = Z_orig;
-  for (unsigned k = 0; k < K; k++) { 
-    Phi_Rk = Phi_moe * arma::diagmat(R.row(k));
-    W = arma::inv(Phi_Rk * Phi_moe.t() + lambda) * Phi_Rk * Z_orig.t();
-    W.row(0).zeros(); // do not remove the intercept 
-    Z_corr -= W.t() * Phi_Rk;
+      
+  for (unsigned k = 0; k < K; k++) {
+    {
+      if (Progress::check_abort())
+        return;
+      
+      Timer t(timers["correction"]);
+      _Rk.diag() = R.row(k);
+      arma::sp_mat Phi_Rk = _Phi_moe * _Rk;
+      W = arma::inv(arma::mat(Phi_Rk * _Phi_moe.t() + _lambda)) * Phi_Rk * Z_orig.t();
+      W.row(0).zeros(); // do not remove the intercept 
+      Z_corr -= W.t() * Phi_Rk;
+    }
+    Rcout << "\rIn iteration " << k << " " << (timers["correction"].elapsed - timers["correction"].last) / 1000;
   }
-
+  Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
       .constructor()
+      .field("Z_corr", &harmony::Z_corr)
+      .field("objective_kmeans_dist", &harmony::objective_kmeans_dist)
+      .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
+      .field("objective_kmeans_cross", &harmony::objective_kmeans_cross)    
+      .field("objective_harmony", &harmony::objective_harmony)
       .method("check_convergence", &harmony::check_convergence)
       .method("setup", &harmony::setup)
       .method("compute_objective", &harmony::compute_objective)
@@ -374,7 +401,7 @@ RCPP_MODULE(harmony_module) {
       .method("cluster_cpp", &harmony::cluster_cpp)	  
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("setY", &harmony::setY)
-  ;
+      ;
 }
 
 
