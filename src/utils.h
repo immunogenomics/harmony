@@ -1,3 +1,4 @@
+// HCYAO leave it unchanged for record
 void cosine_normalize(MATTYPE& X, int margin, bool do_safe) {
   // to avoid Inf values, first divide by max 
   if (margin == 1) {
