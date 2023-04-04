@@ -219,9 +219,7 @@ HarmonyMatrix <- function(
     } else {
         res <- as.matrix(harmonyObj$Z_corr)
         row.names(res) <- row.names(data_mat)
-        colnames(res) <- colnames(data_mat)
-        if (!cells_as_cols) 
-            res <- t(res)
+        colnames(res) <- colnames(data_mat)      
         return(res)      
     }
 }
