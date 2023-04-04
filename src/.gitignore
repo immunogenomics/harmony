@@ -1,3 +1,6 @@
 *.o
 *.so
 *.dll
+.cache
+compile_commands.json
+MakefileBear
