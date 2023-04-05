@@ -40,3 +40,13 @@ VECTYPE calculate_norm(const MATTYPE& M){
   }
   return x;
 }
+
+
+//https://stackoverflow.com/questions/8377412/ceil-function-how-can-we-implement-it-ourselves
+int my_ceil(float num) {
+    int inum = (int)num;
+    if (num == (float)inum) {
+        return inum;
+    }
+    return inum + 1;
+}

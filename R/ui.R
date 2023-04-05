@@ -165,12 +165,12 @@ HarmonyMatrix <- function(
     
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
-        res <- model.matrix(~0 + as.factor(meta_data[[var_use]]))
-        t(res)
+        res <- Matrix::sparse.model.matrix(~0 + as.factor(meta_data[[var_use]]))
+        Matrix::t(res)
     }))
 
     ## ## number of cells per batch
-    N_b <- rowSums(phi)
+    N_b <- Matrix::rowSums(phi)
 
     ## Number of factors per covariate
     B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
