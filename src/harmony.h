@@ -23,7 +23,7 @@ public:
   
   harmony();
   
-    void setup(MATTYPE& __Z, arma::sp_mat& __Phi,
+    void setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
 	       VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
 	       float __epsilon_kmeans, float __epsilon_harmony,
 	       int __K, float __block_size,
