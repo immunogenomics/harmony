@@ -43,7 +43,7 @@ public:
   /* FIELDS */
   MATTYPE R, Z_orig, Z_corr, Z_cos, Y;
   arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, lambda, Rk;
-  VECTYPE Pr_b, theta, N_b, sigma, sigma_prior;
+  VECTYPE Pr_b, theta, N_b, sigma;
   
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
   vector<int> kmeans_rounds; // OLD: Kb

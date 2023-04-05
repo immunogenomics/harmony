@@ -46,7 +46,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   K = __K;
   lambda = __lambda;
   sigma = __sigma;
-  sigma_prior = __sigma;
   block_size = __block_size;
   theta = __theta;
   max_iter_kmeans = __max_iter_kmeans;
