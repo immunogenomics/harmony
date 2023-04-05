@@ -19,10 +19,10 @@ harmony::harmony() :
 
 
 void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
-                    VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans,
-                    float __epsilon_kmeans, float __epsilon_harmony,
-                    int __K, float __block_size,
-                    MATTYPE __lambda, bool __verbose) {
+                    const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
+                    const float __epsilon_kmeans, const float __epsilon_harmony,
+                    const int __K, const float __block_size,
+                    const MATTYPE __lambda, const bool __verbose) {
   
   Z_orig = __Z;
   Z_cos = arma::normalise(__Z, 2, 0);
@@ -46,6 +46,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   K = __K;
   lambda = __lambda;
   sigma = __sigma;
+
   block_size = __block_size;
   theta = __theta;
   max_iter_kmeans = __max_iter_kmeans;
