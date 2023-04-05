@@ -21,7 +21,7 @@ harmony::harmony() :
 void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans,
                     float __epsilon_kmeans, float __epsilon_harmony,
-                    int __K, float tau, float __block_size,
+                    int __K, float __block_size,
                     MATTYPE __lambda, bool __verbose) {
   
   Z_orig = __Z;

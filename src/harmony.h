@@ -25,8 +25,8 @@ public:
   
     void setup(MATTYPE& __Z, arma::sp_mat& __Phi,
 	       VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
-	       float __epsilon_kmeans, float __epsilon_harmony, 
-	       int __K, float tau, float __block_size,
+	       float __epsilon_kmeans, float __epsilon_harmony,
+	       int __K, float __block_size,
 	       MATTYPE __lambda, bool __verbose);
   
   /* METHODS */
@@ -48,7 +48,7 @@ public:
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
   vector<int> kmeans_rounds; // OLD: Kb
   
-  float block_size, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
+  float block_size, epsilon_kmeans, epsilon_harmony;
   unsigned int N, K, B, d, max_iter_kmeans, window_size;
 
   // buffers

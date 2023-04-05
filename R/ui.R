@@ -196,7 +196,7 @@ HarmonyMatrix <- function(
 
         data_mat, phi,
         sigma, theta, max.iter.cluster, epsilon.cluster,
-        epsilon.harmony, nclust, tau, block.size, lambda_mat, verbose
+        epsilon.harmony, nclust, block.size, lambda_mat, verbose
         )
     
     if (!is.null(Y)) {
