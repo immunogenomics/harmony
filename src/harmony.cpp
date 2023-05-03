@@ -23,16 +23,17 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
                     const MATTYPE __lambda, const bool __verbose) {
-  
+    
+  // Algorithm constants
+  N = __Z.n_cols;
+  B = __Phi.n_rows;
+  d = __Z.n_rows;
+
   Z_orig = __Z;
   Z_cos = arma::normalise(__Z, 2, 0);
   Z_corr = zeros(size(Z_orig));
-  
-  // Algorithm constants
-  N = Z_corr.n_cols;
-  B = Phi.n_rows;
-  d = Z_corr.n_rows;
 
+  
   Phi = __Phi;
   Phi_t = Phi.t();
   
