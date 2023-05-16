@@ -232,7 +232,7 @@ int harmony::update_R() {
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   unsigned n_blocks = (int)(my_ceil(1.0 / block_size));
-  unsigned cells_per_block = (N / n_blocks) + 1;
+  unsigned cells_per_block = my_ceil(N / n_blocks);
   
   // Allocate new matrices
   MATTYPE R_randomized = R.cols(update_order);
@@ -242,7 +242,6 @@ int harmony::update_R() {
 
   for (unsigned i = 0; i < n_blocks; i++) {
       unsigned idx_max = min((i+1) * cells_per_block, N-1);
-
       auto Rcells = R_randomized.submat(0, i*cells_per_block, R_randomized.n_rows - 1, idx_max);
       auto Phicells = Phi_randomized.submat(0, i*cells_per_block, Phi_randomized.n_rows - 1, idx_max);
       auto Phi_tcells = Phi_t_randomized.submat(i*cells_per_block, 0, idx_max, Phi_t_randomized.n_cols - 1);
