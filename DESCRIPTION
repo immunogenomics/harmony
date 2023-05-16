@@ -19,7 +19,7 @@ Description: Implementation of the Harmony algorithm for single cell integration
 URL: software.broadinstitute.org/harmony
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Depends: R(>= 3.4.0), Rcpp
 LazyData: true
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress

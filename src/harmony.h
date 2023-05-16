@@ -57,7 +57,7 @@ public:
   MATTYPE W;
     
   // flags
-  bool ran_setup, ran_init, verbose, Yset; // do_merge_R;
+  bool ran_setup, ran_init, verbose; // do_merge_R;
   
 };
 

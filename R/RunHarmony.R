@@ -123,25 +123,25 @@ RunHarmony.Seurat <- function(
   )
 
   harmonyEmbed <- HarmonyMatrix(
-    embedding,
-    metavars_df,
-    group.by.vars,
-    FALSE,
-    0,
-    theta,
-    lambda,
-    sigma,
-    nclust,
-    tau,
-    block.size,
-    max.iter.harmony,
-    max.iter.cluster,
-    epsilon.cluster,
-    epsilon.harmony,
-    plot_convergence,
-    FALSE,
-    verbose,
-    reference_values
+    data_mat = embedding,
+    meta_data = metavars_df,
+    vars_use = group.by.vars,
+    do_pca = FALSE,
+    npcs = 0,
+    theta = theta,
+    lambda = lambda,
+    sigma = sigma,
+    nclust = nclust,
+    tau = tau,
+    block.size = block.size,
+    max.iter.harmony = max.iter.harmony,
+    max.iter.cluster = max.iter.cluster,
+    epsilon.cluster = epsilon.cluster,
+    epsilon.harmony = epsilon.harmony,
+    plot_convergence= plot_convergence,
+    return_object = FALSE,
+    verbose = verbose,
+    reference_values = reference_values
   )
 
   reduction.key <- Seurat::Key(reduction.save, quiet = TRUE)
@@ -216,26 +216,27 @@ RunHarmony.SingleCellExperiment <- function(
     }
 
     harmonyEmbed <- HarmonyMatrix(
-        pca_embedding,
-        metavars_df,
-        group.by.vars,
-        FALSE,
-        0,
-        theta,
-        lambda,
-        sigma,
-        nclust,
-        tau,
-        block.size,
-        max.iter.harmony,
-        max.iter.cluster,
-        epsilon.cluster,
-        epsilon.harmony,
-        plot_convergence,
-        FALSE,
-        verbose,
-        reference_values
+        data_mat = embedding,
+        meta_data = metavars_df,
+        vars_use = group.by.vars,
+        do_pca = FALSE,
+        npcs = 0,
+        theta = theta,
+        lambda = lambda,
+        sigma = sigma,
+        nclust = nclust,
+        tau = tau,
+        block.size = block.size,
+        max.iter.harmony = max.iter.harmony,
+        max.iter.cluster = max.iter.cluster,
+        epsilon.cluster = epsilon.cluster,
+        epsilon.harmony = epsilon.harmony,
+        plot_convergence= plot_convergence,
+        return_object = FALSE,
+        verbose = verbose,
+        reference_values = reference_values
     )
+   
 
     rownames(harmonyEmbed) <- row.names(metavars_df)
     colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))

@@ -45,11 +45,7 @@
 #' FALSE to suppress.
 #' @param reference_values (Advanced Usage) Defines reference dataset(s). 
 #' Cells that have batch variables values matching reference_values will not 
-#' be moved.  
-#' @param cluster_prior (Advanced Usage) Provides user defined clusters for 
-#' cluster initialization. If the number of provided clusters C is less than K, 
-#' Harmony will initialize K-C clusters with kmeans. C cannot exceed K.  
-#' 
+#' be moved.
 #' @return By default, matrix with corrected PCA embeddings. If return_object 
 #' is TRUE, returns the full Harmony object (R6 reference class type). 
 #'
@@ -85,11 +81,11 @@
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
     npcs = 20, theta = NULL, lambda = NULL, sigma = 0.1, 
-    nclust = NULL, tau = 0, block.size = 0.05, 
-    max.iter.harmony = 10, max.iter.cluster = 200, 
-    epsilon.cluster = 1e-5, epsilon.harmony = 1e-4, 
-    plot_convergence = FALSE, return_object = FALSE, 
-    verbose = TRUE, reference_values = NULL, cluster_prior = NULL, Y = NULL
+    nclust = NULL, tau = 0, block.size = 0.05,
+    max.iter.harmony = 10, max.iter.cluster = 200,
+    epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
+    plot_convergence = FALSE, return_object = FALSE,
+    verbose = TRUE, reference_values = NULL
 ) {
     
     
@@ -133,7 +129,7 @@ HarmonyMatrix <- function(
     if (do_pca) {
         pca_res <- data_mat %>%
             scaleData() %>% 
-            irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, 
+            irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE,
                                 scale. = FALSE)
         data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
     }
@@ -199,10 +195,6 @@ HarmonyMatrix <- function(
         epsilon.harmony, nclust, block.size, lambda_mat, verbose
         )
     
-    if (!is.null(Y)) {
-        harmonyObj$setY(Y)
-    }
-    
     harmonyObj$init_cluster_cpp(0)
     
     ## if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
@@ -220,7 +212,7 @@ HarmonyMatrix <- function(
         res <- as.matrix(harmonyObj$Z_corr)
         row.names(res) <- row.names(data_mat)
         colnames(res) <- colnames(data_mat)      
-        return(res)      
+        return(t(res))
     }
 }
 

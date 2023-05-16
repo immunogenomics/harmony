@@ -46,40 +46,6 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
 }
 
 
-init_cluster <- function(harmonyObj, cluster_prior=NULL) {
-    if (harmonyObj$ran_setup == FALSE) {
-        stop('before initializing cluster, run setup')
-    }
-    if (!is.null(cluster_prior)) {
-        if (ncol(cluster_prior) != harmonyObj$N) {
-            stop('cluster_prior must be defined by N cells')
-        }
-        if (nrow(cluster_prior) > harmonyObj$K) {
-            stop('cluster_prior cannot contain more than K clusters')
-        }
-        C <- nrow(cluster_prior)
-        harmonyObj$Y <- matrix(0, harmonyObj$d, harmonyObj$K)
-        harmonyObj$Y[, seq_len(C)] <- compute_Y(harmonyObj$Z_cos,
-                                                           cluster_prior)
-        harmonyObj$R <- matrix(0, harmonyObj$K, harmonyObj$N)
-        harmonyObj$R[seq_len(nrow(cluster_prior)), ] <- cluster_prior
-        
-
-        ## if needed, initialize K-C clusters        
-        if (C < harmonyObj$K) {
-            Ynew <- t(stats::kmeans(t(harmonyObj$Z_cos), 
-                                    centers = harmonyObj$K - C,
-                                    iter.max = 25, nstart = 10)$centers)
-            harmonyObj$Y[, seq(1+C, harmonyObj$K)] <- Ynew
-        }
-        
-        harmonyObj$init_cluster_cpp(C)
-    } else {
-        
-    }
-
-}
-
 
 HarmonyConvergencePlot <- function(
         harmonyObj, round_start=1, round_end=Inf, do_wrap=FALSE

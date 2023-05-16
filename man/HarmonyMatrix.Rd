@@ -23,8 +23,7 @@ HarmonyMatrix(
   plot_convergence = FALSE,
   return_object = FALSE,
   verbose = TRUE,
-  reference_values = NULL,
-  cluster_prior = NULL
+  reference_values = NULL
 )
 }
 \arguments{
@@ -90,10 +89,6 @@ FALSE to suppress.}
 \item{reference_values}{(Advanced Usage) Defines reference dataset(s). 
 Cells that have batch variables values matching reference_values will not 
 be moved.}
-
-\item{cluster_prior}{(Advanced Usage) Provides user defined clusters for 
-cluster initialization. If the number of provided clusters C is less than K, 
-Harmony will initialize K-C clusters with kmeans. C cannot exceed K.}
 }
 \value{
 By default, matrix with corrected PCA embeddings. If return_object 

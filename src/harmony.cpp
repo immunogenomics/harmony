@@ -12,8 +12,7 @@ harmony::harmony() :
     window_size(3),
     ran_setup(false),
     ran_init(false),
-    verbose(false),
-    Yset(false)
+    verbose(false)
 {}
 
 
@@ -76,20 +75,11 @@ void harmony::allocate_buffers() {
   
 }
 
-void harmony::setY(const MATTYPE& _Y){
-  Y = _Y;
-  Yset = true;
-}
-
 
 void harmony::init_cluster_cpp(unsigned C) {
   
-  if(!Yset){
-    Rcerr << "Hard k-means centroids initialization"  <<std::endl;
-    Y = kmeans_centers(Z_cos, K).t();
-  }else{
-    Rcerr << "Ommiting computation hard k-means"  <<std::endl;
-  }
+  Rcerr << "Hard k-means centroids initialization"  <<std::endl;
+  Y = kmeans_centers(Z_cos, K).t();
   
   // Cosine normalization of data centrods
   Y = arma::normalise(Y, 2, 0);
@@ -298,8 +288,10 @@ RCPP_MODULE(harmony_module) {
       .field("N", &harmony::N)
       .field("B", &harmony::B)      
       .field("K", &harmony::K)
+      .field("d", &harmony::d)
       .field("O", &harmony::O)
       .field("E", &harmony::E)
+      .field("Y", &harmony::Y)
       .field("Pr_b", &harmony::Pr_b)
       .field("W", &harmony::W)
       .field("R", &harmony::R)
@@ -313,7 +305,6 @@ RCPP_MODULE(harmony_module) {
       .method("init_cluster_cpp", &harmony::init_cluster_cpp)
       .method("cluster_cpp", &harmony::cluster_cpp)	  
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
-      .method("setY", &harmony::setY)
       ;
 }
 
