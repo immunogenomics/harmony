@@ -118,15 +118,12 @@ HarmonyMatrix <- function(
     }
     
     if (do_pca) {
-        if (ncol(data_mat) != nrow(meta_data)) {
-            data_mat <- Matrix::t(data_mat)
-        }
         
-        pca_res <- data_mat %>%
-            scaleData() %>% 
-            irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE, 
-                                scale. = FALSE)
-        data_mat <- pca_res$rotation %*% diag(pca_res$sdev)
+        pca_res <- irlba::prcomp_irlba(data_mat,n = npcs,
+                                       retx = TRUE,
+                                       center = FALSE,
+                                       scale. = FALSE)
+        data_mat <- pca_res$rotation %*% diag(pca_res$sdev) %>% t()
     } 
     
     N <- nrow(meta_data)
