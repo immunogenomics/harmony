@@ -112,8 +112,20 @@ HarmonyMatrix <- function(
         stop(msg)
     }
 
+
     ## Number of cells
     N <- nrow(meta_data)
+
+    
+    if (do_pca) {
+        
+        pca_res <- irlba::prcomp_irlba(data_mat,n = npcs,
+                                       retx = TRUE,
+                                       center = FALSE,
+                                       scale. = FALSE)
+        data_mat <- pca_res$rotation %*% diag(pca_res$sdev) %>% t()
+    } 
+    
     
     ## Check if we need to transpose our data
     if (nrow(data_mat) == N) {
