@@ -80,7 +80,7 @@
 #' 
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
-    npcs = 20, theta = NULL, lambda = NULL, sigma = 0.1, 
+    npcs = NULL, theta = NULL, lambda = NULL, sigma = 0.1, 
     nclust = NULL, tau = 0, block.size = 0.05,
     max.iter.harmony = 10, max.iter.cluster = 200,
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
@@ -115,16 +115,7 @@ HarmonyMatrix <- function(
 
     ## Number of cells
     N <- nrow(meta_data)
-
-    
-    if (do_pca) {
-        
-        pca_res <- irlba::prcomp_irlba(data_mat,n = npcs,
-                                       retx = TRUE,
-                                       center = FALSE,
-                                       scale. = FALSE)
-        data_mat <- pca_res$rotation %*% diag(pca_res$sdev) %>% t()
-    } 
+ 
     
     
     ## Check if we need to transpose our data
@@ -139,6 +130,13 @@ HarmonyMatrix <- function(
     }
     
     if (do_pca) {
+        if (is.null(npcs)) {
+            stop("Please define number of PCs using the `npcs` parameter")
+        }
+        
+        if (!(npcs < nrow(data_mat))) {
+            stop("The number of PCs can not be >= than the number of dimensions")
+        }
         pca_res <- data_mat %>%
             scaleData() %>% 
             irlba::prcomp_irlba(n = npcs, retx = TRUE, center = FALSE,
@@ -208,13 +206,10 @@ HarmonyMatrix <- function(
         )
     
     harmonyObj$init_cluster_cpp(0)
-    
-    ## if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
-
-    
 
     harmonize(harmonyObj, max.iter.harmony, verbose)
-
+    
+    if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
 
     
     ## Return either the R6 Harmony object or the corrected PCA matrix

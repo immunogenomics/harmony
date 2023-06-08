@@ -9,7 +9,7 @@ HarmonyMatrix(
   meta_data,
   vars_use,
   do_pca = TRUE,
-  npcs = 20,
+  npcs = NULL,
   theta = NULL,
   lambda = NULL,
   sigma = 0.1,

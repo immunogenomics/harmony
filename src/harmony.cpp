@@ -277,6 +277,19 @@ void harmony::moe_correct_ridge_cpp() {
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
+CUBETYPE harmony::moe_ridge_get_betas_cpp() {
+  CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
+
+  arma::sp_mat _Rk(N, N);
+  for (unsigned k = 0; k < K; k++) {
+      _Rk.diag() = R.row(k);
+      arma::sp_mat Phi_Rk = Phi_moe * _Rk;
+      W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda)) * Phi_Rk * Z_orig.t();
+  }
+
+  return W_cube;
+}
+
 RCPP_MODULE(harmony_module) {
   class_<harmony>("harmony")
       .constructor()
@@ -286,7 +299,7 @@ RCPP_MODULE(harmony_module) {
       .field("Phi", &harmony::Phi)
       .field("Phi_moe", &harmony::Phi_moe)
       .field("N", &harmony::N)
-      .field("B", &harmony::B)      
+      .field("B", &harmony::B)
       .field("K", &harmony::K)
       .field("d", &harmony::d)
       .field("O", &harmony::O)
@@ -305,12 +318,6 @@ RCPP_MODULE(harmony_module) {
       .method("init_cluster_cpp", &harmony::init_cluster_cpp)
       .method("cluster_cpp", &harmony::cluster_cpp)	  
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
+      .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       ;
 }
-
-
-
-
-
-
-

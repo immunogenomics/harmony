@@ -5,3 +5,7 @@ kmeans_centers <- function(X, K) {
     .Call('_harmony_kmeans_centers', PACKAGE = 'harmony', X, K)
 }
 
+scaleRows_dgc <- function(x, p, i, ncol, nrow, thresh) {
+    .Call('_harmony_scaleRows_dgc', PACKAGE = 'harmony', x, p, i, ncol, nrow, thresh)
+}
+

@@ -84,11 +84,29 @@ HarmonyConvergencePlot <- function(
 
 
 
+scaleData <- function(A, margin = 1, thresh = 10) {
+    if (!"dgCMatrix" %in% class(A))
+        A <- methods::as(A, "dgCMatrix")
+
+    if (margin != 1) A <- t(A)
+
+    res <- scaleRows_dgc(A@x, A@p, A@i, ncol(A), nrow(A), thresh)
+    if (margin != 1) res <- t(res)
+    row.names(res) <- row.names(A)
+    colnames(res) <- colnames(A)
+    return(res)
+}
 
 
-
-
-
-
-
-
+#' Get beta Utility 
+#' 
+#' Utility function to get ridge regression coefficients from trained
+#' Harmony object 
+#' 
+#' @param harmonyObj Trained harmony object. Get this by running 
+#' HarmonyMatrix function with return_object=TRUE.
+#' @return Returns nothing, modifies object in place. 
+#' @export
+moe_ridge_get_betas <- function(harmonyObj) {
+    harmonyObj$moe_ridge_get_betas_cpp()
+}
