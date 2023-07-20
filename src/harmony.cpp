@@ -308,6 +308,8 @@ RCPP_MODULE(harmony_module) {
       .field("Pr_b", &harmony::Pr_b)
       .field("W", &harmony::W)
       .field("R", &harmony::R)
+      .field("kmeans_rounds", &harmony::kmeans_rounds)
+      .field("objective_kmeans", &harmony::objective_kmeans)
       .field("objective_kmeans_dist", &harmony::objective_kmeans_dist)
       .field("objective_kmeans_entropy", &harmony::objective_kmeans_entropy)
       .field("objective_kmeans_cross", &harmony::objective_kmeans_cross)    
