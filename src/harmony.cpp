@@ -21,7 +21,8 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const MATTYPE __lambda, const bool __verbose) {
+                    const MATTYPE __lambda, const bool __verbose,
+                    arma::vec __lambda_range, std::vector<int> __B_vec) {
     
   // Algorithm constants
   N = __Z.n_cols;
@@ -45,6 +46,8 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   // Hyperparameters
   K = __K;
   lambda = __lambda;
+  lambda_range = __lambda_range;
+  B_vec = __B_vec;
   sigma = __sigma;
 
   block_size = __block_size;
@@ -72,7 +75,9 @@ void harmony::allocate_buffers() {
   Phi_moe = join_cols(intcpt, Phi);
   Phi_moe_t = Phi_moe.t();
   W = zeros<MATTYPE>(B + 1, d);
-  
+  // Sparse matrix, can be optimized if necessary
+  lambda_dym_mat = zeros<MATTYPE>(B + 1, B + 1);
+  all_lambda_dym_mat = zeros<MATTYPE>(K, B+1);
 }
 
 
@@ -277,6 +282,34 @@ void harmony::moe_correct_ridge_cpp() {
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
+
+void harmony::mid_cap_moe_correct_ridge_cpp() {
+
+  Progress p(K, false);
+  arma::sp_mat _Rk(N, N);
+  
+  Z_corr = Z_orig;
+      
+  for (unsigned k = 0; k < K; k++) {
+      
+      if (Progress::check_abort())
+	  return;
+      
+      _Rk.diag() = R.row(k);
+      arma::sp_mat Phi_Rk = Phi_moe * _Rk;
+      arma::vec lambda_dym_vec = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+      // Not necessary but good to keep
+      all_lambda_dym_mat.row(k) = lambda_dym_vec.t();
+      lambda_dym_mat = arma::diagmat(lambda_dym_vec);
+      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_dym_mat)) * Phi_Rk * Z_orig.t();
+      W.row(0).zeros(); // do not remove the intercept 
+      Z_corr -= W.t() * Phi_Rk;
+      
+  }
+  Z_cos = arma::normalise(Z_corr, 2, 0);
+}
+
+
 CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
 
@@ -321,5 +354,10 @@ RCPP_MODULE(harmony_module) {
       .method("cluster_cpp", &harmony::cluster_cpp)	  
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
+      .field("lambda_range", &harmony::lambda_range)
+      .field("B_vec", &harmony::B_vec)
+      .field("lambda_dym_mat", &harmony::lambda_dym_mat)    
+      .field("all_lambda_dym_mat", &harmony::all_lambda_dym_mat)
+      .method("mid_cap_moe_correct_ridge_cpp", &harmony::mid_cap_moe_correct_ridge_cpp)
       ;
 }

@@ -32,7 +32,8 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
         }
         
         # STEP 2: regress out covariates
-        harmonyObj$moe_correct_ridge_cpp()
+        # harmonyObj$moe_correct_ridge_cpp()
+        harmonyObj$mid_cap_moe_correct_ridge_cpp()
         
         # STEP 3: check for convergence
         if (harmonyObj$check_convergence(1)) {
