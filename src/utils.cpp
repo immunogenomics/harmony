@@ -113,15 +113,21 @@ double find_one_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range
 arma::vec find_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range,
                           const std::vector<int>& B_vec) {
   arma::vec lambda_dym_vec(cluster_size.n_rows + 1, arma::fill::zeros);
-  int current_idx = 1; // base indx for lambda_dy_vec; 1 to omit the intercept
-  // find lambda_dym for every batch variable
-  for(unsigned int b = 0; b < B_vec.size(); b++){
+  int current_idx = 0; // base indx for cluster_size and lambda_dym_vec
+  
+  // for every batch variable
+  for(unsigned int b = 0; b < B_vec.size(); b++) {
+    //Slice the size for the covariate factors
     arma::vec sub_cluster_size = cluster_size.subvec(current_idx,
-                                           current_idx + B_vec[b]-1);
+						     current_idx + B_vec[b]-1);
+    // Estimate lambda for the covariate
     double lambda_dym = find_one_lambda_cpp(sub_cluster_size, range);
-    lambda_dym_vec.subvec(current_idx, current_idx + B_vec[b]-1) = arma::vec(
+    // lambda_dym_vec is 1-based because the intercept is always zero
+    lambda_dym_vec.subvec(current_idx + 1, current_idx + B_vec[b]) = arma::vec(
         B_vec[b], arma::fill::value(lambda_dym));
+    // Increase the offset
     current_idx += B_vec[b];
   }
+  
   return lambda_dym_vec;
 }
