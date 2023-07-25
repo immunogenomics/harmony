@@ -27,7 +27,7 @@ public:
 	     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
 	     const float __epsilon_kmeans, const float __epsilon_harmony,
 	     const int __K, const float __block_size,
-	     const vec& __lambda_range, const bool __verbose);
+	     const vec& __lambda_range, const vector<int>& __B_vec, const bool __verbose);
   
   /* METHODS */
   void moe_correct_ridge_cpp();

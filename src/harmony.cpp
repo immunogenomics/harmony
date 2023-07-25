@@ -23,7 +23,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const vec& __lambda_range, const bool __verbose) {
+                    const vec& __lambda_range, const vector<int>& __B_vec, const bool __verbose) {
     
   // Algorithm constants
   N = __Z.n_cols;
@@ -34,6 +34,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   Z_cos = arma::normalise(__Z, 2, 0);
   Z_corr = zeros(size(Z_orig));
 
+  B_vec = __B_vec;
   
   Phi = __Phi;
   Phi_t = Phi.t();
@@ -60,6 +61,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   
   allocate_buffers();
   ran_setup = true;
+
   
   
   
