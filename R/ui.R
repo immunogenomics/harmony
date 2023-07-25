@@ -80,7 +80,7 @@
 #' 
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
-    npcs = NULL, theta = NULL, lambda = c(1, 10), sigma = 0.1, 
+    npcs = NULL, theta = NULL, lambda = c(0.1, 10), sigma = 0.1, 
     nclust = NULL, tau = 0, block.size = 0.05,
     max.iter.harmony = 10, max.iter.cluster = 200,
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
