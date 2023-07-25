@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.Rmd": "rmd",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "random": "cpp"
+    }
+}

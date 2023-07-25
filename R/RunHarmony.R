@@ -64,7 +64,7 @@ RunHarmony.Seurat <- function(
   reduction = 'pca',
   dims.use = NULL,
   theta = NULL,
-  lambda = NULL,
+  lambda = c(1, 10),
   sigma = 0.1,
   nclust = NULL,
   tau = 0,
@@ -123,7 +123,7 @@ RunHarmony.Seurat <- function(
   )
 
   harmonyEmbed <- HarmonyMatrix(
-    data_mat = embedding,
+    data_mat = embedding[, dims.use],
     meta_data = metavars_df,
     vars_use = group.by.vars,
     do_pca = FALSE,
@@ -176,7 +176,7 @@ RunHarmony.SingleCellExperiment <- function(
     group.by.vars,
     dims.use = NULL,
     theta = NULL,
-    lambda = NULL,
+    lambda = c(1, 10),
     sigma = 0.1,
     nclust = NULL,
     tau = 0,
@@ -216,7 +216,7 @@ RunHarmony.SingleCellExperiment <- function(
     }
 
     harmonyEmbed <- HarmonyMatrix(
-        data_mat = embedding,
+        data_mat = embedding[, dims.use], # is here an error?
         meta_data = metavars_df,
         vars_use = group.by.vars,
         do_pca = FALSE,

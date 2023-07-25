@@ -80,7 +80,7 @@
 #' 
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, do_pca = TRUE,
-    npcs = NULL, theta = NULL, lambda = NULL, sigma = 0.1, 
+    npcs = NULL, theta = NULL, lambda = c(1, 10), sigma = 0.1, 
     nclust = NULL, tau = 0, block.size = 0.05,
     max.iter.harmony = 10, max.iter.cluster = 200,
     epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
@@ -157,18 +157,27 @@ HarmonyMatrix <- function(
     } else if (length(theta) != length(vars_use)) {
         stop('Please specify theta for each variable')
     }
-    # determine lamda if null
-    if (is.null(lambda)) {
-        lambda <- rep(1, length(vars_use))
-    } else if (length(lambda) != length(vars_use)) {
-        stop('Please specify lambda for each variable')
-    }
     
     # determine sigma if it is a scalar
     if (length(sigma) == 1 & nclust > 1) {
         sigma <- rep(sigma, nclust)
     }
     
+    # determine if lambda is appropriate
+    if(length(lambda) != 2){
+        stop('lambda should have length == 2')
+    }
+    if (lambda[2] < lambda[1]){
+        stop('lambda[2] cannot be smaller than lambda[1]')
+    }
+    if (lambda[1] <= 0){
+        stop('lambda cannot be smaller or equal to 0')
+    }
+    mode = "new"
+    if (lambda[2] == lambda[1]){
+        mode <- "old"
+    }
+
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
         res <- Matrix::sparse.model.matrix(~0 + as.factor(meta_data[[var_use]]))
@@ -191,9 +200,11 @@ HarmonyMatrix <- function(
     theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
     
     ## Calculate lambda (#covariates) x (#levels)
-    lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
-        rep(lambda[b], B_vec[b])))
-    lambda_mat <- diag(c(0, lambda))
+    # TODO No matter we have mode "old" or "new", lambda_mat is alway calculated
+    # This is mainly for backward compatability
+    # May need to change for later version
+    lambda_mat <- rep(lambda[1], sum(B_vec))
+    lambda_mat <- diag(c(0, lambda_mat))
     
     ## RUN HARMONY
     harmonyObj <- new(harmony)
@@ -202,12 +213,12 @@ HarmonyMatrix <- function(
 
         data_mat, phi,
         sigma, theta, max.iter.cluster, epsilon.cluster,
-        epsilon.harmony, nclust, block.size, lambda_mat, verbose
+        epsilon.harmony, nclust, block.size, lambda_mat, verbose, lambda, B_vec
         )
     
     harmonyObj$init_cluster_cpp(0)
 
-    harmonize(harmonyObj, max.iter.harmony, verbose)
+    harmonize(harmonyObj, max.iter.harmony, verbose, mode)
     
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
 

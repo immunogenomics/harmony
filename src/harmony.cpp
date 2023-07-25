@@ -21,7 +21,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const MATTYPE __lambda, const bool __verbose,
+                    const MATTYPE __lambda_mat, const bool __verbose,
                     arma::vec __lambda_range, std::vector<int> __B_vec) {
     
   // Algorithm constants
@@ -45,7 +45,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
 
   // Hyperparameters
   K = __K;
-  lambda = __lambda;
+  lambda_mat = __lambda_mat;
   lambda_range = __lambda_range;
   B_vec = __B_vec;
   sigma = __sigma;
@@ -274,7 +274,7 @@ void harmony::moe_correct_ridge_cpp() {
       
       _Rk.diag() = R.row(k);
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda)) * Phi_Rk * Z_orig.t();
+      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
       W.row(0).zeros(); // do not remove the intercept 
       Z_corr -= W.t() * Phi_Rk;
       
@@ -317,7 +317,7 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda)) * Phi_Rk * Z_orig.t();
+      W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
   }
 
   return W_cube;

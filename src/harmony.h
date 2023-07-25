@@ -27,7 +27,7 @@ public:
 	       const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans, 
 	       const float __epsilon_kmeans, const float __epsilon_harmony,
 	       const int __K, const float __block_size,
-	       const MATTYPE __lambda, const bool __verbose, arma::vec __lambda_range,
+	       const MATTYPE __lambda_mat, const bool __verbose, arma::vec __lambda_range,
          std::vector<int> __B_vec);
   
   /* METHODS */
@@ -46,7 +46,7 @@ public:
 
   /* FIELDS */
   MATTYPE R, Z_orig, Z_corr, Z_cos, Y, all_lambda_dym_mat;
-  arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, lambda, Rk;
+  arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, lambda_mat, Rk;
   VECTYPE Pr_b, theta, N_b, sigma, lambda_range;
   
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
