@@ -23,11 +23,11 @@ public:
   
   harmony();
   
-    void setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
-	       const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans, 
-	       const float __epsilon_kmeans, const float __epsilon_harmony,
-	       const int __K, const float __block_size,
-	       const MATTYPE __lambda, const bool __verbose);
+  void setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
+	     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
+	     const float __epsilon_kmeans, const float __epsilon_harmony,
+	     const int __K, const float __block_size,
+	     const vec& __lambda_range, const bool __verbose);
   
   /* METHODS */
   void moe_correct_ridge_cpp();
@@ -44,7 +44,7 @@ public:
   /* FIELDS */
   MATTYPE R, Z_orig, Z_corr, Z_cos, Y;
   arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, lambda, Rk;
-  VECTYPE Pr_b, theta, N_b, sigma;
+  VECTYPE Pr_b, theta, N_b, sigma, lambda_range;
   
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
   vector<int> kmeans_rounds, B_vec; // OLD: Kb
@@ -58,7 +58,7 @@ public:
   MATTYPE W;
     
   // flags
-  bool ran_setup, ran_init, verbose; // do_merge_R;
+  bool ran_setup, ran_init, lambda_estimation,  verbose; // do_merge_R;
   
 };
 

@@ -41,26 +41,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // find_one_lambda_cpp
-double find_one_lambda_cpp(arma::vec cluster_size, arma::vec range);
+double find_one_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range);
 RcppExport SEXP _harmony_find_one_lambda_cpp(SEXP cluster_sizeSEXP, SEXP rangeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type cluster_size(cluster_sizeSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type range(rangeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_size(cluster_sizeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type range(rangeSEXP);
     rcpp_result_gen = Rcpp::wrap(find_one_lambda_cpp(cluster_size, range));
     return rcpp_result_gen;
 END_RCPP
 }
 // find_lambda_cpp
-arma::vec find_lambda_cpp(arma::vec cluster_size, arma::vec range, std::vector<int> B_vec);
+arma::vec find_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range, const std::vector<int>& B_vec);
 RcppExport SEXP _harmony_find_lambda_cpp(SEXP cluster_sizeSEXP, SEXP rangeSEXP, SEXP B_vecSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type cluster_size(cluster_sizeSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type range(rangeSEXP);
-    Rcpp::traits::input_parameter< std::vector<int> >::type B_vec(B_vecSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_size(cluster_sizeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type range(rangeSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type B_vec(B_vecSEXP);
     rcpp_result_gen = Rcpp::wrap(find_lambda_cpp(cluster_size, range, B_vec));
     return rcpp_result_gen;
 END_RCPP

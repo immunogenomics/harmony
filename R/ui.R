@@ -173,9 +173,9 @@ HarmonyMatrix <- function(
     if (lambda[1] <= 0){
         stop('lambda cannot be smaller or equal to 0')
     }
-    mode = "new"
-    if (lambda[2] == lambda[1]){
-        mode <- "old"
+    
+    if (lambda[2] == lambda[1]) {
+        message("Automatic lambda estimation for ridge is disabled. Harmony will have a fixed lambda for all batches")
     }
 
     ## Pre-compute some useful statistics
@@ -197,26 +197,20 @@ HarmonyMatrix <- function(
         rep(theta[b], B_vec[b])))
 
     ## Theta scaling
-    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
-    
-    ## Calculate lambda (#covariates) x (#levels)
-    lambda <- Reduce(c, lapply(seq_len(length(B_vec)), function(b) 
-        rep(lambda[b], B_vec[b])))
-    lambda_mat <- diag(c(0, lambda))
+    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))       
     
     ## RUN HARMONY
     harmonyObj <- new(harmony)
     
     harmonyObj$setup(
-
         data_mat, phi,
         sigma, theta, max.iter.cluster, epsilon.cluster,
-        epsilon.harmony, nclust, block.size, lambda_mat, verbose, lambda, B_vec
+        epsilon.harmony, nclust, block.size, lambda, B_vec, verbose
         )
     
     harmonyObj$init_cluster_cpp(0)
 
-    harmonize(harmonyObj, max.iter.harmony, verbose, mode)
+    harmonize(harmonyObj, max.iter.harmony, verbose)
     
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
 
