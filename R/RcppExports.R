@@ -9,3 +9,11 @@ scaleRows_dgc <- function(x, p, i, ncol, nrow, thresh) {
     .Call('_harmony_scaleRows_dgc', PACKAGE = 'harmony', x, p, i, ncol, nrow, thresh)
 }
 
+find_one_lambda_cpp <- function(cluster_size, range) {
+    .Call('_harmony_find_one_lambda_cpp', PACKAGE = 'harmony', cluster_size, range)
+}
+
+find_lambda_cpp <- function(cluster_size, range, B_vec) {
+    .Call('_harmony_find_lambda_cpp', PACKAGE = 'harmony', cluster_size, range, B_vec)
+}
+

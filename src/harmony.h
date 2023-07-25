@@ -47,7 +47,7 @@ public:
   VECTYPE Pr_b, theta, N_b, sigma;
   
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
-  vector<int> kmeans_rounds; // OLD: Kb
+  vector<int> kmeans_rounds, B_vec; // OLD: Kb
   
   float block_size, epsilon_kmeans, epsilon_harmony;
   unsigned int N, K, B, d, max_iter_kmeans, window_size;
