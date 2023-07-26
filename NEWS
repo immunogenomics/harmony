@@ -1,7 +1,8 @@
 # harmony v1.0.0 - Jul 27 2023
 * API changes
-  - reference_values
-  - cluster_prior
+  - removed do_pca functionality
+  - removed reference_values functionality
+  - removed cluster_prior functionality
   - automatic parameterization of lambda is now the default
 * Documentation
   - Updated seurat vignette
