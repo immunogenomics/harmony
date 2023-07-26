@@ -138,15 +138,12 @@ cowplot::plot_grid(p1, p2)
 
 ```
 
-Let's run Harmony to remove the influence of dataset-of-origin from the
-embedding. By default, Harmony accepts a normalized gene expression matrix and
-performs PCA. Since here we already have the PCs, we specify *do_pca=FALSE*.
-The matrix *harmony_embeddings* is the matrix of Harmony corrected PCA
-embeddings. 
+Let's run Harmony to remove the influence of dataset-of-origin from the cell
+embeddings.
 
 ```{r}
 harmony_embeddings <- harmony::HarmonyMatrix(
-    V, meta_data, 'dataset', do_pca = FALSE, verbose=FALSE
+    V, meta_data, 'dataset', verbose=FALSE
 )
 
 ```
