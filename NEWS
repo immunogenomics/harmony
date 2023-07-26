@@ -1,3 +1,27 @@
+# harmony v1.0.0 - Jul 27 2023
+* API changes
+  - reference_values
+  - cluster_prior
+  - automatic parameterization of lambda is now the default
+* Documentation
+  - Updated seurat vignette
+  - Removed mudan Seurat2 and Seurat3 vignettes
+* Name changes
+  - HarmonyMatrix to RunHarmony.matrix
+* Backend changes
+  - Sparse matrix coercion to yield performance enhancements
+  - L2-normalization using armadillo routines
+* Fixes
+  - RunHarmony() for Seurat considers dimension set
+  - RunHarmony() for SingleCellExperiment now works
+  - custom ceiling function to avoid conflicts for some block_size
+  - Coercing covariate to factor when levels are numbers
+  
+* New features
+  - Automatic parameterization of lambda
+  - Updated convergence plot
+
+
 # harmony v0.1.0
 * Initial release to CRAN
 
