@@ -126,8 +126,6 @@ RunHarmony.Seurat <- function(
     data_mat = embedding[, dims.use],
     meta_data = metavars_df,
     vars_use = group.by.vars,
-    do_pca = FALSE,
-    npcs = 0,
     theta = theta,
     lambda = lambda,
     sigma = sigma,
@@ -141,7 +139,8 @@ RunHarmony.Seurat <- function(
     plot_convergence= plot_convergence,
     return_object = FALSE,
     verbose = verbose,
-    reference_values = reference_values
+    reference_values = reference_values,
+    ...
   )
 
   reduction.key <- Seurat::Key(reduction.save, quiet = TRUE)
@@ -206,7 +205,7 @@ RunHarmony.SingleCellExperiment <- function(
     }
     dims_avail <- seq_len(ncol(pca_embedding))
     if (!all(dims.use %in% dims_avail)) {
-        stop("trying to use more dimensions than computed with PCA. Rereun
+        stop("trying to use more dimensions than computed with PCA. Rerun
             PCA with more dimensions or use fewer PCs")
     }
 
@@ -219,8 +218,6 @@ RunHarmony.SingleCellExperiment <- function(
         data_mat = embedding[, dims.use], # is here an error?
         meta_data = metavars_df,
         vars_use = group.by.vars,
-        do_pca = FALSE,
-        npcs = 0,
         theta = theta,
         lambda = lambda,
         sigma = sigma,
