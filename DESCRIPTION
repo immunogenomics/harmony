@@ -7,7 +7,7 @@ Authors@R: c(
     person("Nikolaos Patikas", email = "nik.patik@gmail.com",
         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-3978-0134")),
     person("Hongcheng Yao", email = "hongchengyaonk@gmail.com",
-        role = c("aut", "ctb")),
+        role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-0743-4835")),
     person("Nghia", "Millard", email = "nmillard@g.harvard.edu",
         role = "aut", comment = c(ORCID = "0000-0002-0518-7674")),
     person("Jean", "Fan", email = "jeanfan@fas.harvard.edu",
