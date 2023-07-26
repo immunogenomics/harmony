@@ -88,7 +88,7 @@ HarmonyMatrix <- function(
                           verbose = TRUE, reference_values = NULL, ...) {
 
     if (hasArg(do_pca) || hasArg(npcs)) {
-        stop('Error: Function parameters do_pca and npcs have no effect in newer versions of harmony. Please remove any of the do_pca or npcs parameters and pass to harmony cell_embeddings directly')
+        stop('Error: Function parameters do_pca and npcs have been removed in newer versions of harmony. Please remove any of the do_pca or npcs parameters and pass to harmony cell_embeddings directly')
     }
     
     ## TODO: check for 
