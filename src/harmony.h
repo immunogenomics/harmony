@@ -27,13 +27,10 @@ public:
 	       const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans, 
 	       const float __epsilon_kmeans, const float __epsilon_harmony,
 	       const int __K, const float __block_size,
-	       const MATTYPE __lambda_mat, const bool __verbose, arma::vec __lambda_range,
-         std::vector<int> __B_vec);
+         const arma::vec& __lambda_range, const std::vector<int>& __B_vec, const bool __verbose);
   
   /* METHODS */
   void moe_correct_ridge_cpp();
-  // TODO may merge this function with moe_correct_ridge_cpp
-  void mid_cap_moe_correct_ridge_cpp();
   CUBETYPE moe_ridge_get_betas_cpp();
   int cluster_cpp();
 
@@ -45,7 +42,7 @@ public:
   void setY(const MATTYPE& Z);
 
   /* FIELDS */
-  MATTYPE R, Z_orig, Z_corr, Z_cos, Y, all_lambda_dym_mat;
+  MATTYPE R, Z_orig, Z_corr, Z_cos, Y;
   arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, lambda_mat, Rk;
   VECTYPE Pr_b, theta, N_b, sigma, lambda_range;
   
@@ -56,12 +53,12 @@ public:
   unsigned int N, K, B, d, max_iter_kmeans, window_size;
 
   // buffers
-  MATTYPE _scale_dist, dist_mat, O, E, dir_prior, lambda_dym_mat; // N_k, N_kb, N_b, numerator, denominator, C;
+  MATTYPE _scale_dist, dist_mat, O, E, dir_prior; // N_k, N_kb, N_b, numerator, denominator, C;
   uvec update_order, cells_update;
   MATTYPE W;
     
   // flags
-  bool ran_setup, ran_init, verbose; // do_merge_R;
+  bool ran_setup, ran_init, verbose, lambda_estimation; // do_merge_R;
   
 };
 

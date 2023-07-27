@@ -12,7 +12,7 @@
 #' @return return value of rhs function. 
 NULL
 
-harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE, mode) {
+harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE) {
     if (iter_harmony < 1) {
         return(0)
     }
@@ -32,11 +32,7 @@ harmonize <- function(harmonyObj, iter_harmony, verbose=TRUE, mode) {
         }
         
         # STEP 2: regress out covariates
-        if(mode == "old"){
-            harmonyObj$moe_correct_ridge_cpp()
-        } else{
-            harmonyObj$mid_cap_moe_correct_ridge_cpp()
-        }
+        harmonyObj$moe_correct_ridge_cpp()
         
         # STEP 3: check for convergence
         if (harmonyObj$check_convergence(1)) {
@@ -75,8 +71,7 @@ HarmonyConvergencePlot <- function(
     plt <- obj_fxn %>% ggplot2::ggplot(ggplot2::aes(.data$idx, .data$val,
                                                     col = as.factor(.data$harmony_idx))) + 
         ggplot2::geom_point(shape = 21) + 
-        ggplot2::labs(y = "Objective Function", x = "Clustering Step #", color = "Integration #") +
-        ggplot2::scale_colour_hue("clarity")
+        ggplot2::labs(y = "Objective Function", x = "Clustering Step #", color = "Integration #")
     
     if (do_wrap) {
         plt <- plt + ggplot2::facet_grid(.~.data$harmony_idx, scales = 'free',
