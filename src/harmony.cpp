@@ -23,7 +23,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
                     const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const vec& __lambda_range, const vector<int>& __B_vec, const bool __verbose) {
+                    const VECTYPE& __lambda_range, const std::vector<int>& __B_vec, const bool __verbose) {
     
   // Algorithm constants
   N = __Z.n_cols;
@@ -34,7 +34,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   Z_cos = arma::normalise(__Z, 2, 0);
   Z_corr = zeros(size(Z_orig));
 
-  B_vec = __B_vec;
   
   Phi = __Phi;
   Phi_t = Phi.t();
@@ -46,17 +45,15 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   epsilon_harmony = __epsilon_harmony;
 
   // Hyperparameters
-  K = __K;  
+  K = __K;
+  lambda_range = __lambda_range;
+  B_vec = __B_vec;
   sigma = __sigma;
 
   block_size = __block_size;
   theta = __theta;
   max_iter_kmeans = __max_iter_kmeans;
 
-  // Range for lambda
-  lambda_range = __lambda_range;
-  
-  
   verbose = __verbose;
   
   allocate_buffers();
@@ -80,18 +77,15 @@ void harmony::allocate_buffers() {
   
   Phi_moe = join_cols(intcpt, Phi);
   Phi_moe_t = Phi_moe.t();
-  
-  lambda = arma::sp_mat(B + 1, B + 1);
-  
+
+  lambda_mat = arma::sp_mat(B + 1, B + 1);
   // If lambdas are the same number then we disable the automatic parameter estimation
   if(lambda_range(0) == lambda_range(1)) {
-    lambda.diag() = arma::vec(B + 1, arma::fill::value(lambda_range(0))); // Assign a scalar
-    lambda(0,0) = 0; // Set intercept to zero
+    lambda_mat.diag() = arma::vec(B + 1, arma::fill::value(lambda_range(0))); // Assign a scalar
+    lambda_mat(0,0) = 0; // Set intercept to zero
     lambda_estimation = false;
   }
-  
   W = zeros<MATTYPE>(B + 1, d);
-  
 }
 
 
@@ -284,13 +278,13 @@ void harmony::moe_correct_ridge_cpp() {
   for (unsigned k = 0; k < K; k++) {
       
       if (Progress::check_abort())
-	  return;
-      if (lambda_estimation) {
-	lambda.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+        return;
+      if (lambda_estimation){
+        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
       }
       _Rk.diag() = R.row(k);
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda)) * Phi_Rk * Z_orig.t();
+      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
       W.row(0).zeros(); // do not remove the intercept 
       Z_corr -= W.t() * Phi_Rk;
       
@@ -304,11 +298,11 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   arma::sp_mat _Rk(N, N);
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
-      if (lambda_estimation) {
-	lambda.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+      if (lambda_estimation){
+        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
       }
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda)) * Phi_Rk * Z_orig.t();
+      W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
   }
 
   return W_cube;
@@ -346,5 +340,6 @@ RCPP_MODULE(harmony_module) {
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
+      .field("lambda_mat", &harmony::lambda_mat)
       ;
 }
