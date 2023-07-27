@@ -80,7 +80,7 @@
 #' 
 HarmonyMatrix <- function(
                           data_mat, meta_data, vars_use, theta = NULL,
-                          lambda = c(1, 10), sigma = 0.1, 
+                          lambda = c(0.1, 10), sigma = 0.1, 
                           nclust = NULL, tau = 0, block.size = 0.05,
                           max.iter.harmony = 10, max.iter.cluster = 200,
                           epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
@@ -90,6 +90,7 @@ HarmonyMatrix <- function(
     if (hasArg(do_pca) || hasArg(npcs)) {
         stop('Error: Function parameters do_pca and npcs have been removed in newer versions of harmony. Please remove any of the do_pca or npcs parameters and pass to harmony cell_embeddings directly')
     }
+
     
     ## TODO: check for 
     ##    partially observed batch variables (WARNING)
@@ -185,7 +186,8 @@ HarmonyMatrix <- function(
         rep(theta[b], B_vec[b])))
 
     ## Theta scaling
-    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))       
+
+    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
     
     ## RUN HARMONY
     harmonyObj <- new(harmony)
@@ -209,7 +211,7 @@ HarmonyMatrix <- function(
     } else {
         res <- as.matrix(harmonyObj$Z_corr)
         row.names(res) <- row.names(data_mat)
-        colnames(res) <- colnames(data_mat)      
+        colnames(res) <- colnames(data_mat)
         return(t(res))
     }
 }
