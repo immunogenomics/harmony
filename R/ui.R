@@ -12,10 +12,6 @@
 #'     each variable in vars_use Default theta=2. theta=0 does not
 #'     encourage any diversity. Larger values of theta result in more
 #'     diverse clusters.
-#' @param lambda Ridge regression penalty parameter. Specify for each
-#'     variable in vars_use.  Default lambda=1. Lambda must be
-#'     strictly positive. Smaller values result in more aggressive
-#'     correction.
 #' @param sigma Width of soft kmeans clusters. Default
 #'     sigma=0.1. Sigma scales the distance from a cell to cluster
 #'     centroids. Larger values of sigma result in cells assigned to
@@ -80,7 +76,7 @@
 #' 
 HarmonyMatrix <- function(
                           data_mat, meta_data, vars_use, theta = NULL,
-                          lambda = c(0.1, 10), sigma = 0.1, 
+                          sigma = 0.1, 
                           nclust = NULL, tau = 0, block.size = 0.05,
                           max.iter.harmony = 10, max.iter.cluster = 200,
                           epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
@@ -90,7 +86,7 @@ HarmonyMatrix <- function(
     if (hasArg(do_pca) || hasArg(npcs)) {
         stop('Error: Function parameters do_pca and npcs have been removed in newer versions of harmony. Please remove any of the do_pca or npcs parameters and pass to harmony cell_embeddings directly')
     }
-
+    opt_args <- list(...)
     
     ## TODO: check for 
     ##    partially observed batch variables (WARNING)
@@ -153,6 +149,15 @@ HarmonyMatrix <- function(
     }
     
     # determine if lambda is appropriate
+    if (!("lambda" %in% names(opt_args))){
+        lambda <- c(0.1, 10)
+    } else{
+        message(paste0("How Harmony determine lambda is changed and lambda ",
+                       "argument should only be specified by advanced users ",
+                       "now. if you do not know what it means, please do not ",
+                       "specify lambda"))
+        lambda <- opt_args[["lambda"]]
+    }
     if(length(lambda) != 2){
         stop('lambda should have length == 2')
     }

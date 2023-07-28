@@ -8,8 +8,6 @@
 #' @param theta Diversity clustering penalty parameter. Specify for each
 #' variable in group.by.vars. Default theta=2. theta=0 does not encourage any
 #'  diversity. Larger values of theta result in more diverse clusters.
-#' @param lambda Ridge regression penalty parameter. Specify for each variable
-#' in group.by.vars. Default lambda=1. Lambda must be strictly positive.
 #' Smaller values result in more aggressive correction.
 #' @param sigma Width of soft kmeans clusters. Default sigma=0.1. Sigma scales
 #' the distance from a cell to cluster centroids. Larger values of sigma result
@@ -64,7 +62,6 @@ RunHarmony.Seurat <- function(
   reduction = 'pca',
   dims.use = NULL,
   theta = NULL,
-  lambda = c(0.1, 10),
   sigma = 0.1,
   nclust = NULL,
   tau = 0,
@@ -127,7 +124,6 @@ RunHarmony.Seurat <- function(
     meta_data = metavars_df,
     vars_use = group.by.vars,
     theta = theta,
-    lambda = lambda,
     sigma = sigma,
     nclust = nclust,
     tau = tau,
@@ -175,7 +171,6 @@ RunHarmony.SingleCellExperiment <- function(
     group.by.vars,
     dims.use = NULL,
     theta = NULL,
-    lambda = c(0.1, 10),
     sigma = 0.1,
     nclust = NULL,
     tau = 0,
@@ -219,7 +214,6 @@ RunHarmony.SingleCellExperiment <- function(
         meta_data = metavars_df,
         vars_use = group.by.vars,
         theta = theta,
-        lambda = lambda,
         sigma = sigma,
         nclust = nclust,
         tau = tau,

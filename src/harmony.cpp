@@ -341,5 +341,6 @@ RCPP_MODULE(harmony_module) {
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
       .field("lambda_mat", &harmony::lambda_mat)
+      .field("lambda_range", &harmony::lambda_range)
       ;
 }

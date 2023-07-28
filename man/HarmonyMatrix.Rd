@@ -8,10 +8,7 @@ HarmonyMatrix(
   data_mat,
   meta_data,
   vars_use,
-  do_pca = TRUE,
-  npcs = NULL,
   theta = NULL,
-  lambda = NULL,
   sigma = 0.1,
   nclust = NULL,
   tau = 0,
@@ -23,76 +20,72 @@ HarmonyMatrix(
   plot_convergence = FALSE,
   return_object = FALSE,
   verbose = TRUE,
-  reference_values = NULL
+  reference_values = NULL,
+  ...
 )
 }
 \arguments{
-\item{data_mat}{Matrix of normalized gene expession (default) or PCA 
-embeddings (see do_pca). 
-Cells can be rows or columns.}
+\item{data_mat}{Matrix of cell embeddings. Cells can be rows or
+columns and will be inferred by the rows of meta_data.}
 
-\item{meta_data}{Either (1) Dataframe with variables to integrate or (2) 
-vector with labels.}
+\item{meta_data}{Either (1) Dataframe with variables to integrate
+or (2) vector with labels.}
 
-\item{vars_use}{If meta_data is dataframe, this defined which variable(s) 
-to remove (character vector).}
+\item{vars_use}{If meta_data is dataframe, this defined which
+variable(s) to remove (character vector).}
 
-\item{do_pca}{Whether to perform PCA on input matrix.}
+\item{theta}{Diversity clustering penalty parameter. Specify for
+each variable in vars_use Default theta=2. theta=0 does not
+encourage any diversity. Larger values of theta result in more
+diverse clusters.}
 
-\item{npcs}{If doing PCA on input matrix, number of PCs to compute.}
+\item{sigma}{Width of soft kmeans clusters. Default
+sigma=0.1. Sigma scales the distance from a cell to cluster
+centroids. Larger values of sigma result in cells assigned to
+more clusters. Smaller values of sigma make soft kmeans cluster
+approach hard clustering.}
 
-\item{theta}{Diversity clustering penalty parameter. Specify for each
-variable in vars_use Default theta=2. theta=0 does not encourage any 
-diversity. Larger values of theta result in more diverse clusters.}
+\item{nclust}{Number of clusters in model. nclust=1 equivalent to
+simple linear regression.}
 
-\item{lambda}{Ridge regression penalty parameter. Specify for each variable
- in vars_use. 
-Default lambda=1. Lambda must be strictly positive. Smaller values result 
-in more aggressive correction.}
+\item{tau}{Protection against overclustering small datasets with
+large ones.  tau is the expected number of cells per cluster.}
 
-\item{sigma}{Width of soft kmeans clusters. Default sigma=0.1. Sigma scales
-the distance from a cell to cluster centroids. Larger values of sigma 
-result in cells assigned to more clusters. Smaller values of sigma make 
-soft kmeans cluster approach hard clustering.}
+\item{block.size}{What proportion of cells to update during
+clustering.  Between 0 to 1, default 0.05. Larger values may be
+faster but less accurate}
 
-\item{nclust}{Number of clusters in model. nclust=1 equivalent to simple 
-linear regression.}
+\item{max.iter.harmony}{Maximum number of rounds to run
+Harmony. One round of Harmony involves one clustering and one
+correction step.}
 
-\item{tau}{Protection against overclustering small datasets with large ones.
-tau is the expected number of cells per cluster.}
+\item{max.iter.cluster}{Maximum number of rounds to run clustering
+at each round of Harmony.}
 
-\item{block.size}{What proportion of cells to update during clustering.
-Between 0 to 1, default 0.05. Larger values may be faster but less accurate}
+\item{epsilon.cluster}{Convergence tolerance for clustering round
+of Harmony. Set to -Inf to never stop early.}
 
-\item{max.iter.harmony}{Maximum number of rounds to run Harmony. One round
-of Harmony involves one clustering and one correction step.}
+\item{epsilon.harmony}{Convergence tolerance for Harmony. Set to
+-Inf to never stop early.}
 
-\item{max.iter.cluster}{Maximum number of rounds to run clustering at each 
-round of Harmony.}
+\item{plot_convergence}{Whether to print the convergence plot of
+the clustering objective function. TRUE to plot, FALSE to
+suppress. This can be useful for debugging.}
 
-\item{epsilon.cluster}{Convergence tolerance for clustering round of 
-Harmony. Set to -Inf to never stop early.}
+\item{return_object}{(Advanced Usage) Whether to return the Harmony
+object or only the corrected PCA embeddings.}
 
-\item{epsilon.harmony}{Convergence tolerance for Harmony. Set to -Inf to
-never stop early.}
-
-\item{plot_convergence}{Whether to print the convergence plot of the 
-clustering objective function. TRUE to plot, FALSE to suppress. This can be
- useful for debugging.}
-
-\item{return_object}{(Advanced Usage) Whether to return the Harmony object 
-or only the corrected PCA embeddings.}
-
-\item{verbose}{Whether to print progress messages. TRUE to print, 
+\item{verbose}{Whether to print progress messages. TRUE to print,
 FALSE to suppress.}
 
-\item{reference_values}{(Advanced Usage) Defines reference dataset(s). 
-Cells that have batch variables values matching reference_values will not 
-be moved.}
+\item{reference_values}{(Advanced Usage) Defines reference
+dataset(s).  Cells that have batch variables values matching
+reference_values will not be moved.}
 }
 \value{
-By default, matrix with corrected PCA embeddings. If return_object 
-is TRUE, returns the full Harmony object (R6 reference class type).
+By default, matrix with corrected PCA embeddings. If
+    return_object is TRUE, returns the full Harmony object (R6
+    reference class type).
 }
 \description{
 Use this to run the Harmony algorithm on gene expression or PCA matrix.
@@ -100,25 +93,23 @@ Use this to run the Harmony algorithm on gene expression or PCA matrix.
 \examples{
 
 
-## By default, Harmony inputs a normalized gene expression matrix
+## By default, Harmony inputs a cell embedding matrix
 \dontrun{
-harmony_embeddings <- HarmonyMatrix(exprs_matrix, meta_data, 'dataset')
+harmony_embeddings <- HarmonyMatrix(cell_embeddings, meta_data, 'dataset')
 }
 
-## Harmony can also take a PCA embeddings matrix
+## If PCA is the input, the PCs need to be scaled
 data(cell_lines_small)
 pca_matrix <- cell_lines_small$scaled_pcs
 meta_data <- cell_lines_small$meta_data
-harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'dataset', 
-                                    do_pca=FALSE)
+harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'dataset')
 
 ## Output is a matrix of corrected PC embeddings
 dim(harmony_embeddings)
 harmony_embeddings[seq_len(5), seq_len(5)]
 
 ## Finally, we can return an object with all the underlying data structures
-harmony_object <- HarmonyMatrix(pca_matrix, meta_data, 'dataset', 
-                                    do_pca=FALSE, return_object=TRUE)
+harmony_object <- HarmonyMatrix(pca_matrix, meta_data, 'dataset', return_object=TRUE)
 dim(harmony_object$Y) ## cluster centroids
 dim(harmony_object$R) ## soft cluster assignment
 dim(harmony_object$Z_corr) ## corrected PCA embeddings
