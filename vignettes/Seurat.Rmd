@@ -85,9 +85,6 @@ Under the hood, harmony applies k-means soft-clustering. Therefore, the k needs 
 #### theta
 Theta is a hyperparameter that controls the aggressiveness of the penalty that harmony applies. By default  `theta=1` with greater values increasing the effect of the penalty and `theta=0` disables harmony's diversity penalty altogether.
 
-#### lambda
-Lambda controls the ridge regression penalty in the correction step values are 1 are expected to work well.
-
 #### max.iter.cluster
 The maximum number of clustering steps before the integration step, if convergence is not met via the algorithm's convergence criterion. Default value works usually works well and harmony is expected to exit the clustering loop after certain criteria is met. For more information 
 
@@ -100,7 +97,7 @@ The plot below shows the convergence of the Harmony objective function over each
 ```{r, fig.width = 8, fig.height = 6, out.width="100%"}
 
 pbmc <- pbmc %>% 
-    RunHarmony("stim", theta = 2, lambda = .1, plot_convergence = TRUE, 
+    RunHarmony("stim", theta = 2, plot_convergence = TRUE, 
                nclust = 50, max.iter.cluster = 20, max.iter.harmony = 10)
 ```
 
