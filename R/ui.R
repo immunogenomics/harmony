@@ -19,20 +19,10 @@
 #'     approach hard clustering.
 #' @param nclust Number of clusters in model. nclust=1 equivalent to
 #'     simple linear regression.
-#' @param tau Protection against overclustering small datasets with
-#'     large ones.  tau is the expected number of cells per cluster.
-#' @param block.size What proportion of cells to update during
-#'     clustering.  Between 0 to 1, default 0.05. Larger values may be
-#'     faster but less accurate
-#' @param max.iter.cluster Maximum number of rounds to run clustering
-#'     at each round of Harmony.
-#' @param epsilon.cluster Convergence tolerance for clustering round
-#'     of Harmony. Set to -Inf to never stop early.
-#' @param max.iter.harmony Maximum number of rounds to run
-#'     Harmony. One round of Harmony involves one clustering and one
-#'     correction step.
-#' @param epsilon.harmony Convergence tolerance for Harmony. Set to
-#'     -Inf to never stop early.
+#' @param max_iter Maximum number of rounds to run Harmony. One round of
+#'     Harmony involves one clustering and one correction step.
+#' @param early_stop When to stop Harmony iteration before reaching max_iter 
+#'     when the change in objectie function is small enough (< 1e-4)
 #' @param plot_convergence Whether to print the convergence plot of
 #'     the clustering objective function. TRUE to plot, FALSE to
 #'     suppress. This can be useful for debugging.
@@ -43,6 +33,9 @@
 #' @param reference_values (Advanced Usage) Defines reference
 #'     dataset(s).  Cells that have batch variables values matching
 #'     reference_values will not be moved.
+#' @param .options Advanced parameters of HarmonyMatrix. This must be the 
+#'     result from a call to `harmony_options`. See ?`harmony_options` for more
+#'     details.
 #' @return By default, matrix with corrected PCA embeddings. If
 #'     return_object is TRUE, returns the full Harmony object (R6
 #'     reference class type).
@@ -75,19 +68,102 @@
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
 HarmonyMatrix <- function(
-                          data_mat, meta_data, vars_use, theta = NULL,
-                          sigma = 0.1, 
-                          nclust = NULL, tau = 0, block.size = 0.05,
-                          max.iter.harmony = 10, max.iter.cluster = 200,
-                          epsilon.cluster = 1e-5, epsilon.harmony = 1e-4,
-                          plot_convergence = FALSE, return_object = FALSE,
-                          verbose = TRUE, reference_values = NULL, ...) {
+    data_mat, meta_data, vars_use, theta = NULL, sigma = 0.1, nclust = NULL,
+    max_iter = 10, early_stop = TRUE, plot_convergence = FALSE,
+    return_object = FALSE, verbose = TRUE, reference_values = NULL,
+    .options = harmony_options(), ...
+    ) {
 
+    # Parameter checking -------------------------------------------------------
     if (hasArg(do_pca) || hasArg(npcs)) {
-        stop('Error: Function parameters do_pca and npcs have been removed in newer versions of harmony. Please remove any of the do_pca or npcs parameters and pass to harmony cell_embeddings directly')
+        rlang::warn(
+            paste0("Warning: Function parameters do_pca and npcs is deprecated ",
+                   "in this new release of harmony. They will be ignored for ",
+                   "this function call and please remove any of the do_pca or ",
+                   "npcs parameters and pass to harmony cell_embeddings ",
+                   "directly"),
+            .frequency = "once", .frequency_id = "do_pca_npcs_warning"
+        )
     }
-    opt_args <- list(...)
+    if (hasArg(lambda)) {
+        rlang::warn(
+            paste0("Warning: Function parameter lambda is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter lambda in future ",
+                   "function calls. For advanced users, value of lambda ",
+                   "should be set by using parameter .options."),
+            .frequency = "once", .frequency_id = "lambda_warning")
+    }
+    if (hasArg(tau)) {
+        rlang::warn(
+            paste0("Warning: Function parameter tau is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter tau in future ",
+                   "function calls. For advanced users, value of tau ",
+                   "should be set by using parameter .options."),
+            .frequency = "once", .frequency_id = "tau_warning")
+    }
+    if (hasArg(block.size)) {
+        rlang::warn(
+            paste0("Warning: Function parameter block.size is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter block.size in future ",
+                   "function calls. For advanced users, value of block.size ",
+                   "should be set by using parameter .options."),
+            .frequency = "once", .frequency_id = "block.size_warning")
+    }
+    if (hasArg(max.iter.harmony)) {
+        rlang::warn(
+            paste0("Warning: Function parameter max.iter.harmony is replaced ",
+                   "with parameter max_iter in this new release of harmony. ",
+                   "It will be ignored for this function call and please use ",
+                   "parameter max_iter in future function calls."),
+            .frequency = "once", .frequency_id = "max.iter.harmony_warning")
+    }
+    if (hasArg(max.iter.cluster)) {
+        rlang::warn(
+            paste0("Warning: Function parameter max.iter.cluster is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter max.iter.cluster in future ",
+                   "function calls. For advanced users, value of max.iter.cluster ",
+                   "should be set by using parameter .options."),
+            .frequency = "once", .frequency_id = "max.iter.cluster_warning")
+    }
+    if (hasArg(epsilon.cluster)) {
+        rlang::warn(
+            paste0("Warning: Function parameter epsilon.cluster is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter epsilon.cluster in future ",
+                   "function calls. For advanced users, value of epsilon.cluster ",
+                   "should be adjusted by using parameter .options."),
+            .frequency = "once", .frequency_id = "epsilon.cluster_warning")
+    }
+    if (hasArg(epsilon.harmony)) {
+        rlang::warn(
+            paste0("Warning: Function parameter epsilon.harmony is deprecated in this new ",
+                   "release of harmony. It will be ignored for this function ",
+                   "call and please remove parameter epsilon.harmony in future ",
+                   "function calls. For advanced users, value of epsilon.harmony ",
+                   "should be adjusted by using parameter .options."),
+            .frequency = "once", .frequency_id = "epsilon.harmony_warning")
+    }
     
+    # Parameter setting --------------------------------------------------------
+    if(early_stop == TRUE){
+        epsilon.harmony = 1e-4
+    }else{
+        epsilon.harmony = -Inf
+    }
+    max.iter.harmony <- max_iter
+    lambda <- .options$lambda
+    tau <- .options$tau
+    block.size <- .options$block.size
+    max.iter.cluster <- .options$max.iter.cluster
+    epsilon.cluster <- .options$epsilon.cluster
+    if(!(is.null(.options$epsilon.harmony))){
+        epsilon.harmony <- .options$epsilon.harmony
+    }
+
     ## TODO: check for 
     ##    partially observed batch variables (WARNING)
     ##    batch variables with only 1 level (WARNING)
@@ -111,12 +187,9 @@ HarmonyMatrix <- function(
         stop(msg)
     }
 
-
     ## Number of cells
     N <- nrow(meta_data)
  
-    
-    
     ## Check if we need to transpose our data
     if (nrow(data_mat) == N) {
         message("Transposing data matrix")
@@ -127,8 +200,6 @@ HarmonyMatrix <- function(
         stop("number of labels do not correspond to number of 
                 samples in data matrix")
     }
-    
-    
     
 
     # determine K if null
@@ -148,29 +219,6 @@ HarmonyMatrix <- function(
         sigma <- rep(sigma, nclust)
     }
     
-    # determine if lambda is appropriate
-    if (!("lambda" %in% names(opt_args))){
-        lambda <- c(0.1, 10)
-    } else{
-        message(paste0("How Harmony determine lambda is changed and lambda ",
-                       "argument should only be specified by advanced users ",
-                       "now. if you do not know what it means, please do not ",
-                       "specify lambda"))
-        lambda <- opt_args[["lambda"]]
-    }
-    if(length(lambda) != 2){
-        stop('lambda should have length == 2')
-    }
-    if (lambda[2] < lambda[1]){
-        stop('lambda[2] cannot be smaller than lambda[1]')
-    }
-    if (lambda[1] <= 0){
-        stop('lambda cannot be smaller or equal to 0')
-    }
-    
-    if (lambda[2] == lambda[1]) {
-        message("Automatic lambda estimation for ridge is disabled. Harmony will have a fixed lambda for all batches")
-    }
 
     ## Pre-compute some useful statistics
     phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
@@ -204,7 +252,7 @@ HarmonyMatrix <- function(
         )
     
     harmonyObj$init_cluster_cpp(0)
-
+    
     harmonize(harmonyObj, max.iter.harmony, verbose)
     
     if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
@@ -220,4 +268,3 @@ HarmonyMatrix <- function(
         return(t(res))
     }
 }
-

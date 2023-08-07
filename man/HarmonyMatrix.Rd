@@ -11,16 +11,13 @@ HarmonyMatrix(
   theta = NULL,
   sigma = 0.1,
   nclust = NULL,
-  tau = 0,
-  block.size = 0.05,
-  max.iter.harmony = 10,
-  max.iter.cluster = 200,
-  epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04,
+  max_iter = 10,
+  early_stop = TRUE,
   plot_convergence = FALSE,
   return_object = FALSE,
   verbose = TRUE,
   reference_values = NULL,
+  .options = harmony_options(),
   ...
 )
 }
@@ -48,25 +45,11 @@ approach hard clustering.}
 \item{nclust}{Number of clusters in model. nclust=1 equivalent to
 simple linear regression.}
 
-\item{tau}{Protection against overclustering small datasets with
-large ones.  tau is the expected number of cells per cluster.}
+\item{max_iter}{Maximum number of rounds to run Harmony. One round of
+Harmony involves one clustering and one correction step.}
 
-\item{block.size}{What proportion of cells to update during
-clustering.  Between 0 to 1, default 0.05. Larger values may be
-faster but less accurate}
-
-\item{max.iter.harmony}{Maximum number of rounds to run
-Harmony. One round of Harmony involves one clustering and one
-correction step.}
-
-\item{max.iter.cluster}{Maximum number of rounds to run clustering
-at each round of Harmony.}
-
-\item{epsilon.cluster}{Convergence tolerance for clustering round
-of Harmony. Set to -Inf to never stop early.}
-
-\item{epsilon.harmony}{Convergence tolerance for Harmony. Set to
--Inf to never stop early.}
+\item{early_stop}{When to stop Harmony iteration before reaching max_iter 
+when the change in objectie function is small enough (< 1e-4)}
 
 \item{plot_convergence}{Whether to print the convergence plot of
 the clustering objective function. TRUE to plot, FALSE to
@@ -81,6 +64,10 @@ FALSE to suppress.}
 \item{reference_values}{(Advanced Usage) Defines reference
 dataset(s).  Cells that have batch variables values matching
 reference_values will not be moved.}
+
+\item{.options}{Advanced parameters of HarmonyMatrix. This must be the 
+result from a call to `harmony_options`. See ?`harmony_options` for more
+details.}
 }
 \value{
 By default, matrix with corrected PCA embeddings. If
