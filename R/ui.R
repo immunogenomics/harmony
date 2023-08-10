@@ -17,11 +17,11 @@
 #'     centroids. Larger values of sigma result in cells assigned to
 #'     more clusters. Smaller values of sigma make soft kmeans cluster
 #'     approach hard clustering.
-#' @param nclust Number of clusters in model. nclust=1 equivalent to
-#'     simple linear regression.
-#' @param max_iter Maximum number of rounds to run Harmony. One round of
-#'     Harmony involves one clustering and one correction step.
-#' @param early_stop When to stop Harmony iteration before reaching max_iter 
+#' @param nclust Number of clusters in model. nclust=1 equivalent to simple
+#'     linear regression.
+#' @param max_iter Maximum number of rounds to run Harmony. One round of Harmony
+#'     involves one clustering and one correction step.
+#' @param early_stop When to stop Harmony iteration before reaching max_iter
 #'     when the change in objectie function is small enough (< 1e-4)
 #' @param plot_convergence Whether to print the convergence plot of
 #'     the clustering objective function. TRUE to plot, FALSE to
@@ -33,7 +33,7 @@
 #' @param reference_values (Advanced Usage) Defines reference
 #'     dataset(s).  Cells that have batch variables values matching
 #'     reference_values will not be moved.
-#' @param .options Advanced parameters of HarmonyMatrix. This must be the 
+#' @param .options Advanced parameters of HarmonyMatrix. This must be the
 #'     result from a call to `harmony_options`. See ?`harmony_options` for more
 #'     details.
 #' @return By default, matrix with corrected PCA embeddings. If
@@ -75,87 +75,23 @@ HarmonyMatrix <- function(
     ) {
 
     # Parameter checking -------------------------------------------------------
-    if (hasArg(do_pca) || hasArg(npcs)) {
-        rlang::warn(
-            paste0("Warning: Function parameters do_pca and npcs is deprecated ",
-                   "in this new release of harmony. They will be ignored for ",
-                   "this function call and please remove any of the do_pca or ",
-                   "npcs parameters and pass to harmony cell_embeddings ",
-                   "directly"),
-            .frequency = "once", .frequency_id = "do_pca_npcs_warning"
-        )
-    }
-    if (hasArg(lambda)) {
-        rlang::warn(
-            paste0("Warning: Function parameter lambda is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter lambda in future ",
-                   "function calls. For advanced users, value of lambda ",
-                   "should be set by using parameter .options."),
-            .frequency = "once", .frequency_id = "lambda_warning")
-    }
-    if (hasArg(tau)) {
-        rlang::warn(
-            paste0("Warning: Function parameter tau is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter tau in future ",
-                   "function calls. For advanced users, value of tau ",
-                   "should be set by using parameter .options."),
-            .frequency = "once", .frequency_id = "tau_warning")
-    }
-    if (hasArg(block.size)) {
-        rlang::warn(
-            paste0("Warning: Function parameter block.size is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter block.size in future ",
-                   "function calls. For advanced users, value of block.size ",
-                   "should be set by using parameter .options."),
-            .frequency = "once", .frequency_id = "block.size_warning")
-    }
-    if (hasArg(max.iter.harmony)) {
-        rlang::warn(
-            paste0("Warning: Function parameter max.iter.harmony is replaced ",
-                   "with parameter max_iter in this new release of harmony. ",
-                   "It will be ignored for this function call and please use ",
-                   "parameter max_iter in future function calls."),
-            .frequency = "once", .frequency_id = "max.iter.harmony_warning")
-    }
-    if (hasArg(max.iter.cluster)) {
-        rlang::warn(
-            paste0("Warning: Function parameter max.iter.cluster is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter max.iter.cluster in future ",
-                   "function calls. For advanced users, value of max.iter.cluster ",
-                   "should be set by using parameter .options."),
-            .frequency = "once", .frequency_id = "max.iter.cluster_warning")
-    }
-    if (hasArg(epsilon.cluster)) {
-        rlang::warn(
-            paste0("Warning: Function parameter epsilon.cluster is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter epsilon.cluster in future ",
-                   "function calls. For advanced users, value of epsilon.cluster ",
-                   "should be adjusted by using parameter .options."),
-            .frequency = "once", .frequency_id = "epsilon.cluster_warning")
-    }
-    if (hasArg(epsilon.harmony)) {
-        rlang::warn(
-            paste0("Warning: Function parameter epsilon.harmony is deprecated in this new ",
-                   "release of harmony. It will be ignored for this function ",
-                   "call and please remove parameter epsilon.harmony in future ",
-                   "function calls. For advanced users, value of epsilon.harmony ",
-                   "should be adjusted by using parameter .options."),
-            .frequency = "once", .frequency_id = "epsilon.harmony_warning")
-    }
+    if (hasArg(do_pca) || hasArg(npcs)) legacy_args("do_pca_npcs")
+    if (hasArg(lambda)) legacy_args("lambda")
+    if (hasArg(tau)) legacy_args("tau")
+    if (hasArg(block.size)) legacy_args("block.size")
+    if (hasArg(max.iter.harmony)) legacy_args("max.iter.harmony")
+    if (hasArg(max.iter.cluster)) legacy_args("max.iter.cluster")
+    if (hasArg(epsilon.cluster)) legacy_args("epsilon.cluster")
+    if (hasArg(epsilon.harmony)) legacy_args("epsilon.harmony")
     
     # Parameter setting --------------------------------------------------------
-    if(early_stop == TRUE){
+    if (early_stop == TRUE) {
         epsilon.harmony = 1e-4
-    }else{
+    } else {
         epsilon.harmony = -Inf
     }
     max.iter.harmony <- max_iter
-    lambda <- .options$lambda
+    lambda_range <- .options$lambda_range
     tau <- .options$tau
     block.size <- .options$block.size
     max.iter.cluster <- .options$max.iter.cluster
@@ -248,7 +184,7 @@ HarmonyMatrix <- function(
     harmonyObj$setup(
         data_mat, phi,
         sigma, theta, max.iter.cluster, epsilon.cluster,
-        epsilon.harmony, nclust, block.size, lambda, B_vec, verbose
+        epsilon.harmony, nclust, block.size, lambda_range, B_vec, verbose
         )
     
     harmonyObj$init_cluster_cpp(0)
@@ -267,4 +203,54 @@ HarmonyMatrix <- function(
         colnames(res) <- colnames(data_mat)
         return(t(res))
     }
+}
+
+
+legacy_args <- function(param){
+    common_warn <- paste0(
+        "Warning: The parameter ", param, " is deprecated. ",
+        "It will be ignored for this function call ",
+        "and please remove parameter ", param, " in future function calls. ",
+        "Advanced users can set value of parameter ", param,
+        " by using parameter .options and function harmony_options()."
+    )
+    do_pca_npcs_warn <- paste0(
+        "Warning: The parameters ", "do_pca and npcs", " are deprecated. ",
+        "They will be ignored for this function call ",
+        "and please remove parameters ", "do_pca and npcs",
+        " and pass to harmony cell_embeddings directly."
+    )
+    max.iter.harmony_warn <- paste0(
+        "Warning: The parameter ", "max.iter.harmony ",
+        "is replaced with parameter ", "max_iter. ",
+        "It will be ignored for this function call ",
+        "and please use parameter ", "max_iter ", "in future function calls."
+    )
+    epsilon.harmony_warn <- paste0(
+        "Warning: The parameter ", "epsilon.harmony", " is deprecated. ",
+        "It will be ignored for this function call ",
+        "and please remove parameter ", "epsilon.harmony",
+        " in future function calls. ",
+        "If users want to control if harmony would stop early or not, ",
+        "use parameter ", "early_stop. ",
+        "Advanced users can set value of parameter ", "epsilon.harmony",
+        " by using parameter .options and function harmony_options()."
+    )
+
+
+    if (param %in% c("lambda", "tau", "block.size", "max.iter.cluster",
+                     "epsilon.cluster")) {
+        warn_str <- common_warn
+    }
+    if (param == "do_pca_npcs") {
+        warn_str <- do_pca_npcs_warn
+    }
+    if (param == "max.iter.harmony") {
+        warn_str <- max.iter.harmony_warn
+    }
+    if (param == "epsilon.harmony") {
+        warn_str <- epsilon.harmony_warn
+    }
+
+    rlang::warn(warn_str, .frequency = "once", .frequency_id = param)
 }

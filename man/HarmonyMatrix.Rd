@@ -42,13 +42,13 @@ centroids. Larger values of sigma result in cells assigned to
 more clusters. Smaller values of sigma make soft kmeans cluster
 approach hard clustering.}
 
-\item{nclust}{Number of clusters in model. nclust=1 equivalent to
-simple linear regression.}
+\item{nclust}{Number of clusters in model. nclust=1 equivalent to simple
+linear regression.}
 
-\item{max_iter}{Maximum number of rounds to run Harmony. One round of
-Harmony involves one clustering and one correction step.}
+\item{max_iter}{Maximum number of rounds to run Harmony. One round of Harmony
+involves one clustering and one correction step.}
 
-\item{early_stop}{When to stop Harmony iteration before reaching max_iter 
+\item{early_stop}{When to stop Harmony iteration before reaching max_iter
 when the change in objectie function is small enough (< 1e-4)}
 
 \item{plot_convergence}{Whether to print the convergence plot of
@@ -65,7 +65,7 @@ FALSE to suppress.}
 dataset(s).  Cells that have batch variables values matching
 reference_values will not be moved.}
 
-\item{.options}{Advanced parameters of HarmonyMatrix. This must be the 
+\item{.options}{Advanced parameters of HarmonyMatrix. This must be the
 result from a call to `harmony_options`. See ?`harmony_options` for more
 details.}
 }

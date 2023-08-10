@@ -5,7 +5,7 @@
 \title{Set advanced options for HarmonyMatrix}
 \usage{
 harmony_options(
-  lambda = c(0.1, 10),
+  lambda_range = c(0.1, 10),
   tau = 0,
   block.size = 0.05,
   max.iter.cluster = 20,
@@ -14,23 +14,28 @@ harmony_options(
 )
 }
 \arguments{
-\item{lambda}{Default lambda = c(0.1, 10). In the new release of Harmony,
-the appropriate value of lambda is dynamically estimated during harmony
-iterations. And parameter lambda set the allowed range for lambda
-estimation. e.g. lambda = c(0.1, 10) means that lambda can only vary
-between 0.1 and 10.}
+\item{lambda_range}{Default lambda_range = c(0.1, 10). Lambda is ridge 
+regression penalty parameter and smaller values result in more 
+aggressive correction. During harmony iterations, the appropriate value 
+of lambda is dynamically estimated. And parameter `lambda_range` set the 
+allowed range for lambda estimation. e.g. `lambda_range` = c(0.1, 10) 
+means that lambda can only vary between 0.1 and 10 when being 
+dynamically estimated. Note that when setting the upper and lower bound 
+of lambda_range to the same value would result in using a fixed lambda 
+throughout harmony iterations. e.g. `lambda_range` = c(1,1) would make 
+harmony using a fixed lambda = 1.}
 
-\item{tau}{Protection against overclustering small datasets with
+\item{tau}{Protection against overclustering small datasets with 
 large ones. `tau` is the expected number of cells per cluster.}
 
 \item{block.size}{What proportion of cells to update during clustering. 
-Between 0 to 1, default 0.05. Larger values may be faster but less
+Between 0 to 1, default 0.05. Larger values may be faster but less 
 accurate.}
 
-\item{max.iter.cluster}{Maximum number of rounds to run clustering
+\item{max.iter.cluster}{Maximum number of rounds to run clustering 
 at each round of Harmony.}
 
-\item{epsilon.cluster}{Convergence tolerance for clustering round
+\item{epsilon.cluster}{Convergence tolerance for clustering round 
 of Harmony. Set to -Inf to never stop early.}
 
 \item{epsilon.harmony}{Convergence tolerance for Harmony. Set to -Inf to
