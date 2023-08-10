@@ -21,8 +21,9 @@
 #'     linear regression.
 #' @param max_iter Maximum number of rounds to run Harmony. One round of Harmony
 #'     involves one clustering and one correction step.
-#' @param early_stop When to stop Harmony iteration before reaching max_iter
-#'     when the change in objectie function is small enough (< 1e-4)
+#' @param early_stop Enable early stopping for harmony. The harmonization 
+#'     process will stop when the change of objective function between 
+#'     corrections drops below 1e-4
 #' @param plot_convergence Whether to print the convergence plot of
 #'     the clustering objective function. TRUE to plot, FALSE to
 #'     suppress. This can be useful for debugging.
