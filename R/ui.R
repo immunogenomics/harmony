@@ -66,11 +66,20 @@
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
 HarmonyMatrix <- function(
-    data_mat, meta_data, vars_use, theta = NULL, sigma = 0.1, nclust = NULL,
-    max_iter = 10, early_stop = TRUE, plot_convergence = FALSE,
-    return_object = FALSE, verbose = TRUE,
-    .options = harmony_options(), ...
-    ) {
+                          data_mat,
+                          meta_data,
+                          vars_use,
+                          theta = NULL,
+                          sigma = 0.1,
+                          nclust = NULL,
+                          max_iter = 10,
+                          early_stop = TRUE,
+                          plot_convergence = FALSE,
+                          return_object = FALSE,
+                          verbose = TRUE,
+                          .options = harmony_options(),
+                          ...
+                          ) {
 
     # Parameter checking -------------------------------------------------------
     if (hasArg(do_pca) || hasArg(npcs)) legacy_args("do_pca_npcs")
@@ -173,7 +182,6 @@ HarmonyMatrix <- function(
         rep(theta[b], B_vec[b])))
 
     ## Theta scaling
-
     theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
     
     ## RUN HARMONY

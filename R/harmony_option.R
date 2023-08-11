@@ -34,7 +34,7 @@ harmony_options <- function(lambda_range = c(0.1, 10),
                             block.size = 0.05,
                             max.iter.cluster = 20,
                             epsilon.cluster = 1e-5,
-                            epsilon.harmony = NULL){
+                            epsilon.harmony = NULL) {
     lambda_range <- validate_lambda_range(lambda_range)
     block.size <- validate_block.size(block.size)
     
@@ -52,7 +52,7 @@ harmony_options <- function(lambda_range = c(0.1, 10),
 
 # Validate functions -----------------------------------------------------------
 
-validate_lambda_range <- function(lambda_range){
+validate_lambda_range <- function(lambda_range) {
     if (length(lambda_range) != 2){
         stop('Error: lambda_range should have length == 2')
     }
