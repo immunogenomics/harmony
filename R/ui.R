@@ -81,15 +81,8 @@ HarmonyMatrix <- function(
                           ...
                           ) {
 
-    # Parameter checking -------------------------------------------------------
-    if (hasArg(do_pca) || hasArg(npcs)) legacy_args("do_pca_npcs")
-    if (hasArg(lambda)) legacy_args("lambda")
-    if (hasArg(tau)) legacy_args("tau")
-    if (hasArg(block.size)) legacy_args("block.size")
-    if (hasArg(max.iter.harmony)) legacy_args("max.iter.harmony")
-    if (hasArg(max.iter.cluster)) legacy_args("max.iter.cluster")
-    if (hasArg(epsilon.cluster)) legacy_args("epsilon.cluster")
-    if (hasArg(epsilon.harmony)) legacy_args("epsilon.harmony")
+    ## Check legacy arguments
+    check_legacy_args(...)
     
     # Parameter setting --------------------------------------------------------
     if (early_stop == TRUE) {
@@ -211,52 +204,3 @@ HarmonyMatrix <- function(
     }
 }
 
-
-legacy_args <- function(param){
-    common_warn <- paste0(
-        "Warning: The parameter ", param, " is deprecated. ",
-        "It will be ignored for this function call ",
-        "and please remove parameter ", param, " in future function calls. ",
-        "Advanced users can set value of parameter ", param,
-        " by using parameter .options and function harmony_options()."
-    )
-    do_pca_npcs_warn <- paste0(
-        "Warning: The parameters ", "do_pca and npcs", " are deprecated. ",
-        "They will be ignored for this function call ",
-        "and please remove parameters ", "do_pca and npcs",
-        " and pass to harmony cell_embeddings directly."
-    )
-    max.iter.harmony_warn <- paste0(
-        "Warning: The parameter ", "max.iter.harmony ",
-        "is replaced with parameter ", "max_iter. ",
-        "It will be ignored for this function call ",
-        "and please use parameter ", "max_iter ", "in future function calls."
-    )
-    epsilon.harmony_warn <- paste0(
-        "Warning: The parameter ", "epsilon.harmony", " is deprecated. ",
-        "It will be ignored for this function call ",
-        "and please remove parameter ", "epsilon.harmony",
-        " in future function calls. ",
-        "If users want to control if harmony would stop early or not, ",
-        "use parameter ", "early_stop. ",
-        "Advanced users can set value of parameter ", "epsilon.harmony",
-        " by using parameter .options and function harmony_options()."
-    )
-
-
-    if (param %in% c("lambda", "tau", "block.size", "max.iter.cluster",
-                     "epsilon.cluster")) {
-        warn_str <- common_warn
-    }
-    if (param == "do_pca_npcs") {
-        warn_str <- do_pca_npcs_warn
-    }
-    if (param == "max.iter.harmony") {
-        warn_str <- max.iter.harmony_warn
-    }
-    if (param == "epsilon.harmony") {
-        warn_str <- epsilon.harmony_warn
-    }
-
-    rlang::warn(warn_str, .frequency = "once", .frequency_id = param)
-}
