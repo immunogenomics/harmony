@@ -24,8 +24,6 @@
 #'  useful for debugging.
 #' @param verbose Whether to print progress messages. TRUE to print, FALSE to
 #'  suppress.
-#' @param reference_values (Advanced Usage) Defines reference dataset(s). Cells
-#' that have batch variables values matching reference_values will not be moved
 #' @param reduction.save Keyword to save Harmony reduction. Useful if you want
 #' to try Harmony with multiple parameters and save them as e.g.
 #' 'harmony_theta0', 'harmony_theta1', 'harmony_theta2'
@@ -60,7 +58,6 @@ RunHarmony.Seurat <- function(
   early_stop = TRUE,
   plot_convergence = FALSE,
   verbose = TRUE,
-  reference_values = NULL,
   reduction.save = "harmony",
   assay.use = NULL,
   project.dim = TRUE,
@@ -120,7 +117,6 @@ RunHarmony.Seurat <- function(
     plot_convergence= plot_convergence,
     return_object = FALSE,
     verbose = verbose,
-    reference_values = reference_values,
     .options = .options,
     ...
   )
@@ -204,7 +200,6 @@ RunHarmony.SingleCellExperiment <- function(
         plot_convergence= plot_convergence,
         return_object = FALSE,
         verbose = verbose,
-        reference_values = reference_values,
         .options = .options,
         ...
     )

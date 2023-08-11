@@ -31,9 +31,6 @@
 #'     object or only the corrected PCA embeddings.
 #' @param verbose Whether to print progress messages. TRUE to print,
 #'     FALSE to suppress.
-#' @param reference_values (Advanced Usage) Defines reference
-#'     dataset(s).  Cells that have batch variables values matching
-#'     reference_values will not be moved.
 #' @param .options Advanced parameters of HarmonyMatrix. This must be the
 #'     result from a call to `harmony_options`. See ?`harmony_options` for more
 #'     details.
@@ -71,7 +68,7 @@
 HarmonyMatrix <- function(
     data_mat, meta_data, vars_use, theta = NULL, sigma = 0.1, nclust = NULL,
     max_iter = 10, early_stop = TRUE, plot_convergence = FALSE,
-    return_object = FALSE, verbose = TRUE, reference_values = NULL,
+    return_object = FALSE, verbose = TRUE,
     .options = harmony_options(), ...
     ) {
 
