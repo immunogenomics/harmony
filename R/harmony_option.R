@@ -34,7 +34,7 @@ harmony_options <- function(lambda_range = c(0.1, 10),
                             block.size = 0.05,
                             max.iter.cluster = 20,
                             epsilon.cluster = 1e-5,
-                            epsilon.harmony = NULL) {
+                            epsilon.harmony = 1e-4) {
     lambda_range <- validate_lambda_range(lambda_range)
     block.size <- validate_block.size(block.size)
     

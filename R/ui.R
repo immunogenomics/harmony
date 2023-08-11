@@ -85,8 +85,8 @@ HarmonyMatrix <- function(
     check_legacy_args(...)
     
     # Parameter setting --------------------------------------------------------
-    if (early_stop == TRUE) {
-        epsilon.harmony = 1e-4
+    if (early_stop) {
+        epsilon.harmony <- .options$epsilon.harmony
     } else {
         epsilon.harmony = -Inf
     }
@@ -95,10 +95,9 @@ HarmonyMatrix <- function(
     tau <- .options$tau
     block.size <- .options$block.size
     max.iter.cluster <- .options$max.iter.cluster
-    epsilon.cluster <- .options$epsilon.cluster
-    if(!(is.null(.options$epsilon.harmony))){
-        epsilon.harmony <- .options$epsilon.harmony
-    }
+    epsilon.cluster <- .options$epsilon.cluster   
+    
+    
 
     ## TODO: check for 
     ##    partially observed batch variables (WARNING)
