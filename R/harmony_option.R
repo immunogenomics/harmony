@@ -27,14 +27,14 @@
 #' ## If want to set lambda to be fixed to 1, do
 #' HarmonyMatrix(data_meta, meta_data, vars_use,
 #'               .options = harmony_options(lambda = c(1, 1)))
-
-
-harmony_options <- function(lambda_range = c(0.1, 10),
-                            tau = 0,
-                            block.size = 0.05,
-                            max.iter.cluster = 20,
-                            epsilon.cluster = 1e-5,
-                            epsilon.harmony = 1e-4) {
+harmony_options <- function(
+  lambda_range = c(0.1, 10),
+  tau = 0,
+  block.size = 0.05,
+  max.iter.cluster = 20,
+  epsilon.cluster = 1e-5,
+  epsilon.harmony = 1e-4) {
+    
     lambda_range <- validate_lambda_range(lambda_range)
     block.size <- validate_block.size(block.size)
     
@@ -50,16 +50,15 @@ harmony_options <- function(lambda_range = c(0.1, 10),
     return(out)
 }
 
-# Validate functions -----------------------------------------------------------
-
+## Validate functions -----------------------------------------------------------
 validate_lambda_range <- function(lambda_range) {
-    if (length(lambda_range) != 2){
+    if (length(lambda_range) != 2) {
         stop('Error: lambda_range should have length == 2')
     }
-    if (lambda_range[2] < lambda_range[1]){
+    if (lambda_range[2] < lambda_range[1]) {
         stop('Error: lambda_range[2] cannot be smaller than lambda_range[1]')
     }
-    if (lambda_range[1] <= 0){
+    if (lambda_range[1] <= 0) {
         stop('Error: lambda_range cannot be smaller or equal to 0')
     }
     
@@ -70,7 +69,7 @@ validate_lambda_range <- function(lambda_range) {
 }
 
 
-validate_block.size <- function(block.size){
+validate_block.size <- function(block.size) {
     if(block.size <= 0 | block.size > 1){
         stop('Error: block.size should be set between 0 and 1 (0 < block.size <= 1)')
     }
@@ -93,7 +92,7 @@ check_legacy_args <- function(...) {
 
 
 
-legacy_warning <- function(param){
+legacy_warning <- function(param) {
     common_warn <- paste0(
         "Warning: The parameter ", param, " is deprecated. ",
         "It will be ignored for this function call ",

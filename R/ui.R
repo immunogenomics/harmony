@@ -66,20 +66,20 @@
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
 HarmonyMatrix <- function(
-                          data_mat,
-                          meta_data,
-                          vars_use,
-                          theta = NULL,
-                          sigma = 0.1,
-                          nclust = NULL,
-                          max_iter = 10,
-                          early_stop = TRUE,
-                          plot_convergence = FALSE,
-                          return_object = FALSE,
-                          verbose = TRUE,
-                          .options = harmony_options(),
-                          ...
-                          ) {
+  data_mat,
+  meta_data,
+  vars_use,
+  theta = NULL,
+  sigma = 0.1,
+  nclust = NULL,
+  max_iter = 10,
+  early_stop = TRUE,
+  plot_convergence = FALSE,
+  return_object = FALSE,
+  verbose = TRUE,
+  .options = harmony_options(),
+  ...
+  ) {
 
     ## Check legacy arguments
     check_legacy_args(...)
