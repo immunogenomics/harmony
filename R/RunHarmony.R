@@ -87,7 +87,7 @@ RunHarmony.Seurat <- function(
     cells = Seurat::Cells(x = object[[reduction]])
   )
 
-  harmonyEmbed <- HarmonyMatrix(
+  harmonyEmbed <- RunHarmony(
     data_mat = embedding[, dims.use],
     meta_data = metavars_df,
     vars_use = group.by.vars,
@@ -170,7 +170,7 @@ RunHarmony.SingleCellExperiment <- function(
         stop('Trying to integrate over variables missing in colData')
     }
 
-    harmonyEmbed <- HarmonyMatrix(
+    harmonyEmbed <- RunHarmony(
         data_mat = pca_embedding[, dims.use], # is here an error? quick fix 
         meta_data = metavars_df,
         vars_use = group.by.vars,

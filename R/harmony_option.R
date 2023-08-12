@@ -1,4 +1,4 @@
-#' Set advanced options for HarmonyMatrix
+#' Set advanced options for RunHarmony
 #' @param lambda_range Default lambda_range = c(0.1, 10). Lambda is ridge 
 #'     regression penalty parameter and smaller values result in more 
 #'     aggressive correction. During harmony iterations, the appropriate value 
@@ -21,12 +21,15 @@
 #' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to
 #'     never stop early. When `epsilon.harmony` is set to not NULL, then
 #'     user-supplied values of `early_stop` is ignored.
-#' @returns Return a list for `.options` argument of `HarmonyMatrix`
+#' @returns Return a list for `.options` argument of `RunHarmony`
 #' @export
 #' @examples
 #' ## If want to set lambda to be fixed to 1, do
-#' HarmonyMatrix(data_meta, meta_data, vars_use,
+#' \dontrun{
+#' RunHarmony(data_meta, meta_data, vars_use,
 #'               .options = harmony_options(lambda = c(1, 1)))
+#' }
+#' 
 harmony_options <- function(
   lambda_range = c(0.1, 10),
   tau = 0,

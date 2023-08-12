@@ -31,7 +31,7 @@
 #'     object or only the corrected PCA embeddings.
 #' @param verbose Whether to print progress messages. TRUE to print,
 #'     FALSE to suppress.
-#' @param .options Advanced parameters of HarmonyMatrix. This must be the
+#' @param .options Advanced parameters of RunHarmony. This must be the
 #'     result from a call to `harmony_options`. See ?`harmony_options` for more
 #'     details.
 #' @return By default, matrix with corrected PCA embeddings. If
@@ -45,27 +45,27 @@
 #' 
 #' ## By default, Harmony inputs a cell embedding matrix
 #' \dontrun{
-#' harmony_embeddings <- HarmonyMatrix(cell_embeddings, meta_data, 'dataset')
+#' harmony_embeddings <- RunHarmony(cell_embeddings, meta_data, 'dataset')
 #' }
 #' 
 #' ## If PCA is the input, the PCs need to be scaled
 #' data(cell_lines_small)
 #' pca_matrix <- cell_lines_small$scaled_pcs
 #' meta_data <- cell_lines_small$meta_data
-#' harmony_embeddings <- HarmonyMatrix(pca_matrix, meta_data, 'dataset')
+#' harmony_embeddings <- RunHarmony(pca_matrix, meta_data, 'dataset')
 #' 
 #' ## Output is a matrix of corrected PC embeddings
 #' dim(harmony_embeddings)
 #' harmony_embeddings[seq_len(5), seq_len(5)]
 #' 
 #' ## Finally, we can return an object with all the underlying data structures
-#' harmony_object <- HarmonyMatrix(pca_matrix, meta_data, 'dataset', return_object=TRUE)
+#' harmony_object <- RunHarmony(pca_matrix, meta_data, 'dataset', return_object=TRUE)
 #' dim(harmony_object$Y) ## cluster centroids
 #' dim(harmony_object$R) ## soft cluster assignment
 #' dim(harmony_object$Z_corr) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
-HarmonyMatrix <- function(
+RunHarmony.default <- function(
   data_mat,
   meta_data,
   vars_use,
