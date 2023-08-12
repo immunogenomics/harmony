@@ -27,7 +27,6 @@
 #' @param reduction.save Keyword to save Harmony reduction. Useful if you want
 #' to try Harmony with multiple parameters and save them as e.g.
 #' 'harmony_theta0', 'harmony_theta1', 'harmony_theta2'
-#' @param assay.use (Seurat V3 only) Which assay to run PCA on if no PCA present?
 #' @param ... other parameters
 #'
 #'
@@ -59,7 +58,6 @@ RunHarmony.Seurat <- function(
   plot_convergence = FALSE,
   verbose = TRUE,
   reduction.save = "harmony",
-  assay.use = NULL,
   project.dim = TRUE,
   .options = harmony_options(),
   ...
@@ -67,25 +65,9 @@ RunHarmony.Seurat <- function(
   if (!requireNamespace('Seurat', quietly = TRUE)) {
     stop("Running Harmony on a Seurat object requires Seurat")
   }
-  assay.use <- assay.use %||% Seurat::DefaultAssay(object)
-  if (reduction == "pca" && !reduction %in% Seurat::Reductions(object = object)) {
-    if (isTRUE(x = verbose)) {
-      message("Harmony needs PCA. Trying to run PCA now.")
-    }
-    object <- tryCatch(
-      expr = Seurat::RunPCA(
-        object = object,
-        assay = assay.use,
-        verbose = verbose,
-        reduction.name = reduction
-      ),
-      error = function(...) {
-        stop("Harmony needs PCA. Tried to run PCA and failed.")
-      }
-    )
-  }
   if (!reduction %in% Seurat::Reductions(object = object)) {
-    stop("Requested dimension reduction is not present in the Seurat object")
+      stop(paste(reduction, "cell embeddings not found in Seurat object.",
+                 "For a Seurat preprocessing walkthrough, please refer to the vignette"))
   }
   embedding <- Seurat::Embeddings(object, reduction = reduction)
   if (is.null(dims.use)) {
@@ -93,7 +75,7 @@ RunHarmony.Seurat <- function(
   }
   dims_avail <- seq_len(ncol(embedding))
   if (!all(dims.use %in% dims_avail)) {
-    stop("trying to use more dimensions than computed. Rereun dimension reduction
+    stop("trying to use more dimensions than computed. Rerun dimension reduction
          with more dimensions or run Harmony with fewer dimensions")
   }
   if (length(dims.use) == 1) {
