@@ -141,7 +141,6 @@ RunHarmony.SingleCellExperiment <- function(
     early_stop = TRUE,
     plot_convergence = FALSE,
     verbose = TRUE,
-    reference_values = NULL,
     reduction.save = "HARMONY",
     .options = harmony_options(),
     ...
