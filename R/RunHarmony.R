@@ -39,7 +39,7 @@ RunHarmony <- function(object, group.by.vars, ...) {
 
 
 #' @rdname RunHarmony
-#' @param reduction Name of dimension reduction to use. Default is PCA.
+#' @param reduction.use Name of dimension reduction to use. Default is pca.
 #' @param project.dim Project dimension reduction loadings. Default TRUE.
 #' @return Seurat (version 3) object. Harmony dimensions placed into
 #' dimensional reduction object harmony. For downstream Seurat analyses,
@@ -48,7 +48,7 @@ RunHarmony <- function(object, group.by.vars, ...) {
 RunHarmony.Seurat <- function(
   object,
   group.by.vars,
-  reduction = 'pca',
+  reduction.use = 'pca',
   dims.use = NULL,
   theta = NULL,
   sigma = 0.1,
@@ -65,11 +65,11 @@ RunHarmony.Seurat <- function(
   if (!requireNamespace('Seurat', quietly = TRUE)) {
     stop("Running Harmony on a Seurat object requires Seurat")
   }
-  if (!reduction %in% Seurat::Reductions(object = object)) {
-      stop(paste(reduction, "cell embeddings not found in Seurat object.",
+  if (!reduction.use %in% Seurat::Reductions(object = object)) {
+      stop(paste(reduction.use, "cell embeddings not found in Seurat object.",
                  "For a Seurat preprocessing walkthrough, please refer to the vignette"))
   }
-  embedding <- Seurat::Embeddings(object, reduction = reduction)
+  embedding <- Seurat::Embeddings(object, reduction = reduction.use)
   if (is.null(dims.use)) {
     dims.use <- seq_len(ncol(embedding))
   }
@@ -84,7 +84,7 @@ RunHarmony.Seurat <- function(
   metavars_df <- Seurat::FetchData(
     object,
     group.by.vars,
-    cells = Seurat::Cells(x = object[[reduction]])
+    cells = Seurat::Cells(x = object[[reduction.use]])
   )
 
   harmonyEmbed <- RunHarmony(
@@ -110,7 +110,7 @@ RunHarmony.Seurat <- function(
   object[[reduction.save]] <- Seurat::CreateDimReducObject(
     embeddings = harmonyEmbed,
     stdev = as.numeric(apply(harmonyEmbed, 2, stats::sd)),
-    assay = Seurat::DefaultAssay(object = object[[reduction]]),
+    assay = Seurat::DefaultAssay(object = object[[reduction.use]]),
     key = reduction.key
   )
   if (project.dim) {
