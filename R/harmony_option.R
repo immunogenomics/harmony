@@ -80,6 +80,7 @@ validate_block.size <- function(block.size) {
 }
 
 
+#' @importFrom methods hasArg
 check_legacy_args <- function(...) {
     if (hasArg(do_pca) || hasArg(npcs)) legacy_warning("do_pca_npcs")
     if (hasArg(lambda)) legacy_warning("lambda")
