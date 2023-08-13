@@ -34,6 +34,7 @@
 #' @param .options Advanced parameters of RunHarmony. This must be the
 #'     result from a call to `harmony_options`. See ?`harmony_options` for more
 #'     details.
+#' @param ... other parameters that are not part of the API
 #' @return By default, matrix with corrected PCA embeddings. If
 #'     return_object is TRUE, returns the full Harmony object (R6
 #'     reference class type).
