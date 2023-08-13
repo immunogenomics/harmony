@@ -10,9 +10,10 @@ RunHarmony <- function(...) {
 #' @rdname RunHarmony
 #' @param reduction.use Name of dimension reduction to use. Default is pca.
 #' @param project.dim Project dimension reduction loadings. Default TRUE.
-#' @return Seurat (version 3) object. Harmony dimensions placed into
-#' dimensional reduction object harmony. For downstream Seurat analyses,
+#' @return Seurat object. Harmony dimensions placed into a new slot in the Seurat
+#' object according to the reduction.save. For downstream Seurat analyses,
 #' use reduction='harmony'.
+#' 
 #' @export
 RunHarmony.Seurat <- function(
   object,
