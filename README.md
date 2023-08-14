@@ -32,6 +32,19 @@ library(devtools)
 install_github("immunogenomics/harmony")
 ```
 
+# Performance considerations (BLAS vs. OPENBLAS)
+
+R distributions can be bundled with different math and linear algebra libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. The sparse matrix performance enhancement is particular pronounced when using BLAS.
+
+However, other distributions of R, like the one distributed by conda use OPENBLAS. Our benchmarks show that **single-threaded OPENBLAS libraries are substantially faster than BLAS** resulting in a significantly faster harmony and users with large datasets will have improved runtimes using OPENBLAS.
+
+One important caveat is that OPENBLAS uses by default OPENMP multithreading and utilizes all cores that are available. Although multi-threading is generally known to accelerate workload runtimes, harmony algorithm does **not** benefit from the multi-thread scheduling of OPENBLAS. Instead the OS thread spawning overhead impacts the algorithm performance negatively while consuming all the core of the system. Therefore, to use harmony with **OPENBLAS distributions of R it is highly recommended to disable multi-threading**. If OPENBLAS is used, please disable OPENMP multithreading BEFORE spawning R. In a UNIX environment this can be achieved by executing:
+
+`export OMP_NUM_THREADS=1`
+
+
+
+
 # Usage/Demos
 
 We made it easy to run Harmony in most common R analysis pipelines. 
@@ -86,7 +99,5 @@ The examples above all return integrated PCA embeddings. We created a more [adva
 # Reproducing results from manuscript
 
 Code to reproduce Harmony results from the Korsunsky et al 2019 manuscript will be made available on github.com/immunogenomics/harmony2019. 
-
-
 
 
