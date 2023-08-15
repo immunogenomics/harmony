@@ -92,6 +92,11 @@ HarmonyMatrix <- function(
         epsilon.harmony = -Inf
     }
     max.iter.harmony <- max_iter
+
+    if(!inherits(.options, "harmony_options")) {
+        stop("Error: .options must be created from harmony_options()!")
+    }
+
     lambda_range <- .options$lambda_range
     tau <- .options$tau
     block.size <- .options$block.size
