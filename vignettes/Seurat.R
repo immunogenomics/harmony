@@ -6,11 +6,10 @@ knitr::opts_chunk$set(
 
 ## ----setup, message=FALSE, warning=FALSE--------------------------------------
 library(harmony)
-
-## ---- message=FALSE, warning=FALSE, echo=FALSE--------------------------------
 library(Seurat)
 library(dplyr)
 library(cowplot)
+
 
 ## -----------------------------------------------------------------------------
 ## Install latest branch of harmony
@@ -27,7 +26,7 @@ pbmc@meta.data$stim <- c(rep("STIM", ncol(stim.sparse)), rep("CTRL", ncol(ctrl.s
 
 ## -----------------------------------------------------------------------------
 pbmc <- pbmc %>%
-    Seurat::NormalizeData(verbose = FALSE) 
+    NormalizeData(verbose = FALSE)
 
 VariableFeatures(pbmc) <- split(row.names(pbmc@meta.data), pbmc@meta.data$stim) %>% lapply(function(cells_use) {
     pbmc[,cells_use] %>%
@@ -39,7 +38,13 @@ pbmc <- pbmc %>%
     ScaleData(verbose = FALSE) %>% 
     RunPCA(features = VariableFeatures(pbmc), npcs = 20, verbose = FALSE)
 
-## ---- fig.width = 8, fig.height = 6, out.width="100%", fig.cap="By setting `plot_converge=TRUE`, harmony will generate a plot with its objective showing the flow of the integration. Each point is a single clustering step. Different colors represent different Harmony iterations which is controlled by `max_iter` (assuming that early_stop=FALSE). Here although `max_iter=10` Ideally, we want to run the "----
+## ---- echo=FALSE--------------------------------------------------------------
+## run harmony with default parameters
+pbmc <- pbmc %>% RunHarmony("stim")
+## is equivalent to:
+pbmc <- RunHarmony(pbmc, "stim")
+
+## ---- fig.width = 8, fig.height = 6, out.width="100%", fig.cap="By setting `plot_converge=TRUE`, harmony will generate a plot with its objective showing the flow of the integration. Each point represents the cost measured after a clustering round. Different colors represent different Harmony iterations which is controlled by `max_iter` (assuming that early_stop=FALSE). Here `max_iter=10` and up to 10 correction steps are expected. However, `early_stop=TRUE` so harmony will stop after the cost plateaus."----
 
 pbmc <- pbmc %>% 
     RunHarmony("stim", plot_convergence = TRUE, nclust = 50, max_iter = 10, early_stop = T)

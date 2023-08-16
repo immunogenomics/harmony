@@ -2,7 +2,7 @@
 % Please edit documentation in R/harmony_option.R
 \name{harmony_options}
 \alias{harmony_options}
-\title{Set advanced options for HarmonyMatrix}
+\title{Set advanced options for RunHarmony}
 \usage{
 harmony_options(
   lambda_range = c(0.1, 10),
@@ -10,7 +10,7 @@ harmony_options(
   block.size = 0.05,
   max.iter.cluster = 20,
   epsilon.cluster = 1e-05,
-  epsilon.harmony = NULL
+  epsilon.harmony = 1e-04
 )
 }
 \arguments{
@@ -43,13 +43,16 @@ never stop early. When `epsilon.harmony` is set to not NULL, then
 user-supplied values of `early_stop` is ignored.}
 }
 \value{
-Return a list for `.options` argument of `HarmonyMatrix`
+Return a list for `.options` argument of `RunHarmony`
 }
 \description{
-Set advanced options for HarmonyMatrix
+Set advanced options for RunHarmony
 }
 \examples{
 ## If want to set lambda to be fixed to 1, do
-HarmonyMatrix(data_meta, meta_data, vars_use,
+\dontrun{
+RunHarmony(data_meta, meta_data, vars_use,
               .options = harmony_options(lambda = c(1, 1)))
+}
+
 }

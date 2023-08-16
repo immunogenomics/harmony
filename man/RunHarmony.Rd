@@ -4,27 +4,18 @@
 \alias{RunHarmony}
 \alias{RunHarmony.Seurat}
 \alias{RunHarmony.SingleCellExperiment}
-\title{Harmony single cell integration}
+\title{Run harmony algorithm generic function}
 \usage{
-RunHarmony(object, group.by.vars, ...)
+RunHarmony(...)
 
 \method{RunHarmony}{Seurat}(
   object,
   group.by.vars,
-  reduction = "pca",
+  reduction.use = "pca",
   dims.use = NULL,
-  theta = NULL,
-  sigma = 0.1,
-  nclust = NULL,
-  max_iter = 10,
-  early_stop = TRUE,
-  plot_convergence = FALSE,
   verbose = TRUE,
-  reference_values = NULL,
   reduction.save = "harmony",
-  assay.use = NULL,
   project.dim = TRUE,
-  .options = harmony_options(),
   ...
 )
 
@@ -32,75 +23,41 @@ RunHarmony(object, group.by.vars, ...)
   object,
   group.by.vars,
   dims.use = NULL,
-  theta = NULL,
-  sigma = 0.1,
-  nclust = NULL,
-  max_iter = 10,
-  early_stop = TRUE,
-  plot_convergence = FALSE,
   verbose = TRUE,
-  reference_values = NULL,
   reduction.save = "HARMONY",
-  .options = harmony_options(),
   ...
 )
 }
 \arguments{
-\item{object}{Pipeline object. Must have PCA computed.}
+\item{...}{harmony algorithm parameters to be passed on RunHarmony.default}
 
-\item{group.by.vars}{Which variable(s) to remove (character vector).}
+\item{object}{SingleCellExperiment with the PCA reducedDim cell embeddings populated}
 
-\item{...}{other parameters}
+\item{group.by.vars}{the name(s) of covariates that harmony will remove
+its effect on the data.}
 
-\item{reduction}{Name of dimension reduction to use. Default is PCA.}
+\item{reduction.use}{Name of dimension reduction to use. Default is pca.}
 
-\item{dims.use}{Which PCA dimensions to use for Harmony. By default, use all}
+\item{dims.use}{a vector of indices that allows only selected cell embeddings
+features to be used.}
 
-\item{theta}{Diversity clustering penalty parameter. Specify for each
-variable in group.by.vars. Default theta=2. theta=0 does not encourage any
- diversity. Larger values of theta result in more diverse clusters.
-Smaller values result in more aggressive correction.}
+\item{verbose}{enable verbosity}
 
-\item{sigma}{Width of soft kmeans clusters. Default sigma=0.1. Sigma scales
-the distance from a cell to cluster centroids. Larger values of sigma result
- in cells assigned to more clusters. Smaller values of sigma make soft
- kmeans cluster approach hard clustering.}
-
-\item{nclust}{Number of clusters in model. nclust=1 equivalent to simple
-linear regression.}
-
-\item{max_iter}{Maximum number of rounds to run Harmony. One round
-of Harmony involves one clustering and one correction step.}
-
-\item{early_stop}{When to stop Harmony iteration before reaching max_iter 
-when the change in objectie function is small enough (< 1e-4)}
-
-\item{plot_convergence}{Whether to print the convergence plot of the
-clustering objective function. TRUE to plot, FALSE to suppress. This can be
- useful for debugging.}
-
-\item{verbose}{Whether to print progress messages. TRUE to print, FALSE to
-suppress.}
-
-\item{reference_values}{(Advanced Usage) Defines reference dataset(s). Cells
-that have batch variables values matching reference_values will not be moved}
-
-\item{reduction.save}{Keyword to save Harmony reduction. Useful if you want
-to try Harmony with multiple parameters and save them as e.g.
-'harmony_theta0', 'harmony_theta1', 'harmony_theta2'}
-
-\item{assay.use}{(Seurat V3 only) Which assay to run PCA on if no PCA present?}
+\item{reduction.save}{the name of the new slot that is going to be created by
+harmony. By default, HARMONY.}
 
 \item{project.dim}{Project dimension reduction loadings. Default TRUE.}
 }
 \value{
-Seurat (version 3) object. Harmony dimensions placed into
-dimensional reduction object harmony. For downstream Seurat analyses,
+Seurat object. Harmony dimensions placed into a new slot in the Seurat
+object according to the reduction.save. For downstream Seurat analyses,
 use reduction='harmony'.
 
 SingleCellExperiment object. After running RunHarmony, the corrected
 cell embeddings can be accessed with reducedDim(object, "Harmony").
 }
 \description{
-Run Harmony algorithm with Seurat and SingleCellAnalysis pipelines.
+This is a generic that provides wrappers for Seurat and SingleCellExperiment
+objects. Also, it allows harmony standalone with a matrix and a metadata
+dataframe.
 }
