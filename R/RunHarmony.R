@@ -1,4 +1,10 @@
 
+#' Run harmony algorithm generic function
+#'
+#' This is a generic that provides wrappers for Seurat and SingleCellExperiment
+#' objects. Also, it allows harmony standalone with a matrix and a metadata
+#' dataframe.
+#' 
 #' @rdname RunHarmony
 #' @export
 RunHarmony <- function(...) {
@@ -7,9 +13,19 @@ RunHarmony <- function(...) {
 
 
 
+#' Applies harmony on a Seurat object cell embedding.
+#'
 #' @rdname RunHarmony
+#' @param object the Seurat object. It needs to have the appropriate slot
+#'     of cell embeddings precomputed.
+#' @param group.by.vars the name(s) of covariates that harmony will remove
+#'     its effect on the data.
 #' @param reduction.use Name of dimension reduction to use. Default is pca.
+#' @param dims.use indices of the cell embedding features to be used
+#' @param reduction.save the name of the new slot that is going to be created by
+#'     harmony. By default, harmony.
 #' @param project.dim Project dimension reduction loadings. Default TRUE.
+#' @param ... harmony algorithm parameters to be passed on RunHarmony.default
 #' @return Seurat object. Harmony dimensions placed into a new slot in the Seurat
 #' object according to the reduction.save. For downstream Seurat analyses,
 #' use reduction='harmony'.
@@ -20,16 +36,9 @@ RunHarmony.Seurat <- function(
   group.by.vars,
   reduction.use = 'pca',
   dims.use = NULL,
-  theta = NULL,
-  sigma = 0.1,
-  nclust = NULL,
-  max_iter = 10,
-  early_stop = TRUE,
-  plot_convergence = FALSE,
   verbose = TRUE,
   reduction.save = "harmony",
   project.dim = TRUE,
-  .options = harmony_options(),
   ...
 ) {
   if (!requireNamespace('Seurat', quietly = TRUE)) {
@@ -61,15 +70,7 @@ RunHarmony.Seurat <- function(
     data_mat = embedding[, dims.use],
     meta_data = metavars_df,
     vars_use = group.by.vars,
-    theta = theta,
-    sigma = sigma,
-    nclust = nclust,
-    max_iter = max_iter,
-    early_stop = early_stop,
-    plot_convergence= plot_convergence,
     return_object = FALSE,
-    verbose = verbose,
-    .options = .options,
     ...
   )
 
@@ -96,6 +97,17 @@ RunHarmony.Seurat <- function(
 
 
 
+#' Applies harmony on PCA cell embeddings of a SingleCellExperiment.
+#' 
+#' @param object SingleCellExperiment with the PCA reducedDim cell embeddings populated 
+#' @param group.by.vars the name(s) of covariates that harmony will remove
+#'     its effect on the data.
+#' @param dims.use a vector of indices that allows only selected cell embeddings
+#'     features to be used.
+#' @param verbose enable verbosity 
+#' @param reduction.save the name of the new slot that is going to be created by
+#'     harmony. By default, HARMONY.
+#' @param ... harmony algorithm parameters to be passed on RunHarmony.default 
 #' @rdname RunHarmony
 #' @return SingleCellExperiment object. After running RunHarmony, the corrected
 #' cell embeddings can be accessed with reducedDim(object, "Harmony").
@@ -104,15 +116,8 @@ RunHarmony.SingleCellExperiment <- function(
     object,
     group.by.vars,
     dims.use = NULL,
-    theta = NULL,
-    sigma = 0.1,
-    nclust = NULL,
-    max_iter = 10,
-    early_stop = TRUE,
-    plot_convergence = FALSE,
     verbose = TRUE,
     reduction.save = "HARMONY",
-    .options = harmony_options(),
     ...
 ) {
 
@@ -143,15 +148,8 @@ RunHarmony.SingleCellExperiment <- function(
         data_mat = pca_embedding[, dims.use], # is here an error? quick fix 
         meta_data = metavars_df,
         vars_use = group.by.vars,
-        theta = theta,
-        sigma = sigma,
-        nclust = nclust,
-        max_iter = max_iter,
-        early_stop = early_stop,
-        plot_convergence= plot_convergence,
         return_object = FALSE,
         verbose = verbose,
-        .options = .options,
         ...
     )
    

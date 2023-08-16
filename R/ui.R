@@ -1,6 +1,7 @@
 #' Main Harmony interface
 #' 
-#' Use this to run the Harmony algorithm on gene expression or PCA matrix. 
+#' Use this  to run the Harmony algorithm directly on cell embedding
+#' matrix. 
 #' 
 #' @param data_mat Matrix of cell embeddings. Cells can be rows or
 #'     columns and will be inferred by the rows of meta_data.
