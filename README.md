@@ -32,15 +32,15 @@ library(devtools)
 install_github("immunogenomics/harmony")
 ```
 
-# Performance considerations (BLAS vs. OPENBLAS)
+# Performance Notes
 
-R distributions can be bundled with different math and linear algebra libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, benchmarks show that **harmony with single-threaded OPENBLAS libraries is substantially faster compared BLAS**. Therefore users with larger datasets will benefit using OPENBLAS.
+## BLAS vs. OPENBLAS
 
-One important caveat is that OPENBLAS uses by default OPENMP multithreading and utilizes all cores that are available. Although multi-threading is generally known to accelerate workload runtimes, harmony algorithm does **not** benefit from the multi-thread scheduling of OPENBLAS. Instead the multi-threading adds important overhead resulting in poor performance and consumes all the CPU cores of the system. Therefore, to use harmony with R that uses OPENBLAS  **it is highly recommended to disable multi-threading**. In an active R session the loaded BLAS/LAPACK library can be identified using `sessionInfo()`. If OPENBLAS is loaded, then please **disable OPENMP multithreading BEFORE spawning R**. In a UNIX environment this can be achieved by executing:
+R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
 
-`export OMP_NUM_THREADS=1`
+## Multithreading in OPENBLAS
 
-
+One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are adviced to increase gradually `ncores` and assess potential performance benefits.
 
 
 

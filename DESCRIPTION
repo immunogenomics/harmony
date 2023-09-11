@@ -37,11 +37,13 @@ Imports:
     Matrix,
     methods,
     tibble,
-    rlang
+    rlang,
+    RhpcBLASctl
 Suggests:
     SingleCellExperiment,
     Seurat (>= 4.1.1),
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggthemes
 VignetteBuilder: knitr

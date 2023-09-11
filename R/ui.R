@@ -18,13 +18,20 @@
 #'     centroids. Larger values of sigma result in cells assigned to
 #'     more clusters. Smaller values of sigma make soft kmeans cluster
 #'     approach hard clustering.
-#' @param nclust Number of clusters in model. nclust=1 equivalent to simple
-#'     linear regression.
-#' @param max_iter Maximum number of rounds to run Harmony. One round of Harmony
-#'     involves one clustering and one correction step.
-#' @param early_stop Enable early stopping for harmony. The harmonization 
-#'     process will stop when the change of objective function between 
-#'     corrections drops below 1e-4
+#' @param nclust Number of clusters in model. nclust=1 equivalent to
+#'     simple linear regression.
+#' @param max_iter Maximum number of rounds to run Harmony. One round
+#'     of Harmony involves one clustering and one correction step.
+#' @param early_stop Enable early stopping for harmony. The
+#'     harmonization process will stop when the change of objective
+#'     function between corrections drops below 1e-4
+#' @param ncores Number of processors to be used for math operations
+#'     when optimized BLAS is available. If BLAS is not supporting
+#'     multithreaded then this option has no effect. By default,
+#'     ncore=1 which runs as a single-threaded process. Although
+#'     Harmony supports multiple cores, it is not optimized for
+#'     multithreading. Increase this number for large datasets iff
+#'     single-core performance is not adequate.
 #' @param plot_convergence Whether to print the convergence plot of
 #'     the clustering objective function. TRUE to plot, FALSE to
 #'     suppress. This can be useful for debugging.
@@ -33,8 +40,8 @@
 #' @param verbose Whether to print progress messages. TRUE to print,
 #'     FALSE to suppress.
 #' @param .options Advanced parameters of RunHarmony. This must be the
-#'     result from a call to `harmony_options`. See ?`harmony_options` for more
-#'     details.
+#'     result from a call to `harmony_options`. See ?`harmony_options`
+#'     for more details.
 #' @param ... other parameters that are not part of the API
 #' @return By default, matrix with corrected PCA embeddings. If
 #'     return_object is TRUE, returns the full Harmony object (R6
@@ -76,132 +83,158 @@ RunHarmony.default <- function(
   nclust = NULL,
   max_iter = 10,
   early_stop = TRUE,
+  ncores = 1,
   plot_convergence = FALSE,
   return_object = FALSE,
   verbose = TRUE,
   .options = harmony_options(),
   ...
   ) {
-
-    ## Check legacy arguments
-    check_legacy_args(...)
     
-    # Parameter setting --------------------------------------------------------
-    if (early_stop) {
-        epsilon.harmony <- .options$epsilon.harmony
-    } else {
-        epsilon.harmony = -Inf
+    ## Sanity check for number of cores
+    max.cores <- RhpcBLASctl::omp_get_max_threads()
+    if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
+        stop(paste0("Invalid number of ncores provided!",
+                   "Acceptable range of ncores: 1 -", max.cores))
     }
-    max.iter.harmony <- max_iter
-    lambda_range <- .options$lambda_range
-    tau <- .options$tau
-    block.size <- .options$block.size
-    max.iter.cluster <- .options$max.iter.cluster
-    epsilon.cluster <- .options$epsilon.cluster   
+    prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
+    prev.ncores.omp <- RhpcBLASctl::omp_get_num_procs()
     
-    
+    tryCatch({
+        
+        ## Check legacy arguments
+        check_legacy_args(...)
 
-    ## TODO: check for 
-    ##    partially observed batch variables (WARNING)
-    ##    batch variables with only 1 level (WARNING)
-    ##    if lambda given, check correct length
-    ##    if theta given, check correct length
-    ##    very small batch size and tau=0: suggest tau>0
-    ##    is PCA correct? 
-    if (!(is(meta_data, 'data.frame') | is(meta_data, 'DataFrame'))) {
-        if (length(meta_data) %in% dim(data_mat)) {
-            meta_data <- data.frame(batch_variable = meta_data)
-            vars_use <- 'batch_variable'
+        RhpcBLASctl::blas_set_num_threads(ncores)
+        RhpcBLASctl::omp_set_num_threads(ncores)
+        
+        ## Parameter setting --------------------------------------------------------
+        if (early_stop) {
+            epsilon.harmony <- .options$epsilon.harmony
         } else {
-            stop('meta_data must be either a data.frame or a vector with batch 
-                values for each cell')
+            epsilon.harmony = -Inf
         }
-    }
-    
-    if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
-        msg <- gettextf('must provide variables names (e.g. vars_use=%s)', 
-                        sQuote('stim'))
-        stop(msg)
-    }
+        max.iter.harmony <- max_iter
+        lambda_range <- .options$lambda_range
+        tau <- .options$tau
+        block.size <- .options$block.size
+        max.iter.cluster <- .options$max.iter.cluster
+        epsilon.cluster <- .options$epsilon.cluster   
+        
+        
 
-    ## Number of cells
-    N <- nrow(meta_data)
- 
-    ## Check if we need to transpose our data
-    if (nrow(data_mat) == N) {
-        message("Transposing data matrix")
-        data_mat <- Matrix::t(data_mat)
-    }
+        ## TODO: check for 
+        ##    partially observed batch variables (WARNING)
+        ##    batch variables with only 1 level (WARNING)
+        ##    if lambda given, check correct length
+        ##    if theta given, check correct length
+        ##    very small batch size and tau=0: suggest tau>0
+        ##    is PCA correct? 
+        if (!(is(meta_data, 'data.frame') | is(meta_data, 'DataFrame'))) {
+            if (length(meta_data) %in% dim(data_mat)) {
+                meta_data <- data.frame(batch_variable = meta_data)
+                vars_use <- 'batch_variable'
+            } else {
+                stop('meta_data must be either a data.frame or a vector with batch 
+                values for each cell')
+            }
+        }
+        
+        if (is.null(vars_use) | any(!vars_use %in% colnames(meta_data))) {
+            msg <- gettextf('must provide variables names (e.g. vars_use=%s)', 
+                            sQuote('stim'))
+            stop(msg)
+        }
 
-    if (ncol(data_mat) != N) {
-        stop("number of labels do not correspond to number of 
+        ## Number of cells
+        N <- nrow(meta_data)
+        
+        ## Check if we need to transpose our data
+        if (nrow(data_mat) == N) {
+            message("Transposing data matrix")
+            data_mat <- Matrix::t(data_mat)
+        }
+
+        if (ncol(data_mat) != N) {
+            stop("number of labels do not correspond to number of 
                 samples in data matrix")
-    }
-    
+        }
+        
 
-    # determine K if null
-    if (is.null(nclust)) {
-        nclust <- min(round(N / 30), 100)
-    }
-    
-    # determine theta if null
-    if (is.null(theta)) {
-        theta <- rep(2, length(vars_use))
-    } else if (length(theta) != length(vars_use)) {
-        stop('Please specify theta for each variable')
-    }
-    
-    # determine sigma if it is a scalar
-    if (length(sigma) == 1 & nclust > 1) {
-        sigma <- rep(sigma, nclust)
-    }
-    
+                                        # determine K if null
+        if (is.null(nclust)) {
+            nclust <- min(round(N / 30), 100)
+        }
+        
+                                        # determine theta if null
+        if (is.null(theta)) {
+            theta <- rep(2, length(vars_use))
+        } else if (length(theta) != length(vars_use)) {
+            stop('Please specify theta for each variable')
+        }
+        
+                                        # determine sigma if it is a scalar
+        if (length(sigma) == 1 & nclust > 1) {
+            sigma <- rep(sigma, nclust)
+        }
+        
 
-    ## Pre-compute some useful statistics
-    phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
-        res <- Matrix::sparse.model.matrix(~0 + as.factor(meta_data[[var_use]]))
-        Matrix::t(res)
-    }))
+        ## Pre-compute some useful statistics
+        phi <- Reduce(rbind, lapply(vars_use, function(var_use) {
+            res <- Matrix::sparse.model.matrix(~0 + as.factor(meta_data[[var_use]]))
+            Matrix::t(res)
+        }))
 
-    ## ## number of cells per batch
-    N_b <- Matrix::rowSums(phi)
+        ## ## number of cells per batch
+        N_b <- Matrix::rowSums(phi)
 
-    ## Number of factors per covariate
-    B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
-        nlevels(as.factor(meta_data[[var_use]]))
-    }))
-    
-    ## Calculate theta (#covariates) x (#levels)
-    theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
-        rep(theta[b], B_vec[b])))
+        ## Number of factors per covariate
+        B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
+            nlevels(as.factor(meta_data[[var_use]]))
+        }))
+        
+        ## Calculate theta (#covariates) x (#levels)
+        theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
+            rep(theta[b], B_vec[b])))
 
-    ## Theta scaling
-    theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
-    
-    ## RUN HARMONY
-    harmonyObj <- new(harmony)
-    
-    harmonyObj$setup(
-        data_mat, phi,
-        sigma, theta, max.iter.cluster, epsilon.cluster,
-        epsilon.harmony, nclust, block.size, lambda_range, B_vec, verbose
-        )
-    
-    harmonyObj$init_cluster_cpp(0)
-    
-    harmonize(harmonyObj, max.iter.harmony, verbose)
-    
-    if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
+        ## Theta scaling
+        theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
+        
+        ## RUN HARMONY
+        harmonyObj <- new(harmony)
+        
+        harmonyObj$setup(
+                       data_mat, phi,
+                       sigma, theta, max.iter.cluster, epsilon.cluster,
+                       epsilon.harmony, nclust, block.size, lambda_range, B_vec, verbose
+                   )
+        
+        harmonyObj$init_cluster_cpp(0)
+        
+        harmonize(harmonyObj, max.iter.harmony, verbose)
+        
+        if (plot_convergence) graphics::plot(HarmonyConvergencePlot(harmonyObj))
 
+        
+        ## Return either the R6 Harmony object or the corrected PCA matrix
+        if (return_object) {
+            return(harmonyObj)
+        } else {
+            res <- as.matrix(harmonyObj$Z_corr)
+            row.names(res) <- row.names(data_mat)
+            colnames(res) <- colnames(data_mat)
+            return(t(res))
+        }
+
+    }, ## main tryCatch block ends here
     
-    ## Return either the R6 Harmony object or the corrected PCA matrix
-    if (return_object) {
-        return(harmonyObj)
-    } else {
-        res <- as.matrix(harmonyObj$Z_corr)
-        row.names(res) <- row.names(data_mat)
-        colnames(res) <- colnames(data_mat)
-        return(t(res))
-    }
+    finally={
+        RhpcBLASctl::blas_set_num_threads(prev.ncores.blas)
+        RhpcBLASctl::omp_set_num_threads(prev.ncores.omp)
+    })
+    
+    
+    
 }
+
 
