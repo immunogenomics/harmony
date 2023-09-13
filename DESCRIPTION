@@ -45,5 +45,6 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    ggthemes
+    ggthemes,
+    tidyverse
 VignetteBuilder: knitr
