@@ -88,7 +88,7 @@ datasets. Please check out our latest
 
 # Installation
 
-Install Harmony with standard commands. 
+Install Harmony from CRAN with standard commands.
 
 ```{r eval=FALSE}
 install.packages('harmony')
@@ -142,7 +142,7 @@ Let's run Harmony to remove the influence of dataset-of-origin from the cell
 embeddings.
 
 ```{r}
-harmony_embeddings <- harmony::HarmonyMatrix(
+harmony_embeddings <- harmony::RunHarmony(
     V, meta_data, 'dataset', verbose=FALSE
 )
 
@@ -164,14 +164,12 @@ cowplot::plot_grid(p1, p2, nrow = 1)
 
 ## Interfacing to software packages
 
-You can also run Harmony as part of an established pipeline in several
-packages, such as Seurat, MUDAN, and scran. For these vignettes, please
-[visit our website](https://portals.broadinstitute.org/harmony/). 
+You can also run Harmony as part of an established pipeline in several packages, such as Seurat and SingleCellExperiment. For these vignettes, please [visit our website](https://portals.broadinstitute.org/harmony/). 
 
 
 ## Detailed breakdown of the Harmony algorithm
 
-For more details on how each part of Harmony works, consult our more detailed 
+For more details on how each part of Harmony works, consult our more detailed
 [vignette](https://portals.broadinstitute.org/harmony/advanced.html)
 "Detailed Walkthrough of Harmony Algorithm".
 
@@ -181,12 +179,3 @@ For more details on how each part of Harmony works, consult our more detailed
 sessionInfo()
 
 ```
-
-
-
-
-
-
-
-
-

@@ -104,7 +104,7 @@ scaleData <- function(A, margin = 1, thresh = 10) {
 #' Harmony object 
 #' 
 #' @param harmonyObj Trained harmony object. Get this by running 
-#' HarmonyMatrix function with return_object=TRUE.
+#' RunHarmony function with return_object=TRUE.
 #' @return Returns nothing, modifies object in place. 
 #' @export
 moe_ridge_get_betas <- function(harmonyObj) {

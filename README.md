@@ -32,6 +32,18 @@ library(devtools)
 install_github("immunogenomics/harmony")
 ```
 
+# Performance Notes
+
+## BLAS vs. OPENBLAS
+
+R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
+
+## Multithreading in OPENBLAS
+
+One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are adviced to increase gradually `ncores` and assess potential performance benefits.
+
+
+
 # Usage/Demos
 
 We made it easy to run Harmony in most common R analysis pipelines. 
@@ -42,45 +54,26 @@ Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/
 
 ## PCA matrix
 
-The Harmony algorithm iteratively corrects PCA embeddings. To input your own low dimensional embeddings directly, set `do_pca=FALSE`. Harmony is packaged with a small dataset 
+By default the harmony API will identify correct PCA embeddings. The PCA matrix needs to be precomputed. It is possible to set custom dimensional embeddings directly.
 
 ```r
 library(harmony)
-my_harmony_embeddings <- HarmonyMatrix(my_pca_embeddings, meta_data, "dataset", do_pca=FALSE)
+my_harmony_embeddings <- RunHarmony(my_pca_embeddings, meta_data, "dataset")
 ```
 
-## Normalized gene matrix
-
-You can also run Harmony on a sparse matrix of library size normalized expression counts. Harmony will scale these counts, run PCA, and finally perform integration. 
-
-```r
-library(harmony)
-my_harmony_embeddings <- HarmonyMatrix(normalized_counts, meta_data, "dataset")
-```
 
 ## Seurat 
 
-You can run Harmony within your Seurat workflow. You'll only need to make two changes to your code.
+You can run Harmony within your Seurat workflow with `RunHarmony()`. Prior `RunHarmony()` the PCA cell embeddings need to be precomputed through Seurat's API. For downstream analyses, use the `harmony` embeddings instead of `pca`.
 
-1) Run Harmony with the `RunHarmony()` function
-2) In downstream analyses, use the Harmony embeddings instead of PCA. 
-
-For example, run Harmony and then UMAP in two lines.  
+For example, run Harmony and then UMAP in two lines:
 
 ```r
 seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
 
-For details, check out these vignettes: 
-
-- [Seurat V2](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/SeuratV2.html)
-- [Seurat V3](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/SeuratV3.html)
-
-## MUDAN
-
-You can run Harmony with functions from the [MUDAN package](https://github.com/jefworks/mudan). For more, details, check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/mudan.html).
-
+For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/Seurat.html)
 
 ## Harmony with two or more covariates
 
@@ -88,8 +81,7 @@ Harmony can integrate over multiple covariates. To do this, specify a vector cov
 
 ```r
 my_harmony_embeddings <- HarmonyMatrix(
-  my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id"),
-  do_pca = FALSE
+  my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id")
 )
 ```
 
@@ -106,7 +98,5 @@ The examples above all return integrated PCA embeddings. We created a more [adva
 # Reproducing results from manuscript
 
 Code to reproduce Harmony results from the Korsunsky et al 2019 manuscript will be made available on github.com/immunogenomics/harmony2019. 
-
-
 
 

@@ -9,3 +9,5 @@
 appveyor.yml
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^doc$
+^Meta$

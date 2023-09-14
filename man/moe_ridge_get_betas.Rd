@@ -8,7 +8,7 @@ moe_ridge_get_betas(harmonyObj)
 }
 \arguments{
 \item{harmonyObj}{Trained harmony object. Get this by running 
-HarmonyMatrix function with return_object=TRUE.}
+RunHarmony function with return_object=TRUE.}
 }
 \value{
 Returns nothing, modifies object in place.

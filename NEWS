@@ -4,14 +4,16 @@
   - removed reference_values functionality
   - removed cluster_prior functionality
   - automatic parameterization of lambda is now the default
+  - ncore parameter controls the use of multiple processors when parallelized BLAS exists.  
 * Documentation
   - Updated seurat vignette
   - Removed mudan Seurat2 and Seurat3 vignettes
 * Name changes
-  - HarmonyMatrix to RunHarmony.matrix
+  - Integrated HarmonyMatrix function to the RunHarmony generic
 * Backend changes
   - Sparse matrix coercion to yield performance enhancements
   - L2-normalization using armadillo routines
+  - Supports parallel versions of BLAS.
 * Fixes
   - RunHarmony() for Seurat considers dimension set
   - RunHarmony() for SingleCellExperiment now works

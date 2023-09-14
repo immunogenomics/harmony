@@ -1,8 +1,8 @@
-context('Test main Harmony integration function: HarmonyMatrix')
+context('Test main Harmony integration function: RunHarmony')
 library(harmony)
 data(cell_lines_small)
 
-obj <- HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 
+obj <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 
                      theta = 1, nclust = 50, lambda = .1,
                      max.iter.cluster = 10, max.iter.harmony = 5,
                      'dataset', do_pca = FALSE, return_object = TRUE, 
@@ -30,13 +30,13 @@ test_that('there are no null values in the corrected embedding', {
 
 
 test_that('increasing theta decreases chi2 between Cluster and Batch assign', {
-    obj0 <- HarmonyMatrix(cell_lines_small$scaled_pcs, 
+    obj0 <- RunHarmony(cell_lines_small$scaled_pcs, 
                           cell_lines_small$meta_data,
                          theta = 0, nclust = 20, lambda = .1,
                          max.iter.cluster = 5, max.iter.harmony = 2,
                          'dataset', do_pca = FALSE, return_object = TRUE,
                          verbose = FALSE)    
-    obj1 <- HarmonyMatrix(cell_lines_small$scaled_pcs, 
+    obj1 <- RunHarmony(cell_lines_small$scaled_pcs, 
                           cell_lines_small$meta_data, 
                          theta = 1, nclust = 20, lambda = .1,
                          max.iter.cluster = 5, max.iter.harmony = 2,
@@ -51,15 +51,15 @@ test_that('increasing theta decreases chi2 between Cluster and Batch assign', {
 
 test_that('error messages work', {
     expect_error(
-        HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
+        RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
                       do_pca = FALSE)
     )
     expect_error(
-        HarmonyMatrix(cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
+        RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
                       'fake_variable', do_pca = FALSE)
     )
     expect_error(
-        HarmonyMatrix(cell_lines_small$scaled_pcs, 
+        RunHarmony(cell_lines_small$scaled_pcs, 
                       head(cell_lines_small$meta_data, -1), 'dataset', 
                       do_pca = FALSE)
     )
