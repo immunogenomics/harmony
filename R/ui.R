@@ -270,4 +270,9 @@ RunHarmony.default <- function(
     
 }
 
-
+#' @rdname RunHarmony
+#' @export
+HarmonyMatrix <- function(...) {
+    .Deprecated("RunHarmony", msg="HarmonyMatrix is deprecated and will be removed in the future from the API in the future")
+    RunHarmony(...)
+}
