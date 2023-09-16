@@ -83,7 +83,6 @@ validate_block.size <- function(block.size) {
 #' @importFrom methods hasArg
 check_legacy_args <- function(...) {
     if (hasArg(do_pca) || hasArg(npcs)) legacy_warning("do_pca_npcs")
-    if (hasArg(lambda)) legacy_warning("lambda")
     if (hasArg(tau)) legacy_warning("tau")
     if (hasArg(block.size)) legacy_warning("block.size")
     if (hasArg(max.iter.harmony)) legacy_warning("max.iter.harmony")
@@ -128,7 +127,7 @@ legacy_warning <- function(param) {
     )
 
 
-    if (param %in% c("lambda", "tau", "block.size", "max.iter.cluster",
+    if (param %in% c("tau", "block.size", "max.iter.cluster",
                      "epsilon.cluster")) {
         warn_str <- common_warn
     }

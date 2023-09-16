@@ -18,6 +18,14 @@
 #'     centroids. Larger values of sigma result in cells assigned to
 #'     more clusters. Smaller values of sigma make soft kmeans cluster
 #'     approach hard clustering.
+#' @param lambda Ridge regression penalty. Default lambda=1. Bigger
+#'     values protect against over correction. If several covariates
+#'     are specified, then lambda can also be a vector which needs to
+#'     be equal length with the number of variables to be
+#'     corrected. In this scenario, each covariate level group will be
+#'     assigned the scalars specified by the user. If set to NULL,
+#'     harmony will determine lambdas automatically and try to
+#'     minimize overcorrection (beta).
 #' @param nclust Number of clusters in model. nclust=1 equivalent to
 #'     simple linear regression.
 #' @param max_iter Maximum number of rounds to run Harmony. One round
@@ -80,6 +88,7 @@ RunHarmony.default <- function(
   vars_use,
   theta = NULL,
   sigma = 0.1,
+  lambda = 1,
   nclust = NULL,
   max_iter = 10,
   early_stop = TRUE,
@@ -197,6 +206,24 @@ RunHarmony.default <- function(
         B_vec <- Reduce(c, lapply(vars_use, function(var_use) {
             nlevels(as.factor(meta_data[[var_use]]))
         }))
+
+        if (is.null(lambda)) {
+            lambda_vec <- -1 ## This enables automatic estimation in the backend
+        } else if (!is.vector(lambda)) {
+            lambda_vec <- c(0, rep(lambda, sum(B_vec)))
+        } else if (length(lambda) != length(vars_use)) {
+            stop(paste0("You specified a lambda value for each ",
+                        "covariate but the number of lambdas specified (",
+                        length(lambda), ") and the number of covariates (",
+                        length(vars_use),") mismatch."))
+            if(any(!(lambda > 0))) {
+                stop("Provided lambdas must be positive")
+            }
+        } else {
+            lambda_vec <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
+                rep(lambda[b], B_vec[b])))
+            lambda_vec <- c(0, lambda_vec)
+        }
         
         ## Calculate theta (#covariates) x (#levels)
         theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
@@ -209,9 +236,10 @@ RunHarmony.default <- function(
         harmonyObj <- new(harmony)
         
         harmonyObj$setup(
-                       data_mat, phi,
-                       sigma, theta, max.iter.cluster, epsilon.cluster,
-                       epsilon.harmony, nclust, block.size, lambda_range, B_vec, verbose
+                       data_mat, phi, sigma, theta, lambda_vec,
+                       max.iter.cluster, epsilon.cluster,
+                       epsilon.harmony, nclust, block.size,
+                       lambda_range, B_vec, verbose
                    )
         
         harmonyObj$init_cluster_cpp(0)

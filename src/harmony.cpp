@@ -12,7 +12,7 @@ harmony::harmony() :
     window_size(3),
     ran_setup(false),
     ran_init(false),
-    lambda_estimation(true),
+    lambda_estimation(false),
     verbose(false)
     
 {}
@@ -20,7 +20,7 @@ harmony::harmony() :
 
 
 void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
-                    const VECTYPE __sigma, const VECTYPE __theta, const int __max_iter_kmeans,
+                    const VECTYPE __sigma, const VECTYPE __theta, const VECTYPE __lambda, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
                     const VECTYPE& __lambda_range, const std::vector<int>& __B_vec, const bool __verbose) {
@@ -46,7 +46,13 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
 
   // Hyperparameters
   K = __K;
-  lambda_range = __lambda_range;
+  if (__lambda(0) == -1) {
+    Rcout << "Using automatic lambda estimation" << std::endl;
+    lambda_range = __lambda_range;
+    lambda_estimation = true;
+  } else {
+    lambda = __lambda;
+  }
   B_vec = __B_vec;
   sigma = __sigma;
 
@@ -78,13 +84,7 @@ void harmony::allocate_buffers() {
   Phi_moe = join_cols(intcpt, Phi);
   Phi_moe_t = Phi_moe.t();
 
-  lambda_mat = arma::sp_mat(B + 1, B + 1);
-  // If lambdas are the same number then we disable the automatic parameter estimation
-  if(lambda_range(0) == lambda_range(1)) {
-    lambda_mat.diag() = arma::vec(B + 1, arma::fill::value(lambda_range(0))); // Assign a scalar
-    lambda_mat(0,0) = 0; // Set intercept to zero
-    lambda_estimation = false;
-  }
+
   W = zeros<MATTYPE>(B + 1, d);
 }
 
@@ -272,14 +272,20 @@ void harmony::moe_correct_ridge_cpp() {
 
   Progress p(K, false);
   arma::sp_mat _Rk(N, N);
+  arma::sp_mat lambda_mat(B + 1, B + 1);
+
+  if(!lambda_estimation) {
+    // Set lambda if we have to
+    lambda_mat.diag() = lambda;
+  }
   
   Z_corr = Z_orig;
-      
+
   for (unsigned k = 0; k < K; k++) {
       
       if (Progress::check_abort())
         return;
-      if (lambda_estimation){
+      if (lambda_estimation) {
         lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
       }
       _Rk.diag() = R.row(k);
@@ -296,6 +302,13 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
 
   arma::sp_mat _Rk(N, N);
+  arma::sp_mat lambda_mat(B + 1, B + 1);
+
+  if (!lambda_estimation) {
+    // Set lambda if we have to
+    lambda_mat.diag() = lambda;
+  }
+
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
       if (lambda_estimation){
@@ -328,6 +341,7 @@ RCPP_MODULE(harmony_module) {
       .field("R", &harmony::R)
       .field("theta", &harmony::theta)
       .field("sigma", &harmony::sigma)
+      .field("lambda", &harmony::lambda)
       .field("kmeans_rounds", &harmony::kmeans_rounds)
       .field("objective_kmeans", &harmony::objective_kmeans)
       .field("objective_kmeans_dist", &harmony::objective_kmeans_dist)
@@ -343,7 +357,6 @@ RCPP_MODULE(harmony_module) {
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
-      .field("lambda_mat", &harmony::lambda_mat)
       .field("lambda_range", &harmony::lambda_range)
       ;
 }

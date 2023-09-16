@@ -634,7 +634,7 @@ $W_k[3] = \beta_{3, k} \mbox{  (for dataset 293T)}$
 W <- list()
 ## Convert sparse data structures to dense matrix
 Phi.moe <- as.matrix(harmonyObj$Phi_moe)
-lambda <- as.matrix(harmonyObj$lambda_mat)
+lambda <- diag(c(harmonyObj$lambda))
 ## Get beta coeeficients for all the clusters
 for (k in 1:harmonyObj$K) {
     W[[k]] <- solve(Phi.moe %*% diag(harmonyObj$R[k, ]) %*% t(Phi.moe) + lambda) %*% (Phi.moe %*% diag(harmonyObj$R[k, ])) %*% t(harmonyObj$Z_orig)
