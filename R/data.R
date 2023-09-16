@@ -11,3 +11,21 @@
 #' 
 #' @source \url{https://www.10xgenomics.com}
 "cell_lines_small"
+
+
+#' Gene expression data of control PBMC from Kang et al. 2017. This
+#' contains a sample of 1000 cells from that condition and is used for
+#' the Seurat Vignette.
+#' 
+#' @source \url{https://doi.org/10.1038/nbt.4042}
+"pbmc.ctrl"
+
+
+#' Gene expression data of stimulated PBMC from Kang et al. 2017. This
+#' contains a sample of 1000 cells from that condition and is used for
+#' the Seurat Vignette.
+#' 
+#' @source \url{https://doi.org/10.1038/nbt.4042}
+"pbmc.stim"
+
+

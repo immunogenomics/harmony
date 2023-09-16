@@ -43,11 +43,11 @@ The files used for this vignette are located under the following zenodo director
 ```{r}
 ## Source required data
 data("pbmc_stim")
-pbmc <- CreateSeuratObject(counts = cbind(stim.sparse, ctrl.sparse), project = "PBMC", min.cells = 5)
+pbmc <- CreateSeuratObject(counts = cbind(pbmc.stim, pbmc.ctrl), project = "PBMC", min.cells = 5)
 
 ## Separate conditions
 
-pbmc@meta.data$stim <- c(rep("STIM", ncol(stim.sparse)), rep("CTRL", ncol(ctrl.sparse)))
+pbmc@meta.data$stim <- c(rep("STIM", ncol(pbmc.stim)), rep("CTRL", ncol(pbmc.ctrl)))
 ```
 
 # Running Harmony
