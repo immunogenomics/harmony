@@ -38,6 +38,7 @@ library(ggthemes)
 library(ggrepel)
 library(harmony)
 library(patchwork)
+library(tidyr)
 
 ## Useful util functions
 

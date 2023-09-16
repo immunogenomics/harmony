@@ -31,9 +31,7 @@ LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
     dplyr,
     cowplot,
-    tidyr,
     ggplot2,
-    irlba,
     Matrix,
     methods,
     tibble,
@@ -46,5 +44,9 @@ Suggests:
     knitr,
     rmarkdown,
     ggthemes,
-    tidyverse
+    ggrepel,
+    patchwork,
+    tidyverse,
+    tidyr,
+    data.table
 VignetteBuilder: knitr

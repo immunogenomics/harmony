@@ -82,13 +82,13 @@ validate_block.size <- function(block.size) {
 
 #' @importFrom methods hasArg
 check_legacy_args <- function(...) {
-    if (hasArg(do_pca) || hasArg(npcs)) legacy_warning("do_pca_npcs")
-    if (hasArg(tau)) legacy_warning("tau")
-    if (hasArg(block.size)) legacy_warning("block.size")
-    if (hasArg(max.iter.harmony)) legacy_warning("max.iter.harmony")
-    if (hasArg(max.iter.cluster)) legacy_warning("max.iter.cluster")
-    if (hasArg(epsilon.cluster)) legacy_warning("epsilon.cluster")
-    if (hasArg(epsilon.harmony)) legacy_warning("epsilon.harmony")
+    if (hasArg("do_pca") || hasArg("npcs")) legacy_warning("do_pca_npcs")
+    if (hasArg("tau")) legacy_warning("tau")
+    if (hasArg("block.size")) legacy_warning("block.size")
+    if (hasArg("max.iter.harmony")) legacy_warning("max.iter.harmony")
+    if (hasArg("max.iter.cluster")) legacy_warning("max.iter.cluster")
+    if (hasArg("epsilon.cluster")) legacy_warning("epsilon.cluster")
+    if (hasArg("epsilon.harmony")) legacy_warning("epsilon.harmony")
     
 }
 
