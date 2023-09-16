@@ -1,5 +1,3 @@
-vignette/*\.html
-vignette/*\.R
 src/*\.so
 src/*\.o
 data/pbmc_stim_original.RData
@@ -9,5 +7,11 @@ data/pbmc_stim_original.RData
 appveyor\.yml
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
-^Meta$
 ^doc$
+^\.Rproj\.user$
+^.*\.Rproj$
+^docs$
+^README.*\.md$
+^codecov\.yml$
+^NEWS\.md$
+^Meta$

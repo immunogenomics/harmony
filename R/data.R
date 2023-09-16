@@ -17,7 +17,7 @@
 #' contains a sample of 1000 cells from that condition and is used for
 #' the Seurat Vignette.
 #' 
-#' @source \url{https://doi.org/10.1038/nbt.4042}
+#' @source \doi{10.1038/nbt.4042}
 "pbmc.ctrl"
 
 
@@ -25,7 +25,7 @@
 #' contains a sample of 1000 cells from that condition and is used for
 #' the Seurat Vignette.
 #' 
-#' @source \url{https://doi.org/10.1038/nbt.4042}
+#' @source \doi{10.1038/nbt.4042}
 "pbmc.stim"
 
 

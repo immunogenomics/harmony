@@ -24,7 +24,7 @@ URL: software.broadinstitute.org/harmony
 License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.2.3
-Depends: R(>= 3.4.0), Rcpp
+Depends: R(>= 3.5.0), Rcpp
 LazyData: true
 LazyDataCompression: gzip
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
