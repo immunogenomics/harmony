@@ -27,7 +27,7 @@ After reading this, the user should have a better understanding of how
 
 # Prerequisites
 
-For this vignette we are going to use harmony amongst other tools that will help with the visualization and inspection of the algorithm intermediate states. Also, we provide a few helper functions that can be found in the source block below.
+For this vignette we are going to use harmony among other tools that will help with the visualization and inspection of the algorithm intermediate states. Also, we provide a few helper functions that can be found in the source block below.
 
 ```{r, message=FALSE, warning=FALSE, class.source = 'fold-hide'}
 

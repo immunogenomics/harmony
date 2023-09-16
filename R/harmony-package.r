@@ -13,7 +13,7 @@
 #' \enumerate{
 #' \item Report bugs at \url{https://github.com/immunogenomics/harmony/issues}
 #' \item Read the manuscript
-#' \href{https://www.biorxiv.org/content/10.1101/461954v2}{online}.
+#' \doi{10.1038/s41592-019-0619-0}
 #' }
 #'
 #'

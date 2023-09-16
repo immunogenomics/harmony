@@ -40,7 +40,7 @@ R distributions can be bundled with different scientific computing libraries. Th
 
 ## Multithreading in OPENBLAS
 
-One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are adviced to increase gradually `ncores` and assess potential performance benefits.
+One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are advised to increase gradually `ncores` and assess potential performance benefits.
 
 
 
@@ -54,7 +54,7 @@ Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/
 
 ## PCA matrix
 
-By default the harmony API will identify correct PCA embeddings. The PCA matrix needs to be precomputed. It is possible to set custom dimensional embeddings directly.
+By default the harmony API will identify correct PCA embeddings. The PCA matrix needs to be pre-computed. It is possible to set custom dimensional embeddings directly.
 
 ```r
 library(harmony)
