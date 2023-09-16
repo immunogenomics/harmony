@@ -4,11 +4,10 @@
 #'
 #' @section Usage:
 #'
-#' \enumerate{
-#' \item ?HarmonyMatrix to run Harmony on gene expression or PCA
-#' embeddings matrix.
-#' \item ?RunHarmony to run Harmony on Seurat or SingleCellExperiment objects.
-#' }
+#' 
+#' ?RunHarmony to run Harmony on cell embeddings matrix, Seurat or
+#' SingleCellExperiment objects.
+#' 
 #' @section Useful links:
 #'
 #' \enumerate{
