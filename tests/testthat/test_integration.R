@@ -2,7 +2,7 @@ context('Test main Harmony integration function: RunHarmony')
 library(harmony)
 data(cell_lines_small)
 
-obj <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset'
+obj <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset',
                   theta = 1, nclust = 50, lambda = .1, max_iter = 5, return_object = TRUE,
                   verbose = FALSE, .options = harmony_options(max.iter.cluster = 10))
 
@@ -28,12 +28,12 @@ test_that('there are no null values in the corrected embedding', {
 
 
 test_that('increasing theta decreases chi2 between Cluster and Batch assign', {
-    obj0 <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset'
+    obj0 <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset',
                        theta = 0, nclust = 20, lambda = .1, max_iter = 2, return_object = TRUE,
                        verbose = FALSE, .options = harmony_options(max.iter.cluster = 5))
-    obj1 <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset'
+    obj1 <- RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset',
                        theta = 1, nclust = 20, lambda = .1, max_iter = 2, return_object = TRUE,
-                       verbose = FALSE, .options = harmony_options(max.iter.cluster = 5))        
+                       verbose = FALSE, .options = harmony_options(max.iter.cluster = 5))
 
     expect_gt(
         sum(((obj0$O - obj0$E) ^ 2) / obj0$E),
@@ -47,7 +47,7 @@ test_that('error messages work', {
     )
 
     expect_error(
-        RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, c('dataset'), lambda = c(1,2))
+        RunHarmony(cell_lines_small$scaled_pcs, cell_lines_small$meta_data, 'dataset', lambda = c(1,2))
     )
 
     expect_error(
