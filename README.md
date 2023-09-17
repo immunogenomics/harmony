@@ -32,29 +32,17 @@ library(devtools)
 install_github("immunogenomics/harmony")
 ```
 
-# Performance Notes
 
-## BLAS vs. OPENBLAS
+# Usage
 
-R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
-
-## Multithreading in OPENBLAS
-
-One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are advised to increase gradually `ncores` and assess potential performance benefits.
-
-
-
-# Usage/Demos
-
-We made it easy to run Harmony in most common R analysis pipelines. 
+ Harmony is designed to be user-friendly and supports some SingleCellExperiment and Seurat R analysis pipelines. Alternatively, it can be used in standalone mode.
 
 ## Quick Start 
 
-Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/vignettes/quickstart.Rmd) for a quick start tutorial. 
+### Standalone Mode
+Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/vignettes/quickstart.Rmd) for a quick start tutorial which demonstrates the usage of the tool in standalone mode.
 
-## PCA matrix
-
-By default the harmony API will identify correct PCA embeddings. The PCA matrix needs to be pre-computed. It is possible to set custom dimensional embeddings directly.
+At minimum the following parameters need to be specified to achieve an integration. 
 
 ```r
 library(harmony)
@@ -62,25 +50,25 @@ my_harmony_embeddings <- RunHarmony(my_pca_embeddings, meta_data, "dataset")
 ```
 
 
-## Seurat 
+## Seurat Objects
 
-You can run Harmony within your Seurat workflow with `RunHarmony()`. Prior `RunHarmony()` the PCA cell embeddings need to be precomputed through Seurat's API. For downstream analyses, use the `harmony` embeddings instead of `pca`.
+By default, the harmony API works on Seurats PCA cell embeddings and corrects them. You can run Harmony within your Seurat workflow with `RunHarmony()`. Prior `RunHarmony()` the PCA cell embeddings need to be precomputed through Seurat's API. For downstream analyses, use the `harmony` embeddings instead of `pca`.
 
-For example, run Harmony and then UMAP in two lines:
+For example, the following snippet run Harmony and then calculates UMAP of the corrected input embeddings:
 
 ```r
 seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
 
-For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/Seurat.html)
+For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html)
 
 ## Harmony with two or more covariates
 
 Harmony can integrate over multiple covariates. To do this, specify a vector covariates to integrate. 
 
 ```r
-my_harmony_embeddings <- HarmonyMatrix(
+my_harmony_embeddings <- RunHarmony(
   my_pca_embeddings, meta_data, c("dataset", "donor", "batch_id")
 )
 ```
@@ -91,9 +79,21 @@ Do the same with your Seurat object:
 seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 ```
 
-## Advanced 
+## Advanced tutorial 
 
-The examples above all return integrated PCA embeddings. We created a more [advanced tutorial](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/docs/advanced.html) that explores the internal data structures used in the Harmony algorithm. 
+The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
+
+
+# Performance Notes
+
+## BLAS vs. OPENBLAS
+
+R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
+
+## Multithreading in OPENBLAS
+
+One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are advised to increase gradually `ncores` and assess potential performance benefits.
+
 
 # Reproducing results from manuscript
 
