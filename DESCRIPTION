@@ -4,6 +4,8 @@ Version: 1.0.0
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com",
         role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
+    person("Martin Hemberg", email = "mhemberg@bwh.harvard.edu",
+        role = c("aut"), comment = c(ORCID = "0000-0001-8895-5239")),
     person("Nikolaos Patikas", email = "nik.patik@gmail.com",
         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-3978-0134")),
     person("Hongcheng Yao", email = "hongchengyaonk@gmail.com",
