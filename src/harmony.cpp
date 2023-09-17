@@ -125,7 +125,7 @@ void harmony::compute_objective() {
   float kmeans_error = as_scalar(accu(R % dist_mat));
   float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
   float _cross_entropy = as_scalar(
-      accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + 1) / (E + 1))) * Phi)));
+      accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + E) / E)) * Phi)));
 
   // Push back the data
   objective_kmeans.push_back(kmeans_error + _entropy + _cross_entropy);
@@ -256,7 +256,7 @@ int harmony::update_R() {
 
       // Step 2: recompute R for removed cells
       Rcells = _scale_distcells;
-      Rcells = Rcells % (harmony_pow((E + 1) / (O + 1), theta) * Phicells);
+      Rcells = Rcells % (harmony_pow(E/(O + E), theta) * Phicells);
       Rcells = normalise(Rcells, 1, 0); // L1 norm columns
 
       // Step 3: put cells back 
