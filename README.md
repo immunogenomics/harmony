@@ -28,8 +28,7 @@ install.packages("harmony")
 If you'd like the latest development version, install from this github directly: 
 
 ```r
-library(devtools)
-install_github("immunogenomics/harmony")
+devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
 ```
 
 
