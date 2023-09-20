@@ -1,16 +1,4 @@
----
-title: "Quick start to Harmony"
-author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single 
-cell data with Harmony"
-output: rmarkdown::html_vignette
-vignette: >
-    %\VignetteIndexEntry{Quick start to Harmony}
-    %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteEncoding{UTF-8} 
----
-  
-
-```{r, echo=FALSE}
+## ---- echo=FALSE--------------------------------------------------------------
 library(ggplot2)
 colors_use <- c(`jurkat` = '#810F7C', `t293` = '#D09E2D',`half` = '#006D2C')
 
@@ -72,59 +60,20 @@ do_scatter <- function(umap_use, meta_data, label_name, no_guides = TRUE,
     return(plt)
 }
 
-```
 
-# Introduction
+## ----eval=FALSE---------------------------------------------------------------
+#  install.packages('harmony')
 
-Harmony is an algorithm for performing integration of single cell genomics
-datasets. Please check out our latest 
-[manuscript on Nature Methods](https://www.nature.com/articles/s41592-019-0619-0). 
-
-![](main.jpg)
-
-# Installation
-
-Install Harmony from CRAN with standard commands.
-
-```{r eval=FALSE}
-install.packages('harmony')
-```
-
-Once Harmony is installed, load it up! 
-
-```{r}
+## -----------------------------------------------------------------------------
 library(harmony)
-```
 
-
-# Integrating cell line datasets from 10X
-
-The example below follows Figure 2 in the manuscript. 
-
-We downloaded 3 cell line datasets from the 10X website. The first two (jurkat
-and 293t) come from pure cell lines while the *half* dataset is a 50:50
-mixture of Jurkat and HEK293T cells. We inferred cell type with the canonical 
-marker XIST, since the two cell lines come from 1 male and 1 female donor. 
-
-* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat
-* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/293t
-* support.10xgenomics.com/single-cell-gene-expression/datasets/1.1.0/jurkat:293t_50:50
-
-We library normalized the cells, log transformed the counts, and scaled the 
-genes. Then we performed PCA and kept the top 20 PCs. The PCA embeddings and 
-meta data are available as part of this package. 
-
-
-```{r}
+## -----------------------------------------------------------------------------
 data(cell_lines)
 V <- cell_lines$scaled_pcs
 meta_data <- cell_lines$meta_data
 
-```
 
-Initially, the cells cluster by both dataset (left) and cell type (right). 
-
-```{r, fig.width=5, fig.height=3, fig.align="center"}
+## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
 p1 <- do_scatter(V, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(V, meta_data, 'cell_type') + 
@@ -132,46 +81,22 @@ p2 <- do_scatter(V, meta_data, 'cell_type') +
 
 cowplot::plot_grid(p1, p2)
 
-```
 
-Let's run Harmony to remove the influence of dataset-of-origin from the cell
-embeddings.
-
-```{r}
+## -----------------------------------------------------------------------------
 harmony_embeddings <- harmony::RunHarmony(
     V, meta_data, 'dataset', verbose=FALSE
 )
 
-```
 
-After Harmony, the datasets are now mixed (left) and the cell types are still
-separate (right). 
-
-```{r, fig.width=5, fig.height=3, fig.align="center"}
+## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
 p1 <- do_scatter(harmony_embeddings, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
     labs(title = 'Colored by cell type')
 cowplot::plot_grid(p1, p2, nrow = 1)
 
-```
 
-# Next Steps
-
-## Interfacing to software packages
-
-You can also run Harmony as part of an established pipeline in several packages, such as Seurat and SingleCellExperiment. For these vignettes, please [visit our website](https://portals.broadinstitute.org/harmony/). 
-
-
-## Detailed breakdown of the Harmony algorithm
-
-For more details on how each part of Harmony works, consult our more detailed
-[vignette](https://portals.broadinstitute.org/harmony/advanced.html)
-"Detailed Walkthrough of Harmony Algorithm".
-
-# Session Info
-
-```{r}
+## -----------------------------------------------------------------------------
 sessionInfo()
 
-```
+

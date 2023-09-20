@@ -1,3 +1,32 @@
+# harmony v1.0.0 - Jul 27 2023
+* API changes
+  - removed do_pca functionality
+  - removed reference_values functionality
+  - removed cluster_prior functionality
+  - beta feature: automatic parameterization of lambda when it is set to NULL
+  - ncore parameter controls the use of multiple processors when parallelized BLAS exists.
+  - Moved several parameters to the .options. Now they are accessible through harmony_options()
+* Documentation
+  - Updated seurat vignette
+  - Removed mudan Seurat2 and Seurat3 vignettes
+* Name changes
+  - Integrated HarmonyMatrix function to the RunHarmony generic
+  - HarmonyMatrix is deprecated
+* Backend changes
+  - Sparse matrix coercion to yield performance enhancements
+  - L2-normalization using armadillo routines
+  - Supports parallel versions of BLAS.
+* Fixes
+  - RunHarmony() for Seurat considers dimension set
+  - RunHarmony() for SingleCellExperiment works
+  - custom ceiling function to avoid conflicts for some block_size
+  - Coercing covariate to factor when levels are numbers
+  
+* New features
+  - Automatic parameterization of lambda
+  - Updated convergence plot
+
+
 # harmony v0.1.0
 * Initial release to CRAN
 

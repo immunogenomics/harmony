@@ -1,9 +1,15 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
-Version: 0.1.1
+Version: 1.0.1
 Authors@R: c(
     person("Ilya", "Korsunsky", email = "ilya.korsunsky@gmail.com",
         role = c("cre", "aut"), comment = c(ORCID = "0000-0003-4848-3948")),
+    person("Martin Hemberg", email = "mhemberg@bwh.harvard.edu",
+        role = c("aut"), comment = c(ORCID = "0000-0001-8895-5239")),
+    person("Nikolaos Patikas", email = "nik.patik@gmail.com",
+        role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-3978-0134")),
+    person("Hongcheng Yao", email = "hongchengyaonk@gmail.com",
+        role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-0743-4835")),
     person("Nghia", "Millard", email = "nmillard@g.harvard.edu",
         role = "aut", comment = c(ORCID = "0000-0002-0518-7674")),
     person("Jean", "Fan", email = "jeanfan@fas.harvard.edu",
@@ -19,24 +25,30 @@ Description: Implementation of the Harmony algorithm for single cell integration
 URL: software.broadinstitute.org/harmony
 License: GPL-3
 Encoding: UTF-8
-RoxygenNote: 7.2.1
-Depends: R(>= 3.4.0), Rcpp
+RoxygenNote: 7.2.3
+Depends: R(>= 3.5.0), Rcpp
 LazyData: true
+LazyDataCompression: gzip
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 Imports:
     dplyr,
     cowplot,
-    tidyr,
     ggplot2,
-    irlba,
     Matrix,
     methods,
     tibble,
-    rlang
+    rlang,
+    RhpcBLASctl
 Suggests:
     SingleCellExperiment,
     Seurat (>= 4.1.1),
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggthemes,
+    ggrepel,
+    patchwork,
+    tidyverse,
+    tidyr,
+    data.table
 VignetteBuilder: knitr

@@ -1,0 +1,84 @@
+---
+title: "Advanced tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+Harmony uses a set of parameters to ensure the different components of the algorithm work in harmony! By default, several of these parameters are set by the algorithm using heuristics or empirical values. Most of the time, the end-user does not need to find optimal values to run Harmony. In this vignette, we will be going through some use cases where user need to intervene and optimize the data or parameters harmony.
+
+There are two reasons that someone a user may need to change the parameters. The first one is to increase the quality of the data integration. The second one is to improve the performance of harmony.
+
+
+# Harmony algorithm objective diverges after a number of correction steps
+
+For some datasets, the objective function may diverge after a few steps. Here we are going to be looking into the Jurkat dataset that is bundled with harmony.
+
+
+```{r setup}
+library(harmony)
+library(ggplot2)
+
+
+
+```
+
+
+```{r}
+
+## Old
+
+## 
+## HarmonyMatrix(bos, opt.args = list(lambda = c(0,1)))
+
+
+
+
+
+```
+
+# An example of a problematic dataset
+
+```{r}
+## Source required data
+## data("celllines")
+
+## cell_lines <- zeros()
+## pbmc <- CreateSeuratObject(counts = , project = "jurkat", min.cells = 5)
+
+## Separate conditions
+
+## pbmc@meta.data$stim <- c(rep("STIM", ncol(stim.sparse)), rep("CTRL", ncol(ctrl.sparse)))
+```
+
+
+## Input data
+## Number of PCs
+Using the correct number of components can become very important in certain scenarios.
+
+
+
+
+
+## Nested data
+
+# Harmony Algorithm parameters
+## theta
+## lambda
+## sigma
+## nclust
+
+# Controlling harmony flow
+## 
+##

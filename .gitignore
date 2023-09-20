@@ -11,3 +11,4 @@ config.status
 *.Rproj
 *.swp
 ..Rcheck
+/Meta/

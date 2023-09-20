@@ -12,15 +12,15 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// compute_Y
-MATTYPE compute_Y(const MATTYPE& Z_cos, const MATTYPE& R);
-RcppExport SEXP _harmony_compute_Y(SEXP Z_cosSEXP, SEXP RSEXP) {
+// kmeans_centers
+arma::mat kmeans_centers(const arma::mat& X, const int K);
+RcppExport SEXP _harmony_kmeans_centers(SEXP XSEXP, SEXP KSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const MATTYPE& >::type Z_cos(Z_cosSEXP);
-    Rcpp::traits::input_parameter< const MATTYPE& >::type R(RSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_Y(Z_cos, R));
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const int >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(kmeans_centers(X, K));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -40,12 +40,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// find_one_lambda_cpp
+double find_one_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range);
+RcppExport SEXP _harmony_find_one_lambda_cpp(SEXP cluster_sizeSEXP, SEXP rangeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_size(cluster_sizeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type range(rangeSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_one_lambda_cpp(cluster_size, range));
+    return rcpp_result_gen;
+END_RCPP
+}
+// find_lambda_cpp
+arma::vec find_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range, const std::vector<int>& B_vec);
+RcppExport SEXP _harmony_find_lambda_cpp(SEXP cluster_sizeSEXP, SEXP rangeSEXP, SEXP B_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_size(cluster_sizeSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type range(rangeSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type B_vec(B_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_lambda_cpp(cluster_size, range, B_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP _rcpp_module_boot_harmony_module();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_harmony_compute_Y", (DL_FUNC) &_harmony_compute_Y, 2},
+    {"_harmony_kmeans_centers", (DL_FUNC) &_harmony_kmeans_centers, 2},
     {"_harmony_scaleRows_dgc", (DL_FUNC) &_harmony_scaleRows_dgc, 6},
+    {"_harmony_find_one_lambda_cpp", (DL_FUNC) &_harmony_find_one_lambda_cpp, 2},
+    {"_harmony_find_lambda_cpp", (DL_FUNC) &_harmony_find_lambda_cpp, 3},
     {"_rcpp_module_boot_harmony_module", (DL_FUNC) &_rcpp_module_boot_harmony_module, 0},
     {NULL, NULL, 0}
 };

@@ -1,4 +1,4 @@
-#include <RcppArmadillo.h>
+#include "types.h"
 #include <Rcpp.h>
 #include <iostream>
 #include <vector>
@@ -19,45 +19,47 @@ RCPP_EXPOSED_CLASS(harmony)
 #include "harmony_types.h"
   
 class harmony { 
-public: 
-  /* CONSTRUCTORS etc */
-  harmony(int __K);    
-  void setup(MATTYPE& __Z, MATTYPE& __Phi, MATTYPE& __Phi_moe, VECTYPE __Pr_b,
-             VECTYPE __sigma, VECTYPE __theta, int __max_iter_kmeans, 
-             float __epsilon_kmeans, float __epsilon_harmony, 
-             int __K, float tau, float __block_size, 
-             MATTYPE __lambda, bool __verbose);
+public:
+  
+  harmony();
+  
+  void setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
+	     const VECTYPE __sigma, const VECTYPE __theta,
+	     const VECTYPE __lambda, const int __max_iter_kmeans,
+	     const float __epsilon_kmeans, const float __epsilon_harmony,
+	     const int __K, const float __block_size, const VECTYPE& __lambda_range,
+	     const vector<int>& __B_vec, const bool __verbose);
   
   /* METHODS */
   void moe_correct_ridge_cpp();
   CUBETYPE moe_ridge_get_betas_cpp();
-  void init_cluster_cpp(unsigned C);
   int cluster_cpp();
-  
+
+  void init_cluster_cpp(unsigned);
   void allocate_buffers();
   void compute_objective(); 
   int update_R();
   bool check_convergence(int type);
+  void setY(const MATTYPE& Z);
 
   /* FIELDS */
-  MATTYPE R, Z_orig, Z_corr, Z_cos, Y, Y_unnormed, Phi, Phi_moe; 
-  VECTYPE Pr_b, theta, N_b, sigma, sigma_prior;
-  MATTYPE lambda; // diagonal MATTYPErix of ridge regression penalties
-  vector<float> objective_harmony;
-  vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross;
-  vector<int> kmeans_rounds; // OLD: Kb
+  MATTYPE R, Z_orig, Z_corr, Z_cos, Y;
+  arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, Rk;
+  VECTYPE Pr_b, theta, N_b, sigma, lambda, lambda_range;
   
-  //    vector<uvec> phi_map;
-  float block_size, epsilon_kmeans, epsilon_harmony, merge_thresh_global;
-  int N, K, B, d, max_iter_kmeans, window_size; 
+  vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
+  vector<int> kmeans_rounds, B_vec; // OLD: Kb
+  
+  float block_size, epsilon_kmeans, epsilon_harmony;
+  unsigned int N, K, B, d, max_iter_kmeans, window_size;
 
   // buffers
-  MATTYPE _scale_dist, dist_mat, O, E, dir_prior, Phi_Rk; // N_k, N_kb, N_b, numerator, denominator, C;
+  MATTYPE _scale_dist, dist_mat, O, E, dir_prior; // N_k, N_kb, N_b, numerator, denominator, C;
   uvec update_order, cells_update;
   MATTYPE W;
-  
+    
   // flags
-  bool ran_setup, ran_init, verbose; // do_merge_R;
+  bool ran_setup, ran_init, lambda_estimation,  verbose; // do_merge_R;
   
 };
 
