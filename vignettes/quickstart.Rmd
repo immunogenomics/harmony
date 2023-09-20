@@ -2,11 +2,7 @@
 title: "Quick start to Harmony"
 author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single 
 cell data with Harmony"
-output:
-  html_document:
-    theme: united
-    df_print: kable
-  pdf_document: default
+output: rmarkdown::html_vignette
 vignette: >
     %\VignetteIndexEntry{Quick start to Harmony}
     %\VignetteEngine{knitr::rmarkdown}
@@ -128,7 +124,7 @@ meta_data <- cell_lines$meta_data
 
 Initially, the cells cluster by both dataset (left) and cell type (right). 
 
-```{r}
+```{r, fig.width=5, fig.height=3, fig.align="center"}
 p1 <- do_scatter(V, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(V, meta_data, 'cell_type') + 
@@ -151,7 +147,7 @@ harmony_embeddings <- harmony::RunHarmony(
 After Harmony, the datasets are now mixed (left) and the cell types are still
 separate (right). 
 
-```{r}
+```{r, fig.width=5, fig.height=3, fig.align="center"}
 p1 <- do_scatter(harmony_embeddings, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(harmony_embeddings, meta_data, 'cell_type') + 

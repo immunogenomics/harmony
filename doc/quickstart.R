@@ -73,7 +73,7 @@ V <- cell_lines$scaled_pcs
 meta_data <- cell_lines$meta_data
 
 
-## -----------------------------------------------------------------------------
+## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
 p1 <- do_scatter(V, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(V, meta_data, 'cell_type') + 
@@ -88,7 +88,7 @@ harmony_embeddings <- harmony::RunHarmony(
 )
 
 
-## -----------------------------------------------------------------------------
+## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
 p1 <- do_scatter(harmony_embeddings, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(harmony_embeddings, meta_data, 'cell_type') + 
