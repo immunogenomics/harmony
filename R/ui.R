@@ -89,6 +89,7 @@ RunHarmony.default <- function(
   theta = NULL,
   sigma = 0.1,
   lambda = 1,
+  alpha = 0.2, 
   nclust = NULL,
   max_iter = 10,
   early_stop = TRUE,
@@ -99,7 +100,7 @@ RunHarmony.default <- function(
   .options = harmony_options(),
   ...
   ) {
-    
+    message('Develop version for tuning lambda, same lambda per cluster')
     ## Sanity check for number of cores
     max.cores <- RhpcBLASctl::omp_get_max_threads()
     if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
@@ -236,7 +237,7 @@ RunHarmony.default <- function(
         harmonyObj <- new(harmony)
         
         harmonyObj$setup(
-                       data_mat, phi, sigma, theta, lambda_vec,
+                       data_mat, phi, sigma, theta, lambda_vec, alpha,
                        max.iter.cluster, epsilon.cluster,
                        epsilon.harmony, nclust, block.size,
                        lambda_range, B_vec, verbose
