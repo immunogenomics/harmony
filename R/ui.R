@@ -100,7 +100,7 @@ RunHarmony.default <- function(
   .options = harmony_options(),
   ...
   ) {
-    message('Develop version for tuning lambda, same lambda per cluster')
+    message('Develop version for tuning lambda, seprate lambda per batch level')
     ## Sanity check for number of cores
     max.cores <- RhpcBLASctl::omp_get_max_threads()
     if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
