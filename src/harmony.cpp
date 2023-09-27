@@ -287,7 +287,8 @@ void harmony::moe_correct_ridge_cpp() {
       if (Progress::check_abort())
         return;
       if (lambda_estimation) {
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec, alpha, E.row(k).t());
+        // lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec, alpha, E.row(k).t());
+        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
       }
       all_lambda_mat.row(k) = lambda_mat.diag().t();
       _Rk.diag() = R.row(k);

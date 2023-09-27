@@ -114,25 +114,31 @@ double find_one_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range, c
 }
 
 // [[Rcpp::export]]
-arma::vec find_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range,
-                          const std::vector<int>& B_vec, const float alpha, const arma::vec& cluster_E){
-  arma::vec lambda_dym_vec(cluster_O.n_rows + 1, arma::fill::zeros);
-  int current_idx = 0; // base indx for sub_cluster_O and lambda_dym_vec
-  // for every batch variable
-  for(unsigned b = 0; b < B_vec.size(); b++){
-    //Slice the size for the covariate factors
-    arma::vec sub_cluster_O = cluster_O.subvec(current_idx,
-                                                     current_idx + B_vec[b]-1);
-    arma::vec sub_cluster_E = cluster_E.subvec(current_idx,
-                                                     current_idx + B_vec[b]-1);
-    // Estimate lambda for the covariate
-    double lambda_dym = find_one_lambda_cpp(sub_cluster_O, range, sub_cluster_E, alpha);
-    // lambda_dym_vec is 1-based because index zero is the intercept
-    lambda_dym_vec.subvec(current_idx + 1, current_idx + B_vec[b]) = arma::vec(
-      B_vec[b], arma::fill::value(lambda_dym));
-    // Increase the offset
-    current_idx += B_vec[b];
-  }
-  
+arma::vec find_lambda_cpp(const float alpha, const arma::vec& cluster_E){
+  arma::vec lambda_dym_vec(cluster_E.n_rows + 1, arma::fill::zeros);
+  lambda_dym_vec.subvec(1, lambda_dym_vec.n_rows - 1) = cluster_E * alpha;
   return lambda_dym_vec;
 }
+
+// arma::vec find_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range,
+//                           const std::vector<int>& B_vec, const float alpha, const arma::vec& cluster_E){
+//   arma::vec lambda_dym_vec(cluster_O.n_rows + 1, arma::fill::zeros);
+//   int current_idx = 0; // base indx for sub_cluster_O and lambda_dym_vec
+//   // for every batch variable
+//   for(unsigned b = 0; b < B_vec.size(); b++){
+//     //Slice the size for the covariate factors
+//     arma::vec sub_cluster_O = cluster_O.subvec(current_idx,
+//                                                      current_idx + B_vec[b]-1);
+//     arma::vec sub_cluster_E = cluster_E.subvec(current_idx,
+//                                                      current_idx + B_vec[b]-1);
+//     // Estimate lambda for the covariate
+//     double lambda_dym = find_one_lambda_cpp(sub_cluster_O, range, sub_cluster_E, alpha);
+//     // lambda_dym_vec is 1-based because index zero is the intercept
+//     lambda_dym_vec.subvec(current_idx + 1, current_idx + B_vec[b]) = arma::vec(
+//       B_vec[b], arma::fill::value(lambda_dym));
+//     // Increase the offset
+//     current_idx += B_vec[b];
+//   }
+  
+//   return lambda_dym_vec;
+// }
