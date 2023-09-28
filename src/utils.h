@@ -16,5 +16,6 @@ int my_ceil(float num);
 
 double find_one_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range, const arma::vec& cluster_E, const float alpha);
 
-arma::vec find_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range,
-                          const std::vector<int>& B_vec, const float alpha, const arma::vec& cluster_E);
+arma::vec find_lambda_cpp(const float alpha, const arma::vec& cluster_E);
+// arma::vec find_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range,
+//                           const std::vector<int>& B_vec, const float alpha, const arma::vec& cluster_E);

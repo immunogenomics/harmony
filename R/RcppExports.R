@@ -13,7 +13,7 @@ find_one_lambda_cpp <- function(cluster_O, range, cluster_E, alpha) {
     .Call('_harmony_find_one_lambda_cpp', PACKAGE = 'harmony', cluster_O, range, cluster_E, alpha)
 }
 
-find_lambda_cpp <- function(cluster_O, range, B_vec, alpha, cluster_E) {
-    .Call('_harmony_find_lambda_cpp', PACKAGE = 'harmony', cluster_O, range, B_vec, alpha, cluster_E)
+find_lambda_cpp <- function(alpha, cluster_E) {
+    .Call('_harmony_find_lambda_cpp', PACKAGE = 'harmony', alpha, cluster_E)
 }
 

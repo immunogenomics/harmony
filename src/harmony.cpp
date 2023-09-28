@@ -315,7 +315,8 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
       if (lambda_estimation){
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec, alpha, E.row(k).t());
+        // lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec, alpha, E.row(k).t());
+        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
       }
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
       W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();

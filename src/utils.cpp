@@ -120,6 +120,7 @@ arma::vec find_lambda_cpp(const float alpha, const arma::vec& cluster_E){
   return lambda_dym_vec;
 }
 
+
 // arma::vec find_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range,
 //                           const std::vector<int>& B_vec, const float alpha, const arma::vec& cluster_E){
 //   arma::vec lambda_dym_vec(cluster_O.n_rows + 1, arma::fill::zeros);
