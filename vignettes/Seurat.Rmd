@@ -78,7 +78,7 @@ pbmc <- pbmc %>%
 
 To run harmony on Seurat object after it has been normalized, only one argument needs to be specified which contains the batch covariate located in the metadata. For this vignette, further parameters are specified to align the dataset but the minimum parameters are shown in the snippet below:
 
-```{r, echo=FALSE}
+```{r, eval=FALSE}
 ## run harmony with default parameters
 pbmc <- pbmc %>% RunHarmony("stim")
 ## is equivalent to:
