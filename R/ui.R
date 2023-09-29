@@ -100,29 +100,13 @@ RunHarmony.default <- function(
   ...
   ) {
     
-    
-    tryCatch({
-        ## The following block may fail in some build environments.
-        ## We control the flow using the single.thread.mode
-        single.thread.mode <- FALSE        
-        ## Sanity check for number of cores
-        max.cores <- RhpcBLASctl::omp_get_max_threads() 
-        if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
-            stop(paste0(
-                "Invalid number of ncores provided (", ncores, "). ",
-                "Acceptable range of ncores: 1 -", max.cores))
-        }
-        prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
-        prev.ncores.omp <- RhpcBLASctl::omp_get_num_procs()
-    },
-    error = function() {
-        warning(paste(
-            "RhpcBLASctl was unable to set number of cores.",
-            "Running in single-thread mode"
-        ))
-        single.thread.mode <- TRUE
-    })
-    
+
+
+    ## Try to set number of OPENBLAS cores for harmony.
+    ## the function tries to set OpenMP threads
+    ## In case OpenMP is not supported it returns FALSE so we don't
+    ## set threads and harmony runs in single-thread mode
+    set.cores <- setOMPthreads(ncores)
     
     
     tryCatch({
@@ -130,7 +114,9 @@ RunHarmony.default <- function(
         check_legacy_args(...)
 
         ## Set threads if BLAS threas are set/detected properly
-        if (!single.thread.mode) {
+        if (set.cores) {
+            prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
+            prev.ncores.omp <- RhpcBLASctl::omp_get_num_procs()
             RhpcBLASctl::blas_set_num_threads(ncores)
             RhpcBLASctl::omp_set_num_threads(ncores)
         }
@@ -206,7 +192,7 @@ RunHarmony.default <- function(
             stop('Please specify theta for each variable')
         }
         
-                                        # determine sigma if it is a scalar
+        ## determine sigma if it is a scalar
         if (length(sigma) == 1 & nclust > 1) {
             sigma <- rep(sigma, nclust)
         }
@@ -281,10 +267,10 @@ RunHarmony.default <- function(
     }, ## main tryCatch block ends here
     
     finally={
-        if(!single.thread.mode) {
+        if(set.cores) {
             RhpcBLASctl::blas_set_num_threads(prev.ncores.blas)
             RhpcBLASctl::omp_set_num_threads(prev.ncores.omp)
-        }        
+        }
     })
     
     

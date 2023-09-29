@@ -110,3 +110,45 @@ scaleData <- function(A, margin = 1, thresh = 10) {
 moe_ridge_get_betas <- function(harmonyObj) {
     harmonyObj$moe_ridge_get_betas_cpp()
 }
+
+
+setOMPthreads <- function(ncores) {
+    tryCatch({
+        ## The following block may fail in some build environments (if
+        ## OpenMP is not available). In case OpenMP is not available,
+        ## we control the flow and fail gracefully by catching the
+        ## exception and warn the user. If ncores parameter, is not
+        ## valid for the runtime environment then we prompt the user
+        ## user
+
+        ## Flag set in case user provides invalid number of cores
+        invalid.number.of.cores <- FALSE
+
+        ## If OpenMP is not supported, this may return NA
+        max.cores <- RhpcBLASctl::omp_get_max_threads()
+        ## Sanity check for number of cores
+        ## NOTE: (ncores > max.cores) throws an exception if ncores is
+        ## NA suggesting OpenMP is not supported
+        if ((ncores != as.integer(ncores)) || (ncores < 1) || (ncores > max.cores)) {
+            invalid.number.of.cores <- TRUE
+            stop("")## Throw exception
+        }
+
+    },
+    error = function(e) {
+        if(invalid.number.of.cores) {
+            stop(paste0(
+                "Invalid number of ncores provided: ", ncores, ". \n",
+                "Maximum available cores: ", max.cores))
+
+        } else if(ncores != 1) {
+            warning(paste(
+                "Harmony was unable to set number of cores for BLAS.",
+                "Running in single-thread mode instead"
+            ))
+        }
+        return(FALSE)
+
+    })
+    return(TRUE)
+}
