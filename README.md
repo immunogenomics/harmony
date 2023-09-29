@@ -39,7 +39,7 @@ devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
 ## Quick Start 
 
 ### Standalone Mode
-Check out this [vignette](https://github.com/immunogenomics/harmony/blob/master/vignettes/quickstart.Rmd) for a quick start tutorial which demonstrates the usage of the tool in standalone mode.
+Check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode.
 
 At minimum the following parameters need to be specified to achieve an integration. 
 
