@@ -80,7 +80,7 @@ Harmony is an algorithm for performing integration of single cell genomics
 datasets. Please check out our latest 
 [manuscript on Nature Methods](https://www.nature.com/articles/s41592-019-0619-0). 
 
-![](main.jpg)
+![](main.jpg){width=100%}
 
 # Installation
 

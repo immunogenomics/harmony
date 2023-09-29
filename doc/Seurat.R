@@ -38,11 +38,11 @@ pbmc <- pbmc %>%
     ScaleData(verbose = FALSE) %>% 
     RunPCA(features = VariableFeatures(pbmc), npcs = 20, verbose = FALSE)
 
-## ---- echo=FALSE--------------------------------------------------------------
-## run harmony with default parameters
-pbmc <- pbmc %>% RunHarmony("stim")
-## is equivalent to:
-pbmc <- RunHarmony(pbmc, "stim")
+## ---- eval=FALSE--------------------------------------------------------------
+#  ## run harmony with default parameters
+#  pbmc <- pbmc %>% RunHarmony("stim")
+#  ## is equivalent to:
+#  pbmc <- RunHarmony(pbmc, "stim")
 
 ## ---- fig.width = 4, fig.height = 3, fig.align = "center", out.width="50%", fig.cap="By setting `plot_converge=TRUE`, harmony will generate a plot with its objective showing the flow of the integration. Each point represents the cost measured after a clustering round. Different colors represent different Harmony iterations which is controlled by `max_iter` (assuming that early_stop=FALSE). Here `max_iter=10` and up to 10 correction steps are expected. However, `early_stop=TRUE` so harmony will stop after the cost plateaus."----
 
