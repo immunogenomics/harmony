@@ -212,25 +212,33 @@ RunHarmony.default <- function(
             nlevels(as.factor(meta_data[[var_use]]))
         }))
 
-        if (is.null(lambda)) {
-            lambda_vec <- -1 ## This enables automatic estimation in the backend
-        } else if (length(lambda) == 1) {
-            ## Single lambda is being used for all the data
-            lambda_vec <- c(0, rep(lambda, sum(B_vec)))
-        } else if (length(lambda) != length(vars_use)) {
-            stop(paste0("You specified a lambda value for each ",
-                        "covariate but the number of lambdas specified (",
-                        length(lambda), ") and the number of covariates (",
-                        length(vars_use),") mismatch."))
-            if(any(!(lambda > 0))) {
+        ## lambda=NULL means we have automatic estimation
+        lambda.auto <- is.null(lambda)
+        if (lambda.auto) {
+            lambda_vec <- -1 ## Magic value for the backend
+        } else {
+            ## We use fixed lambdas
+            if(!all(lambda > 0)) {
                 stop("Provided lambdas must be positive")
             }
-        } else {
-            lambda_vec <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
-                rep(lambda[b], B_vec[b])))
-            lambda_vec <- c(0, lambda_vec)
+            if (length(lambda) == 1) {
+                ## Single lambda is being used for all covariates
+                lambda_vec <- c(0, rep(lambda, sum(B_vec)))
+            } else {
+                ## Several lambdas, one for each covariate
+                if (length(lambda) != length(vars_use)) {
+                    stop(paste0("You specified a lambda value for each ",
+                                "covariate but the number of lambdas specified (",
+                                length(lambda), ") and the number of covariates (",
+                                length(vars_use),") mismatch."))
+                }
+                lambda_vec <- unlist(lapply(seq_len(length(B_vec)), function(b) rep(lambda[b], B_vec[b])))
+                lambda_vec <- c(0, unname(lambda_vec))
+            }
         }
-        
+
+
+
         ## Calculate theta (#covariates) x (#levels)
         theta <- Reduce(c, lapply(seq_len(length(B_vec)), function(b)
             rep(theta[b], B_vec[b])))
