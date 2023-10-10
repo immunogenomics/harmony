@@ -1,7 +1,11 @@
-#' Main Harmony interface
+#' This is the primary harmony interface.
 #' 
-#' Use this  to run the Harmony algorithm directly on cell embedding
-#' matrix. 
+#' Use this generic with a cell embeddings matrix, a metadata table
+#' and a categorical covariate to run the Harmony algorithm directly
+#' on cell embedding matrix.
+#'
+#' @rdname RunHarmony.default
+#' @family RunHarmony
 #' 
 #' @param data_mat Matrix of cell embeddings. Cells can be rows or
 #'     columns and will be inferred by the rows of meta_data.
@@ -25,7 +29,7 @@
 #'     corrected. In this scenario, each covariate level group will be
 #'     assigned the scalars specified by the user. If set to NULL,
 #'     harmony will determine lambdas automatically and try to
-#'     minimize overcorrection (beta).
+#'     minimize overcorrection (Use with caution still in beta testing).
 #' @param nclust Number of clusters in model. nclust=1 equivalent to
 #'     simple linear regression.
 #' @param max_iter Maximum number of rounds to run Harmony. One round
@@ -51,6 +55,7 @@
 #'     result from a call to `harmony_options`. See ?`harmony_options`
 #'     for more details.
 #' @param ... other parameters that are not part of the API
+#' 
 #' @return By default, matrix with corrected PCA embeddings. If
 #'     return_object is TRUE, returns the full Harmony object (R6
 #'     reference class type).
@@ -293,7 +298,6 @@ RunHarmony.default <- function(
     
 }
 
-#' @rdname RunHarmony
 #' @export
 HarmonyMatrix <- function(...) {
     .Deprecated("RunHarmony", msg="HarmonyMatrix is deprecated and will be removed in the future from the API in the future")
