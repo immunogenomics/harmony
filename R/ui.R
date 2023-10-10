@@ -214,7 +214,8 @@ RunHarmony.default <- function(
 
         if (is.null(lambda)) {
             lambda_vec <- -1 ## This enables automatic estimation in the backend
-        } else if (!is.vector(lambda)) {
+        } else if (length(lambda) == 1) {
+            ## Single lambda is being used for all the data
             lambda_vec <- c(0, rep(lambda, sum(B_vec)))
         } else if (length(lambda) != length(vars_use)) {
             stop(paste0("You specified a lambda value for each ",
