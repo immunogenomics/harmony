@@ -47,7 +47,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   // Hyperparameters
   K = __K;
   if (__lambda(0) == -1) {
-    Rcout << "Using automatic lambda estimation" << std::endl;
     lambda_range = __lambda_range;
     lambda_estimation = true;
   } else {
@@ -90,8 +89,7 @@ void harmony::allocate_buffers() {
 
 
 void harmony::init_cluster_cpp(unsigned C) {
-  
-  Rcerr << "Hard k-means centroids initialization"  <<std::endl;
+
   Y = kmeans_centers(Z_cos, K).t();
   
   // Cosine normalization of data centrods
@@ -190,7 +188,6 @@ int harmony::cluster_cpp() {
         
       // STEP 3: Update R    
       err_status = update_R();
-    
       if (err_status != 0) {
 	  // Rcout << "Compute R failed. Exiting from clustering." << endl;
 	  return err_status;

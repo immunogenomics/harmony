@@ -215,6 +215,9 @@ RunHarmony.default <- function(
         ## lambda=NULL means we have automatic estimation
         lambda.auto <- is.null(lambda)
         if (lambda.auto) {
+            if(verbose){
+                message("Using automatic lambda estimation")
+            }
             lambda_vec <- -1 ## Magic value for the backend
         } else {
             ## We use fixed lambdas
@@ -255,7 +258,11 @@ RunHarmony.default <- function(
                        epsilon.harmony, nclust, block.size,
                        lambda_range, B_vec, verbose
                    )
+
         
+        if (verbose) {
+            message("Initializing state using k-means centroids initialization")
+        }
         harmonyObj$init_cluster_cpp(0)
         
         harmonize(harmonyObj, max.iter.harmony, verbose)
