@@ -88,7 +88,7 @@ void harmony::allocate_buffers() {
 }
 
 
-void harmony::init_cluster_cpp(unsigned C) {
+void harmony::init_cluster_cpp() {
 
   Y = kmeans_centers(Z_cos, K).t();
   

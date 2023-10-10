@@ -263,7 +263,7 @@ RunHarmony.default <- function(
         if (verbose) {
             message("Initializing state using k-means centroids initialization")
         }
-        harmonyObj$init_cluster_cpp(0)
+        harmonyObj$init_cluster_cpp()
         
         harmonize(harmonyObj, max.iter.harmony, verbose)
         
