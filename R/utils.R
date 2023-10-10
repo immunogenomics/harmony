@@ -70,7 +70,7 @@ HarmonyConvergencePlot <- function(
     
     plt <- obj_fxn %>% ggplot2::ggplot(ggplot2::aes(.data$idx, .data$val,
                                                     col = as.factor(.data$harmony_idx))) + 
-        ggplot2::geom_point(shape = 21) + 
+        ggplot2::geom_point() + 
         ggplot2::labs(y = "Objective Function", x = "Clustering Step #", color = "Integration #")
     
     if (do_wrap) {
