@@ -1,12 +1,32 @@
 
-#' Run harmony algorithm generic function
+
+#' Generic function that runs the harmony algorithm on single-cell
+#' genomics cell embeddings.
 #'
-#' This is a generic that provides wrappers for Seurat and SingleCellExperiment
-#' objects. Also, it allows harmony standalone with a matrix and a metadata
-#' dataframe.
+#' RunHarmony is generic function that runs the main Harmony
+#' algorithm. If working with single cell R objects, please refer to
+#' the documentation of the appropriate generic API:
+#' ([RunHarmony.Seurat()] or [RunHarmony.SingleCellExperiment()]). If
+#' users work with other forms of cell embeddings, the can pass them
+#' directly to harmony using [RunHarmony.default()] API. All the
+#' function arguments listed here are common in all RunHarmony
+#' interfaces.
 #' 
+#' @family RunHarmony
 #' @rdname RunHarmony
+#' @inheritDotParams RunHarmony.default -data_mat -meta_data -vars_use -return_object
+#'
+#' @usage Provide uncorrected cell embeddings matrix and meta_data
+#'     categorical covariate to obtain batch-corrected embeddings.
+#' 
+#' 
+#' @return If used with single-cell objects, it will return the
+#'     updated single-sell object. For standalone operation, it
+#'     returns the corrected cell embeddings or the R6 harmony object
+#'     (see [RunHarmony.default()]).
+#' 
 #' @export
+#' @md
 RunHarmony <- function(...) {
     UseMethod("RunHarmony")
 }
@@ -15,7 +35,10 @@ RunHarmony <- function(...) {
 
 #' Applies harmony on a Seurat object cell embedding.
 #'
-#' @rdname RunHarmony
+#' @rdname RunHarmony.Seurat
+#' @family RunHarmony
+#' @inheritDotParams RunHarmony.default -data_mat -meta_data -vars_use -return_object
+#' 
 #' @param object the Seurat object. It needs to have the appropriate slot
 #'     of cell embeddings precomputed.
 #' @param group.by.vars the name(s) of covariates that harmony will remove
@@ -25,12 +48,18 @@ RunHarmony <- function(...) {
 #' @param reduction.save the name of the new slot that is going to be created by
 #'     harmony. By default, harmony.
 #' @param project.dim Project dimension reduction loadings. Default TRUE.
-#' @param ... harmony algorithm parameters to be passed on RunHarmony.default
+#' 
 #' @return Seurat object. Harmony dimensions placed into a new slot in the Seurat
 #' object according to the reduction.save. For downstream Seurat analyses,
 #' use reduction='harmony'.
 #' 
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' ## seu is a Seurat single-Cell R object
+#' seu <- RunHarmony(seu, "donor_id")
+#' }
 RunHarmony.Seurat <- function(
   object,
   group.by.vars,
@@ -98,6 +127,10 @@ RunHarmony.Seurat <- function(
 
 
 #' Applies harmony on PCA cell embeddings of a SingleCellExperiment.
+#'
+#' @rdname RunHarmony.SingleCellExperiment
+#' @inheritDotParams RunHarmony.default -data_mat -meta_data -vars_use -return_object
+#' @family RunHarmony
 #' 
 #' @param object SingleCellExperiment with the PCA reducedDim cell embeddings populated 
 #' @param group.by.vars the name(s) of covariates that harmony will remove
@@ -107,11 +140,17 @@ RunHarmony.Seurat <- function(
 #' @param verbose enable verbosity 
 #' @param reduction.save the name of the new slot that is going to be created by
 #'     harmony. By default, HARMONY.
-#' @param ... harmony algorithm parameters to be passed on RunHarmony.default 
-#' @rdname RunHarmony
+#'
+#' 
 #' @return SingleCellExperiment object. After running RunHarmony, the corrected
 #' cell embeddings can be accessed with reducedDim(object, "Harmony").
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' ## sce is a SingleCellExperiment R object
+#' sce <- RunHarmony(sce, "donor_id")
+#' }
 RunHarmony.SingleCellExperiment <- function(
     object,
     group.by.vars,

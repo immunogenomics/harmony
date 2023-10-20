@@ -47,7 +47,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   // Hyperparameters
   K = __K;
   if (__lambda(0) == -1) {
-    Rcout << "Using automatic lambda estimation" << std::endl;
     lambda_range = __lambda_range;
     lambda_estimation = true;
   } else {
@@ -89,9 +88,8 @@ void harmony::allocate_buffers() {
 }
 
 
-void harmony::init_cluster_cpp(unsigned C) {
-  
-  Rcerr << "Hard k-means centroids initialization"  <<std::endl;
+void harmony::init_cluster_cpp() {
+
   Y = kmeans_centers(Z_cos, K).t();
   
   // Cosine normalization of data centrods
@@ -190,7 +188,6 @@ int harmony::cluster_cpp() {
         
       // STEP 3: Update R    
       err_status = update_R();
-    
       if (err_status != 0) {
 	  // Rcout << "Compute R failed. Exiting from clustering." << endl;
 	  return err_status;
@@ -235,7 +232,7 @@ int harmony::update_R() {
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   unsigned n_blocks = (int)(my_ceil(1.0 / block_size));
-  unsigned cells_per_block = my_ceil(N / n_blocks);
+  unsigned cells_per_block = my_ceil(N * block_size);
   
   // Allocate new matrices
   MATTYPE R_randomized = R.cols(update_order);
@@ -244,7 +241,7 @@ int harmony::update_R() {
   MATTYPE _scale_dist_randomized = _scale_dist.cols(update_order);
 
   for (unsigned i = 0; i < n_blocks; i++) {
-      unsigned idx_max = min((i+1) * cells_per_block, N-1);
+      unsigned idx_max = min((i+1) * cells_per_block, N) - 1;
       auto Rcells = R_randomized.submat(0, i*cells_per_block, R_randomized.n_rows - 1, idx_max);
       auto Phicells = Phi_randomized.submat(0, i*cells_per_block, Phi_randomized.n_rows - 1, idx_max);
       auto Phi_tcells = Phi_t_randomized.submat(i*cells_per_block, 0, idx_max, Phi_t_randomized.n_cols - 1);

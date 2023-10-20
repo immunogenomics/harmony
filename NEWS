@@ -1,3 +1,8 @@
+# harmony v1.1.0 - Oct 12 2023
+  - update_R bug - All cells are corrected exactly once per invocation
+  - Improved documentation RunHarmony generc
+  - Fix lambda failing on multiple covariates
+  - verbose option suppresses all messages  
 # harmony v1.0.0 - Jul 27 2023
 * API changes
   - removed do_pca functionality

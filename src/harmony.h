@@ -35,7 +35,7 @@ public:
   CUBETYPE moe_ridge_get_betas_cpp();
   int cluster_cpp();
 
-  void init_cluster_cpp(unsigned);
+  void init_cluster_cpp();
   void allocate_buffers();
   void compute_objective(); 
   int update_R();
