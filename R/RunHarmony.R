@@ -15,9 +15,6 @@
 #' @family RunHarmony
 #' @rdname RunHarmony
 #' @inheritDotParams RunHarmony.default -data_mat -meta_data -vars_use -return_object
-#'
-#' @usage Provide uncorrected cell embeddings matrix and meta_data
-#'     categorical covariate to obtain batch-corrected embeddings.
 #' 
 #' 
 #' @return If used with single-cell objects, it will return the
@@ -65,7 +62,6 @@ RunHarmony.Seurat <- function(
   group.by.vars,
   reduction.use = 'pca',
   dims.use = NULL,
-  verbose = TRUE,
   reduction.save = "harmony",
   project.dim = TRUE,
   ...

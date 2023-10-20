@@ -5,8 +5,7 @@
 \title{Generic function that runs the harmony algorithm on single-cell
 genomics cell embeddings.}
 \usage{
-Provide uncorrected cell embeddings matrix and meta_data
-    categorical covariate to obtain batch-corrected embeddings.
+RunHarmony(...)
 }
 \arguments{
 \item{...}{

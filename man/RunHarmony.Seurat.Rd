@@ -9,7 +9,6 @@
   group.by.vars,
   reduction.use = "pca",
   dims.use = NULL,
-  verbose = TRUE,
   reduction.save = "harmony",
   project.dim = TRUE,
   ...

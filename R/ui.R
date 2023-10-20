@@ -298,7 +298,16 @@ RunHarmony.default <- function(
     
 }
 
+#' A proxy call to [RunHarmony()]. Deprecated.
+#'
+#' Maintain name backwards compatibility with version 0 of
+#' harmony. However, API is not backwards compatible with version
+#' 0. This function will be deprecated in later versions of Harmony.
+#'
+#' @inheritDotParams RunHarmony.default
+#'
 #' @export
+#' @md
 HarmonyMatrix <- function(...) {
     .Deprecated("RunHarmony", msg="HarmonyMatrix is deprecated and will be removed in the future from the API in the future")
     RunHarmony(...)
