@@ -40,20 +40,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// find_one_lambda_cpp
-double find_one_lambda_cpp(const arma::vec& cluster_O, const arma::vec& range, const arma::vec& cluster_E, const float alpha);
-RcppExport SEXP _harmony_find_one_lambda_cpp(SEXP cluster_OSEXP, SEXP rangeSEXP, SEXP cluster_ESEXP, SEXP alphaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_O(cluster_OSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type range(rangeSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type cluster_E(cluster_ESEXP);
-    Rcpp::traits::input_parameter< const float >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(find_one_lambda_cpp(cluster_O, range, cluster_E, alpha));
-    return rcpp_result_gen;
-END_RCPP
-}
 // find_lambda_cpp
 arma::vec find_lambda_cpp(const float alpha, const arma::vec& cluster_E);
 RcppExport SEXP _harmony_find_lambda_cpp(SEXP alphaSEXP, SEXP cluster_ESEXP) {
@@ -72,7 +58,6 @@ RcppExport SEXP _rcpp_module_boot_harmony_module();
 static const R_CallMethodDef CallEntries[] = {
     {"_harmony_kmeans_centers", (DL_FUNC) &_harmony_kmeans_centers, 2},
     {"_harmony_scaleRows_dgc", (DL_FUNC) &_harmony_scaleRows_dgc, 6},
-    {"_harmony_find_one_lambda_cpp", (DL_FUNC) &_harmony_find_one_lambda_cpp, 4},
     {"_harmony_find_lambda_cpp", (DL_FUNC) &_harmony_find_lambda_cpp, 2},
     {"_rcpp_module_boot_harmony_module", (DL_FUNC) &_rcpp_module_boot_harmony_module, 0},
     {NULL, NULL, 0}
