@@ -175,7 +175,9 @@ RunHarmony.default <- function(
         
         ## Check if we need to transpose our data
         if (nrow(data_mat) == N) {
-            message("Transposing data matrix")
+            if (verbose) {
+                message("Transposing data matrix")
+            }
             data_mat <- Matrix::t(data_mat)
         }
 
