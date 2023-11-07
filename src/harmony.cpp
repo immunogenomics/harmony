@@ -56,9 +56,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
     unsigned int col_idx = it.col();
     index[row_idx](counters[row_idx]++) = col_idx;
   }
-  // for(auto c : counters){
-  //   std::cout << c << std::endl;
-  // }
+
   Pr_b = sum(Phi, 1) / N;
 
   
@@ -296,65 +294,42 @@ void harmony::moe_correct_ridge_cpp() {
     // Set lambda if we have to
     lambda_mat.diag() = lambda;
   }
-  
   Z_corr = Z_orig;
-  arma::mat W(B + 1, d);
-
   Progress p(K, verbose);
   for (unsigned k = 0; k < K; k++) {
-    W.zeros();
-      p.increment();
-      if (Progress::check_abort())
-        return;
-      if (lambda_estimation) {
-        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
-      }
-      all_lambda_mat.row(k) = lambda_mat.diag().t();
-      _Rk.diag() = R.row(k);
-      arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      // arma::sp_mat Phi_Rk_aux = Phi * _Rk;
+    p.increment();
+    if (Progress::check_abort())
+      return;
+    if (lambda_estimation) {
+      lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
+    }
+    all_lambda_mat.row(k) = lambda_mat.diag().t();
+    _Rk.diag() = R.row(k);
+    arma::sp_mat Phi_Rk = Phi_moe * _Rk;
+    
+    arma::mat inv_cov(arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)));
 
-      // Rcout << "Everything sparse" << std::endl;
-      // Rcout << "\tCovariance" << std::endl;
-      arma::mat covariance(Phi_Rk * Phi_moe_t + lambda_mat);
-      // Rcout << "\tinv()" << std::endl;
-      arma::mat inv_conv(arma::inv(covariance));
-      // Rcout << "\t coeff()" << std::endl;
-      // arma::sp_mat::iterator it     = Phi.begin();
-      // arma::sp_mat::iterator it_end = Phi.end();
+    // Calculate R-scaled PCs once
+    arma::mat Z_tmp = Z_orig.each_row() % R.row(k);
+    
+    // Generate the betas contribution of the intercept using the data
+    // This erases whatever was written before in W
+    W = inv_cov.unsafe_col(0) * sum(Z_tmp, 1).t();
 
-      arma::mat Z_tmp = Z_orig.each_row() % R.row(k);
-      W = inv_conv.unsafe_col(0) * sum(Z_tmp, 1).t();
-
-      // TODO(Nikos): This code is a bottleneck. If we group by
-      // batches it will be much faster (like the intercept above)
-      // for(; it != it_end; ++it)
-      // {
-      // 	unsigned int row_idx = it.row();
-      // 	unsigned int col_idx = it.col();
-      // 	W += (inv_conv.unsafe_col(row_idx+1) * Z_tmp.unsafe_col(col_idx).t());
-      // }
-
-      // Optimized pass of data
-      for(unsigned b=0; b < B; b++) {
-	W += inv_conv.unsafe_col(b+1) * sum(Z_tmp.cols(index[b]), 1).t();
-      }
-      
-      // Rcout << "\trot() dense" << std::endl;
-      // arma::mat tmp2(inv_conv * Phi_Rk);
-      // Rcout << "\tcalc coeff Z_orig" << std::endl;
-      // W =  tmp2 * Z_orig.t();
-
-      W.row(0).zeros(); // do not remove the intercept
-      // Rcout << "\t Z_corr update" << std::endl;
-      Z_corr -= W.t() * Phi_Rk;
-      // Rcout << "\t Done" << std::endl;
+    // Calculate betas by calculating each batch contribution
+    for(unsigned b=0; b < B; b++) {
+      // inv_conv is B+1xB+1 whereas index is B long
+      W += inv_cov.unsafe_col(b+1) * sum(Z_tmp.cols(index[b]), 1).t();
+    }
+    
+    W.row(0).zeros(); // do not remove the intercept
+    Z_corr -= W.t() * Phi_Rk;
   }
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
 CUBETYPE harmony::moe_ridge_get_betas_cpp() {
-  CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
+  CUBETYPE W_cube(B+1, d, K); // rows, cols, slices
 
   arma::sp_mat _Rk(N, N);
   arma::sp_mat lambda_mat(B + 1, B + 1);

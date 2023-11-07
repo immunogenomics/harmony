@@ -46,18 +46,19 @@ public:
   MATTYPE R, Z_orig, Z_corr, Z_cos, Y;
   arma::sp_mat Phi, Phi_moe, Phi_moe_t, Phi_t, Rk;
   VECTYPE Pr_b, theta, N_b, sigma, lambda;
-  
+
+  // auxilary data structures
   vector<float> objective_kmeans, objective_kmeans_dist, objective_kmeans_entropy, objective_kmeans_cross, objective_harmony;
   vector<int> kmeans_rounds, B_vec; // OLD: Kb
+  std::vector<arma::uvec>index;
   
   float block_size, epsilon_kmeans, epsilon_harmony, alpha;
   unsigned int N, K, B, d, max_iter_kmeans, window_size;
 
   // buffers
-  MATTYPE _scale_dist, dist_mat, O, E, dir_prior, all_lambda_mat; // N_k, N_kb, N_b, numerator, denominator, C;
+  MATTYPE W, _scale_dist, dist_mat, O, E, dir_prior, all_lambda_mat; // N_k, N_kb, N_b, numerator, denominator, C;
   uvec update_order, cells_update;
-  MATTYPE W;
-  std::vector<arma::uvec>index;
+  
 
   // flags
   bool ran_setup, ran_init, lambda_estimation,  verbose; // do_merge_R;
