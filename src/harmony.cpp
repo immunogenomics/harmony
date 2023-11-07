@@ -103,7 +103,6 @@ void harmony::allocate_buffers() {
 
 
   W = zeros<MATTYPE>(B + 1, d);
-  all_lambda_mat = zeros<MATTYPE>(K, B+1);
 }
 
 
@@ -303,7 +302,6 @@ void harmony::moe_correct_ridge_cpp() {
     if (lambda_estimation) {
       lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
     }
-    all_lambda_mat.row(k) = lambda_mat.diag().t();
     _Rk.diag() = R.row(k);
     arma::sp_mat Phi_Rk = Phi_moe * _Rk;
     
@@ -388,6 +386,5 @@ RCPP_MODULE(harmony_module) {
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
       .field("alpha", &harmony::alpha)
-      .field("all_lambda_mat", &harmony::all_lambda_mat)
       ;
 }
