@@ -20,10 +20,10 @@ harmony::harmony() :
 
 
 void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
-                    const VECTYPE __sigma, const VECTYPE __theta, const VECTYPE __lambda, const int __max_iter_kmeans,
+                    const VECTYPE __sigma, const VECTYPE __theta, const VECTYPE __lambda, const float __alpha, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const VECTYPE& __lambda_range, const std::vector<int>& __B_vec, const bool __verbose) {
+                    const std::vector<int>& __B_vec, const bool __verbose) {
     
   // Algorithm constants
   N = __Z.n_cols;
@@ -47,7 +47,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   // Hyperparameters
   K = __K;
   if (__lambda(0) == -1) {
-    lambda_range = __lambda_range;
     lambda_estimation = true;
   } else {
     lambda = __lambda;
@@ -64,7 +63,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   allocate_buffers();
   ran_setup = true;
 
-  
+  alpha = __alpha;
   
   
 }
@@ -85,6 +84,7 @@ void harmony::allocate_buffers() {
 
 
   W = zeros<MATTYPE>(B + 1, d);
+  all_lambda_mat = zeros<MATTYPE>(K, B+1);
 }
 
 
@@ -284,8 +284,9 @@ void harmony::moe_correct_ridge_cpp() {
       if (Progress::check_abort())
         return;
       if (lambda_estimation) {
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
       }
+      all_lambda_mat.row(k) = lambda_mat.diag().t();
       _Rk.diag() = R.row(k);
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
       W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
@@ -310,7 +311,7 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
       if (lambda_estimation){
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
       }
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
       W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
@@ -355,6 +356,7 @@ RCPP_MODULE(harmony_module) {
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
-      .field("lambda_range", &harmony::lambda_range)
+      .field("alpha", &harmony::alpha)
+      .field("all_lambda_mat", &harmony::all_lambda_mat)
       ;
 }

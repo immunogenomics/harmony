@@ -28,8 +28,9 @@
 #'     be equal length with the number of variables to be
 #'     corrected. In this scenario, each covariate level group will be
 #'     assigned the scalars specified by the user. If set to NULL,
-#'     harmony will determine lambdas automatically and try to
-#'     minimize overcorrection (Use with caution still in beta testing).
+#'     harmony will start lambda estimation mode to determine lambdas
+#'     automatically and try to minimize overcorrection (Use with caution still
+#'     in beta testing).
 #' @param nclust Number of clusters in model. nclust=1 equivalent to
 #'     simple linear regression.
 #' @param max_iter Maximum number of rounds to run Harmony. One round
@@ -106,7 +107,6 @@ RunHarmony.default <- function(
   ) {
     
 
-
     ## Try to set number of OPENBLAS cores for harmony.
     ## the function tries to set OpenMP threads
     ## In case OpenMP is not supported it returns FALSE so we don't
@@ -139,7 +139,7 @@ RunHarmony.default <- function(
             epsilon.harmony = -Inf
         }
         max.iter.harmony <- max_iter
-        lambda_range <- .options$lambda_range
+        alpha <- .options$alpha
         tau <- .options$tau
         block.size <- .options$block.size
         max.iter.cluster <- .options$max.iter.cluster
@@ -258,10 +258,10 @@ RunHarmony.default <- function(
         harmonyObj <- new(harmony)
         
         harmonyObj$setup(
-                       data_mat, phi, sigma, theta, lambda_vec,
+                       data_mat, phi, sigma, theta, lambda_vec, alpha,
                        max.iter.cluster, epsilon.cluster,
                        epsilon.harmony, nclust, block.size,
-                       lambda_range, B_vec, verbose
+                       B_vec, verbose
                    )
 
         
