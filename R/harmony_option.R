@@ -29,8 +29,8 @@ harmony_options <- function(
   tau = 0,
   block.size = 0.05,
   max.iter.cluster = 20,
-  epsilon.cluster = 1e-5,
-  epsilon.harmony = 1e-4) {
+  epsilon.cluster = 1e-3,
+  epsilon.harmony = 1e-2) {
     
     block.size <- validate_block.size(block.size)
     
