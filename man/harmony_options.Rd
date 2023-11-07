@@ -5,25 +5,19 @@
 \title{Set advanced options for RunHarmony}
 \usage{
 harmony_options(
-  lambda_range = c(0.1, 10),
+  alpha = 0.2,
   tau = 0,
   block.size = 0.05,
   max.iter.cluster = 20,
-  epsilon.cluster = 1e-05,
-  epsilon.harmony = 1e-04
+  epsilon.cluster = 0.001,
+  epsilon.harmony = 0.01
 )
 }
 \arguments{
-\item{lambda_range}{Default lambda_range = c(0.1, 10). Lambda is ridge 
-regression penalty parameter and smaller values result in more 
-aggressive correction. During harmony iterations, the appropriate value 
-of lambda is dynamically estimated. And parameter `lambda_range` set the 
-allowed range for lambda estimation. e.g. `lambda_range` = c(0.1, 10) 
-means that lambda can only vary between 0.1 and 10 when being 
-dynamically estimated. Note that when setting the upper and lower bound 
-of lambda_range to the same value would result in using a fixed lambda 
-throughout harmony iterations. e.g. `lambda_range` = c(1,1) would make 
-harmony using a fixed lambda = 1.}
+\item{alpha}{When setting lambda = NULL and use lambda estimation mode, 
+lambda would be determined by the expected number of cells assuming 
+idependece between batches and clusters. i.e., lambda = alpha * expected
+number of cells, default 0.2 and alpha should be 0 < alpha < 1}
 
 \item{tau}{Protection against overclustering small datasets with 
 large ones. `tau` is the expected number of cells per cluster.}
