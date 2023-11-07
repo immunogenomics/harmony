@@ -38,6 +38,27 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   Phi = __Phi;
   Phi_t = Phi.t();
   
+  // Create index
+  std::vector<unsigned>counters;
+  arma::vec sizes(sum(Phi, 1));
+  // std::cout << sizes << std::endl;
+  for (unsigned i = 0; i < sizes.n_elem; i++) {
+    arma::uvec a(int(sizes(i)));
+    index.push_back(a);
+    counters.push_back(0);
+  }
+
+  arma::sp_mat::const_iterator it =     Phi.begin();
+  arma::sp_mat::const_iterator it_end = Phi.end();
+  for(; it != it_end; ++it)
+  {
+    unsigned int row_idx = it.row();
+    unsigned int col_idx = it.col();
+    index[row_idx](counters[row_idx]++) = col_idx;
+  }
+  // for(auto c : counters){
+  //   std::cout << c << std::endl;
+  // }
   Pr_b = sum(Phi, 1) / N;
 
   
@@ -267,8 +288,7 @@ int harmony::update_R() {
 
 
 void harmony::moe_correct_ridge_cpp() {
-
-  Progress p(K, false);
+  
   arma::sp_mat _Rk(N, N);
   arma::sp_mat lambda_mat(B + 1, B + 1);
 
@@ -278,9 +298,12 @@ void harmony::moe_correct_ridge_cpp() {
   }
   
   Z_corr = Z_orig;
+  arma::mat W(B + 1, d);
 
+  Progress p(K, verbose);
   for (unsigned k = 0; k < K; k++) {
-      
+    W.zeros();
+      p.increment();
       if (Progress::check_abort())
         return;
       if (lambda_estimation) {
@@ -289,10 +312,43 @@ void harmony::moe_correct_ridge_cpp() {
       all_lambda_mat.row(k) = lambda_mat.diag().t();
       _Rk.diag() = R.row(k);
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
-      W.row(0).zeros(); // do not remove the intercept 
-      Z_corr -= W.t() * Phi_Rk;
+      // arma::sp_mat Phi_Rk_aux = Phi * _Rk;
+
+      // Rcout << "Everything sparse" << std::endl;
+      // Rcout << "\tCovariance" << std::endl;
+      arma::mat covariance(Phi_Rk * Phi_moe_t + lambda_mat);
+      // Rcout << "\tinv()" << std::endl;
+      arma::mat inv_conv(arma::inv(covariance));
+      // Rcout << "\t coeff()" << std::endl;
+      // arma::sp_mat::iterator it     = Phi.begin();
+      // arma::sp_mat::iterator it_end = Phi.end();
+
+      arma::mat Z_tmp = Z_orig.each_row() % R.row(k);
+      W = inv_conv.unsafe_col(0) * sum(Z_tmp, 1).t();
+
+      // TODO(Nikos): This code is a bottleneck. If we group by
+      // batches it will be much faster (like the intercept above)
+      // for(; it != it_end; ++it)
+      // {
+      // 	unsigned int row_idx = it.row();
+      // 	unsigned int col_idx = it.col();
+      // 	W += (inv_conv.unsafe_col(row_idx+1) * Z_tmp.unsafe_col(col_idx).t());
+      // }
+
+      // Optimized pass of data
+      for(unsigned b=0; b < B; b++) {
+	W += inv_conv.unsafe_col(b+1) * sum(Z_tmp.cols(index[b]), 1).t();
+      }
       
+      // Rcout << "\trot() dense" << std::endl;
+      // arma::mat tmp2(inv_conv * Phi_Rk);
+      // Rcout << "\tcalc coeff Z_orig" << std::endl;
+      // W =  tmp2 * Z_orig.t();
+
+      W.row(0).zeros(); // do not remove the intercept
+      // Rcout << "\t Z_corr update" << std::endl;
+      Z_corr -= W.t() * Phi_Rk;
+      // Rcout << "\t Done" << std::endl;
   }
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }

@@ -57,7 +57,8 @@ public:
   MATTYPE _scale_dist, dist_mat, O, E, dir_prior, all_lambda_mat; // N_k, N_kb, N_b, numerator, denominator, C;
   uvec update_order, cells_update;
   MATTYPE W;
-    
+  std::vector<arma::uvec>index;
+
   // flags
   bool ran_setup, ran_init, lambda_estimation,  verbose; // do_merge_R;
   
