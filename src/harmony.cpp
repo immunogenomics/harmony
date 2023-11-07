@@ -73,7 +73,15 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   B_vec = __B_vec;
   sigma = __sigma;
 
-  block_size = __block_size;
+  if(__Z.n_cols < 6) {
+    std::string error_message = "Refusing to run with less than 6 cells";
+    Rcpp::stop(error_message);
+  } else if (__Z.n_cols < 40) {
+    Rcpp::warning("Too few cells. Setting block_size to 0.2");
+    block_size = 0.2;
+  } else {
+    block_size = __block_size;
+  } 
   theta = __theta;
   max_iter_kmeans = __max_iter_kmeans;
 
@@ -251,33 +259,40 @@ int harmony::update_R() {
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   unsigned n_blocks = (int)(my_ceil(1.0 / block_size));
-  unsigned cells_per_block = my_ceil(N * block_size);
+  unsigned cells_per_block = unsigned(N * block_size);
   
   // Allocate new matrices
   MATTYPE R_randomized = R.cols(update_order);
   arma::sp_mat Phi_randomized(Phi.cols(update_order));
   arma::sp_mat Phi_t_randomized(Phi_randomized.t());
   MATTYPE _scale_dist_randomized = _scale_dist.cols(update_order);
-
+  
   for (unsigned i = 0; i < n_blocks; i++) {
-      unsigned idx_max = min((i+1) * cells_per_block, N) - 1;
-      auto Rcells = R_randomized.submat(0, i*cells_per_block, R_randomized.n_rows - 1, idx_max);
-      auto Phicells = Phi_randomized.submat(0, i*cells_per_block, Phi_randomized.n_rows - 1, idx_max);
-      auto Phi_tcells = Phi_t_randomized.submat(i*cells_per_block, 0, idx_max, Phi_t_randomized.n_cols - 1);
-      auto _scale_distcells = _scale_dist_randomized.submat(0, i*cells_per_block, _scale_dist_randomized.n_rows - 1, idx_max);
+    unsigned idx_min = i*cells_per_block;
+    unsigned idx_max = ((i+1) * cells_per_block) - 1; // - 1 because of submat
+    if (i == n_blocks-1) {
+      // we are in the last block, so include everything. Up to 19
+      // extra cells.
+      idx_max = N - 1;
+    }
 
-      // Step 1: remove cells
-      E -= sum(Rcells, 1) * Pr_b.t();
-      O -= Rcells * Phi_tcells;
+    auto Rcells = R_randomized.submat(0, idx_min, R_randomized.n_rows - 1, idx_max);
+    auto Phicells = Phi_randomized.submat(0, idx_min, Phi_randomized.n_rows - 1, idx_max);
+    auto Phi_tcells = Phi_t_randomized.submat(idx_min, 0, idx_max, Phi_t_randomized.n_cols - 1);
+    auto _scale_distcells = _scale_dist_randomized.submat(0, idx_min, _scale_dist_randomized.n_rows - 1, idx_max);
 
-      // Step 2: recompute R for removed cells
-      Rcells = _scale_distcells;
-      Rcells = Rcells % (harmony_pow(E/(O + E), theta) * Phicells);
-      Rcells = normalise(Rcells, 1, 0); // L1 norm columns
+    // Step 1: remove cells
+    E -= sum(Rcells, 1) * Pr_b.t();
+    O -= Rcells * Phi_tcells;
 
-      // Step 3: put cells back 
-      E += sum(Rcells, 1) * Pr_b.t();
-      O += Rcells * Phi_tcells;
+    // Step 2: recompute R for removed cells
+    Rcells = _scale_distcells;
+    Rcells = Rcells % (harmony_pow(E/(O + E), theta) * Phicells);
+    Rcells = normalise(Rcells, 1, 0); // L1 norm columns
+
+    // Step 3: put cells back 
+    E += sum(Rcells, 1) * Pr_b.t();
+    O += Rcells * Phi_tcells;
   }
   this->R = R_randomized.cols(reverse_index);
   return 0;
