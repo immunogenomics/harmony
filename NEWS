@@ -1,3 +1,10 @@
+# harmony v1.2.0 - Oct 12 2023
+  - Major performance enhancements, using indexes for the regression
+  - update_R - Generate blocks correctly #214
+  - lambda optimization - Lambda as a function of E.
+  - New alpha parameter to estimate lambda during runtime
+  - fail-safe for < 40 cells dataset . Setting block_size=0.2. Refuse to run with < 6 cells.
+  - added progress bar for the integration step.
 # harmony v1.1.0 - Oct 12 2023
   - update_R bug - All cells are corrected exactly once per invocation
   - Improved documentation RunHarmony generc
