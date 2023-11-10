@@ -20,10 +20,10 @@ harmony::harmony() :
 
 
 void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
-                    const VECTYPE __sigma, const VECTYPE __theta, const VECTYPE __lambda, const int __max_iter_kmeans,
+                    const VECTYPE __sigma, const VECTYPE __theta, const VECTYPE __lambda, const float __alpha, const int __max_iter_kmeans,
                     const float __epsilon_kmeans, const float __epsilon_harmony,
                     const int __K, const float __block_size,
-                    const VECTYPE& __lambda_range, const std::vector<int>& __B_vec, const bool __verbose) {
+                    const std::vector<int>& __B_vec, const bool __verbose) {
     
   // Algorithm constants
   N = __Z.n_cols;
@@ -38,6 +38,25 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   Phi = __Phi;
   Phi_t = Phi.t();
   
+  // Create index
+  std::vector<unsigned>counters;
+  arma::vec sizes(sum(Phi, 1));
+  // std::cout << sizes << std::endl;
+  for (unsigned i = 0; i < sizes.n_elem; i++) {
+    arma::uvec a(int(sizes(i)));
+    index.push_back(a);
+    counters.push_back(0);
+  }
+
+  arma::sp_mat::const_iterator it =     Phi.begin();
+  arma::sp_mat::const_iterator it_end = Phi.end();
+  for(; it != it_end; ++it)
+  {
+    unsigned int row_idx = it.row();
+    unsigned int col_idx = it.col();
+    index[row_idx](counters[row_idx]++) = col_idx;
+  }
+
   Pr_b = sum(Phi, 1) / N;
 
   
@@ -47,7 +66,6 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   // Hyperparameters
   K = __K;
   if (__lambda(0) == -1) {
-    lambda_range = __lambda_range;
     lambda_estimation = true;
   } else {
     lambda = __lambda;
@@ -55,7 +73,15 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   B_vec = __B_vec;
   sigma = __sigma;
 
-  block_size = __block_size;
+  if(__Z.n_cols < 6) {
+    std::string error_message = "Refusing to run with less than 6 cells";
+    Rcpp::stop(error_message);
+  } else if (__Z.n_cols < 40) {
+    Rcpp::warning("Too few cells. Setting block_size to 0.2");
+    block_size = 0.2;
+  } else {
+    block_size = __block_size;
+  } 
   theta = __theta;
   max_iter_kmeans = __max_iter_kmeans;
 
@@ -64,7 +90,7 @@ void harmony::setup(const MATTYPE& __Z, const arma::sp_mat& __Phi,
   allocate_buffers();
   ran_setup = true;
 
-  
+  alpha = __alpha;
   
   
 }
@@ -120,16 +146,17 @@ void harmony::init_cluster_cpp() {
 }
 
 void harmony::compute_objective() {
-  float kmeans_error = as_scalar(accu(R % dist_mat));
+  const float norm_const = 2000/((float)N);
+  float kmeans_error = as_scalar(accu(R % dist_mat));  
   float _entropy = as_scalar(accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
   float _cross_entropy = as_scalar(
       accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + E) / E)) * Phi)));
 
   // Push back the data
-  objective_kmeans.push_back(kmeans_error + _entropy + _cross_entropy);
-  objective_kmeans_dist.push_back(kmeans_error);
-  objective_kmeans_entropy.push_back(_entropy);
-  objective_kmeans_cross.push_back(_cross_entropy);
+  objective_kmeans.push_back((kmeans_error + _entropy + _cross_entropy) * norm_const);
+  objective_kmeans_dist.push_back(kmeans_error * norm_const);
+  objective_kmeans_entropy.push_back(_entropy * norm_const);
+  objective_kmeans_cross.push_back(_cross_entropy * norm_const);
 }
 
 
@@ -232,33 +259,40 @@ int harmony::update_R() {
 
   // GENERAL CASE: online updates, in blocks of size (N * block_size)
   unsigned n_blocks = (int)(my_ceil(1.0 / block_size));
-  unsigned cells_per_block = my_ceil(N * block_size);
+  unsigned cells_per_block = unsigned(N * block_size);
   
   // Allocate new matrices
   MATTYPE R_randomized = R.cols(update_order);
   arma::sp_mat Phi_randomized(Phi.cols(update_order));
   arma::sp_mat Phi_t_randomized(Phi_randomized.t());
   MATTYPE _scale_dist_randomized = _scale_dist.cols(update_order);
-
+  
   for (unsigned i = 0; i < n_blocks; i++) {
-      unsigned idx_max = min((i+1) * cells_per_block, N) - 1;
-      auto Rcells = R_randomized.submat(0, i*cells_per_block, R_randomized.n_rows - 1, idx_max);
-      auto Phicells = Phi_randomized.submat(0, i*cells_per_block, Phi_randomized.n_rows - 1, idx_max);
-      auto Phi_tcells = Phi_t_randomized.submat(i*cells_per_block, 0, idx_max, Phi_t_randomized.n_cols - 1);
-      auto _scale_distcells = _scale_dist_randomized.submat(0, i*cells_per_block, _scale_dist_randomized.n_rows - 1, idx_max);
+    unsigned idx_min = i*cells_per_block;
+    unsigned idx_max = ((i+1) * cells_per_block) - 1; // - 1 because of submat
+    if (i == n_blocks-1) {
+      // we are in the last block, so include everything. Up to 19
+      // extra cells.
+      idx_max = N - 1;
+    }
 
-      // Step 1: remove cells
-      E -= sum(Rcells, 1) * Pr_b.t();
-      O -= Rcells * Phi_tcells;
+    auto Rcells = R_randomized.submat(0, idx_min, R_randomized.n_rows - 1, idx_max);
+    auto Phicells = Phi_randomized.submat(0, idx_min, Phi_randomized.n_rows - 1, idx_max);
+    auto Phi_tcells = Phi_t_randomized.submat(idx_min, 0, idx_max, Phi_t_randomized.n_cols - 1);
+    auto _scale_distcells = _scale_dist_randomized.submat(0, idx_min, _scale_dist_randomized.n_rows - 1, idx_max);
 
-      // Step 2: recompute R for removed cells
-      Rcells = _scale_distcells;
-      Rcells = Rcells % (harmony_pow(E/(O + E), theta) * Phicells);
-      Rcells = normalise(Rcells, 1, 0); // L1 norm columns
+    // Step 1: remove cells
+    E -= sum(Rcells, 1) * Pr_b.t();
+    O -= Rcells * Phi_tcells;
 
-      // Step 3: put cells back 
-      E += sum(Rcells, 1) * Pr_b.t();
-      O += Rcells * Phi_tcells;
+    // Step 2: recompute R for removed cells
+    Rcells = _scale_distcells;
+    Rcells = Rcells % (harmony_pow(E/(O + E), theta) * Phicells);
+    Rcells = normalise(Rcells, 1, 0); // L1 norm columns
+
+    // Step 3: put cells back 
+    E += sum(Rcells, 1) * Pr_b.t();
+    O += Rcells * Phi_tcells;
   }
   this->R = R_randomized.cols(reverse_index);
   return 0;
@@ -266,8 +300,7 @@ int harmony::update_R() {
 
 
 void harmony::moe_correct_ridge_cpp() {
-
-  Progress p(K, false);
+  
   arma::sp_mat _Rk(N, N);
   arma::sp_mat lambda_mat(B + 1, B + 1);
 
@@ -275,28 +308,41 @@ void harmony::moe_correct_ridge_cpp() {
     // Set lambda if we have to
     lambda_mat.diag() = lambda;
   }
-  
   Z_corr = Z_orig;
-
+  Progress p(K, verbose);
   for (unsigned k = 0; k < K; k++) {
-      
-      if (Progress::check_abort())
-        return;
-      if (lambda_estimation) {
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
-      }
-      _Rk.diag() = R.row(k);
-      arma::sp_mat Phi_Rk = Phi_moe * _Rk;
-      W = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
-      W.row(0).zeros(); // do not remove the intercept 
-      Z_corr -= W.t() * Phi_Rk;
-      
+    p.increment();
+    if (Progress::check_abort())
+      return;
+    if (lambda_estimation) {
+      lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
+    }
+    _Rk.diag() = R.row(k);
+    arma::sp_mat Phi_Rk = Phi_moe * _Rk;
+    
+    arma::mat inv_cov(arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)));
+
+    // Calculate R-scaled PCs once
+    arma::mat Z_tmp = Z_orig.each_row() % R.row(k);
+    
+    // Generate the betas contribution of the intercept using the data
+    // This erases whatever was written before in W
+    W = inv_cov.unsafe_col(0) * sum(Z_tmp, 1).t();
+
+    // Calculate betas by calculating each batch contribution
+    for(unsigned b=0; b < B; b++) {
+      // inv_conv is B+1xB+1 whereas index is B long
+      W += inv_cov.unsafe_col(b+1) * sum(Z_tmp.cols(index[b]), 1).t();
+    }
+    
+    W.row(0).zeros(); // do not remove the intercept
+    Z_corr -= W.t() * Phi_Rk;
   }
   Z_cos = arma::normalise(Z_corr, 2, 0);
 }
 
 CUBETYPE harmony::moe_ridge_get_betas_cpp() {
-  CUBETYPE W_cube(W.n_rows, W.n_cols, K); // rows, cols, slices
+  CUBETYPE W_cube(B+1, d, K); // rows, cols, slices
 
   arma::sp_mat _Rk(N, N);
   arma::sp_mat lambda_mat(B + 1, B + 1);
@@ -309,7 +355,7 @@ CUBETYPE harmony::moe_ridge_get_betas_cpp() {
   for (unsigned k = 0; k < K; k++) {
       _Rk.diag() = R.row(k);
       if (lambda_estimation){
-        lambda_mat.diag() = find_lambda_cpp(O.row(k).t(), lambda_range, B_vec);
+        lambda_mat.diag() = find_lambda_cpp(alpha, E.row(k).t());
       }
       arma::sp_mat Phi_Rk = Phi_moe * _Rk;
       W_cube.slice(k) = arma::inv(arma::mat(Phi_Rk * Phi_moe_t + lambda_mat)) * Phi_Rk * Z_orig.t();
@@ -354,6 +400,6 @@ RCPP_MODULE(harmony_module) {
       .method("moe_correct_ridge_cpp", &harmony::moe_correct_ridge_cpp)
       .method("moe_ridge_get_betas_cpp", &harmony::moe_ridge_get_betas_cpp)
       .field("B_vec", &harmony::B_vec)
-      .field("lambda_range", &harmony::lambda_range)
+      .field("alpha", &harmony::alpha)
       ;
 }

@@ -2,7 +2,7 @@
 #include "types.h"
 
 //[[Rcpp::export]]
-arma::mat kmeans_centers(const arma::mat& X, const int K){
+arma::mat kmeans_centers(const arma::mat& X, const int K) {
   
   // Environment 
   Rcpp::Environment stats_env("package:stats");
@@ -33,7 +33,7 @@ MATTYPE harmony_pow(MATTYPE A, const VECTYPE& T) {
   return(A);
 }
 
-VECTYPE calculate_norm(const MATTYPE& M){
+VECTYPE calculate_norm(const MATTYPE& M) {
   VECTYPE x(M.n_cols);
   for(unsigned i = 0; i < M.n_cols; i++){
     x(i) = norm(M.col(i));
@@ -100,34 +100,8 @@ MATTYPE scaleRows_dgc(const VECTYPE& x, const VECTYPE& p, const VECTYPE& i, int 
 
 
 // [[Rcpp::export]]
-double find_one_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range) {
-
-    double batch_max = cluster_size.max();
-    double batch_min = cluster_size.min();
-    double lambda = pow(batch_max, 0.5) * pow(batch_min, 0.5);
-    lambda = std::min(range(1), lambda);
-    lambda = std::max(range(0), lambda);
-    return lambda;
-}
-
-// [[Rcpp::export]]
-arma::vec find_lambda_cpp(const arma::vec& cluster_size, const arma::vec& range,
-                          const std::vector<int>& B_vec){
-  arma::vec lambda_dym_vec(cluster_size.n_rows + 1, arma::fill::zeros);
-  int current_idx = 0; // base indx for sub_cluster_size and lambda_dym_vec
-  // for every batch variable
-  for(unsigned b = 0; b < B_vec.size(); b++){
-    //Slice the size for the covariate factors
-    arma::vec sub_cluster_size = cluster_size.subvec(current_idx,
-                                                     current_idx + B_vec[b]-1);
-    // Estimate lambda for the covariate
-    double lambda_dym = find_one_lambda_cpp(sub_cluster_size, range);
-    // lambda_dym_vec is 1-based because index zero is the intercept
-    lambda_dym_vec.subvec(current_idx + 1, current_idx + B_vec[b]) = arma::vec(
-      B_vec[b], arma::fill::value(lambda_dym));
-    // Increase the offset
-    current_idx += B_vec[b];
-  }
-  
+arma::vec find_lambda_cpp(const float alpha, const arma::vec& cluster_E) {
+  arma::vec lambda_dym_vec(cluster_E.n_rows + 1, arma::fill::zeros);
+  lambda_dym_vec.subvec(1, lambda_dym_vec.n_rows - 1) = cluster_E * alpha;
   return lambda_dym_vec;
 }

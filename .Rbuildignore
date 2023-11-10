@@ -1,5 +1,8 @@
 src/*\.so
 src/*\.o
+src/.cache
+src/Makefile
+src/compile_commands.json
 data/pbmc_stim_original.RData
 ^.*\.Rproj
 ^\.Rproj\.user$

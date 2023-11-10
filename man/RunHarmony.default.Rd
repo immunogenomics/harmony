@@ -49,8 +49,9 @@ are specified, then lambda can also be a vector which needs to
 be equal length with the number of variables to be
 corrected. In this scenario, each covariate level group will be
 assigned the scalars specified by the user. If set to NULL,
-harmony will determine lambdas automatically and try to
-minimize overcorrection (Use with caution still in beta testing).}
+harmony will start lambda estimation mode to determine lambdas
+automatically and try to minimize overcorrection (Use with caution still
+in beta testing).}
 
 \item{nclust}{Number of clusters in model. nclust=1 equivalent to
 simple linear regression.}

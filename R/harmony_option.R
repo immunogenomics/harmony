@@ -1,14 +1,8 @@
 #' Set advanced options for RunHarmony
-#' @param lambda_range Default lambda_range = c(0.1, 10). Lambda is ridge 
-#'     regression penalty parameter and smaller values result in more 
-#'     aggressive correction. During harmony iterations, the appropriate value 
-#'     of lambda is dynamically estimated. And parameter `lambda_range` set the 
-#'     allowed range for lambda estimation. e.g. `lambda_range` = c(0.1, 10) 
-#'     means that lambda can only vary between 0.1 and 10 when being 
-#'     dynamically estimated. Note that when setting the upper and lower bound 
-#'     of lambda_range to the same value would result in using a fixed lambda 
-#'     throughout harmony iterations. e.g. `lambda_range` = c(1,1) would make 
-#'     harmony using a fixed lambda = 1.
+#' @param alpha When setting lambda = NULL and use lambda estimation mode, 
+#'     lambda would be determined by the expected number of cells assuming 
+#'     idependece between batches and clusters. i.e., lambda = alpha * expected
+#'     number of cells, default 0.2 and alpha should be 0 < alpha < 1
 #' @param tau Protection against overclustering small datasets with 
 #'     large ones. `tau` is the expected number of cells per cluster.
 #' @param block.size What proportion of cells to update during clustering. 
@@ -31,18 +25,17 @@
 #' }
 #' 
 harmony_options <- function(
-  lambda_range = c(0.1, 10),
+  alpha = 0.2,
   tau = 0,
   block.size = 0.05,
   max.iter.cluster = 20,
-  epsilon.cluster = 1e-5,
-  epsilon.harmony = 1e-4) {
+  epsilon.cluster = 1e-3,
+  epsilon.harmony = 1e-2) {
     
-    lambda_range <- validate_lambda_range(lambda_range)
     block.size <- validate_block.size(block.size)
     
     out <- list(
-        lambda_range = lambda_range,
+        alpha = alpha,
         tau = tau,
         block.size = block.size,
         max.iter.cluster = max.iter.cluster,
@@ -54,24 +47,6 @@ harmony_options <- function(
 }
 
 ## Validate functions -----------------------------------------------------------
-validate_lambda_range <- function(lambda_range) {
-    if (length(lambda_range) != 2) {
-        stop('Error: lambda_range should have length == 2')
-    }
-    if (lambda_range[2] < lambda_range[1]) {
-        stop('Error: lambda_range[2] cannot be smaller than lambda_range[1]')
-    }
-    if (lambda_range[1] <= 0) {
-        stop('Error: lambda_range cannot be smaller or equal to 0')
-    }
-    
-    if (lambda_range[2] == lambda_range[1]) {
-        message("Automatic lambda estimation for ridge is disabled. Harmony will have a fixed lambda for all batches")
-    }
-    return(lambda_range)
-}
-
-
 validate_block.size <- function(block.size) {
     if(block.size <= 0 | block.size > 1){
         stop('Error: block.size should be set between 0 and 1 (0 < block.size <= 1)')
