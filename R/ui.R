@@ -52,9 +52,9 @@
 #'     object or only the corrected PCA embeddings.
 #' @param verbose Whether to print progress messages. TRUE to print,
 #'     FALSE to suppress.
-#' @param .options Advanced parameters of RunHarmony. This must be the
-#'     result from a call to `harmony_options`. See ?`harmony_options`
-#'     for more details.
+#' @param .options Setting advanced parameters of RunHarmony. This must be the
+#'     result from a call to `harmony_options`. See ?`harmony_options` for 
+#'     parameters not listed above and more details.
 #' @param ... other parameters that are not part of the API
 #' 
 #' @return By default, matrix with corrected PCA embeddings. If
