@@ -2,7 +2,7 @@
 % Please edit documentation in R/harmony_option.R
 \name{harmony_options}
 \alias{harmony_options}
-\title{Set advanced options for RunHarmony}
+\title{Set advanced parameters for RunHarmony}
 \usage{
 harmony_options(
   alpha = 0.2,
@@ -40,13 +40,13 @@ user-supplied values of `early_stop` is ignored.}
 Return a list for `.options` argument of `RunHarmony`
 }
 \description{
-Set advanced options for RunHarmony
+Set advanced parameters for RunHarmony
 }
 \examples{
-## If want to set lambda to be fixed to 1, do
+## If want to set max.iter.cluster to be 100, do
 \dontrun{
 RunHarmony(data_meta, meta_data, vars_use,
-              .options = harmony_options(lambda = c(1, 1)))
+              .options = harmony_options(max.iter.cluster = 100))
 }
 
 }

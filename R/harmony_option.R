@@ -1,4 +1,4 @@
-#' Set advanced options for RunHarmony
+#' Set advanced parameters for RunHarmony
 #' @param alpha When setting lambda = NULL and use lambda estimation mode, 
 #'     lambda would be determined by the expected number of cells assuming 
 #'     idependece between batches and clusters. i.e., lambda = alpha * expected
@@ -18,10 +18,10 @@
 #' @returns Return a list for `.options` argument of `RunHarmony`
 #' @export
 #' @examples
-#' ## If want to set lambda to be fixed to 1, do
+#' ## If want to set max.iter.cluster to be 100, do
 #' \dontrun{
 #' RunHarmony(data_meta, meta_data, vars_use,
-#'               .options = harmony_options(lambda = c(1, 1)))
+#'               .options = harmony_options(max.iter.cluster = 100))
 #' }
 #' 
 harmony_options <- function(
