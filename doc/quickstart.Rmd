@@ -160,13 +160,13 @@ cowplot::plot_grid(p1, p2, nrow = 1)
 
 ## Interfacing to software packages
 
-You can also run Harmony as part of an established pipeline in several packages, such as Seurat and SingleCellExperiment. For these vignettes, please [visit our website](https://portals.broadinstitute.org/harmony/). 
+You can also run Harmony as part of an established pipeline in several packages, such as Seurat and SingleCellExperiment. For these vignettes, please [visit our github page](https://github.com/immunogenomics/harmony/).
 
 
 ## Detailed breakdown of the Harmony algorithm
 
 For more details on how each part of Harmony works, consult our more detailed
-[vignette](https://portals.broadinstitute.org/harmony/advanced.html)
+[vignette](https://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/detailedWalkthrough.html)
 "Detailed Walkthrough of Harmony Algorithm".
 
 # Session Info
