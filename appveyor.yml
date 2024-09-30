@@ -22,6 +22,8 @@ environment:
     R_ARCH: x64
     USE_RTOOLS: true
     R_CHECK_ARGS: "--no-manual --timings"
+    R_LIBCURL_SSL_REVOKE_BEST_EFFORT: "TRUE"
+    CURL_SSL_BACKEND: "openssl"
 
   matrix:
   - R_VERSION: release
