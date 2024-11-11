@@ -1,11 +1,12 @@
 ---
 title: "Using harmony in Seurat"
-
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{Using harmony in Seurat}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-output: rmarkdown::html_vignette
 ---
 
 ```{r, include = FALSE}
@@ -26,18 +27,19 @@ library(cowplot)
 
 This tutorial describes how to use harmony in Seurat v5 single-cell analysis workflows. `RunHarmony()` is a generic function is designed to interact with Seurat objects. This vignette will walkthrough basic workflow of Harmony with Seurat objects. Also, it will provide some basic downstream analyses demonstrating the properties of harmonized cell embeddings and a brief explanation of the exposed algorithm parameters.
 
-```{r}
-## Install latest branch of harmony
-## devtools::install_github('immunogenomics/harmony', force = TRUE)
+Install Harmony from CRAN with standard commands.
+
+```{r eval=FALSE}
+install.packages('harmony')
 ```
 
 # Generating the dataset
 
 For this demo, we will be aligning two groups of PBMCs [Kang et al., 2017](https://doi.org/10.1038/nbt.4042). In this experiment, PBMCs are in stimulated and control conditions. The stimulated PBMC group was treated with interferon beta.
 
-## Download Data
 
-The full dataset used for this vignette are located under the following zenodo directory https://zenodo.org/record/8164711
+```
+
 
 ## Generate SeuratObject
 
@@ -50,6 +52,32 @@ pbmc <- CreateSeuratObject(counts = cbind(pbmc.stim, pbmc.ctrl), project = "PBMC
 
 pbmc@meta.data$stim <- c(rep("STIM", ncol(pbmc.stim)), rep("CTRL", ncol(pbmc.ctrl)))
 ```
+
+
+## (Optional) Download original data
+The example above contains only two thousand cells. The full [Kang et al., 2017](https://doi.org/10.1038/nbt.4042) dataset is deposited in the [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE96583). This analysis uses GSM2560248 and GSM2560249 samples from [GSE96583_RAW.tar](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE96583&format=file) file and the [GSE96583_batch2.genes.tsv.gz](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE96583&format=file&file=GSE96583%5Fbatch2%2Egenes%2Etsv%2Egz) gene file.
+
+```{r eval = FALSE, class.source='fold-hide'}
+library(Matrix)
+## Download and extract files from GEO
+##setwd("/path/to/downloaded/files")
+genes =  read.table("GSE96583_batch2.genes.tsv.gz", header = FALSE, sep = "\t")
+
+pbmc.ctrl.full = as.readMM("GSM2560248_2.1.mtx.gz")
+colnames(pbmc.ctrl.full) = paste0(read.table("GSM2560248_barcodes.tsv.gz", header = FALSE, sep = "\t")[,1], "-1")
+rownames(pbmc.ctrl.full) = genes$V1
+
+pbmc.stim.full = readMM("GSM2560249_2.2.mtx.gz")
+colnames(pbmc.stim.full) = paste0(read.table("GSM2560249_barcodes.tsv.gz", header = FALSE, sep = "\t")[,1], "-2")
+rownames(pbmc.stim.full) = genes$V1
+
+library(Seurat)
+
+pbmc <- CreateSeuratObject(counts = cbind(pbmc.stim.full, pbmc.ctrl.full), project = "PBMC", min.cells = 5)
+pbmc@meta.data$stim <- c(rep("STIM", ncol(pbmc.stim.full)), rep("CTRL", ncol(pbmc.ctrl.full)))
+
+
+
 
 # Running Harmony
 
@@ -186,7 +214,7 @@ harmony.embeddings <- Embeddings(pbmc, reduction = "harmony")
 
 After Harmony integration, we should inspect the quality of the harmonization and contrast it with the unharmonized algorithm input. Ideally, cells from different conditions will align along the Harmonized PCs. If they are not, you could increase the *theta* value above to force a more aggressive fit of the dataset and rerun the workflow.
 
-```{r, fig.width=5, fig.height=3, fig.align="center", fig.cap="Evaluate harmonization of stim parameter in the harmony generated cell embeddings"}
+```{r, fig.width=7, fig.height=3, out.width="100%", fig.align="center", fig.cap="Evaluate harmonization of stim parameter in the harmony generated cell embeddings"}
 
 p1 <- DimPlot(object = pbmc, reduction = "harmony", pt.size = .1, group.by = "stim")
 p2 <- VlnPlot(object = pbmc, features = "harmony_1", group.by = "stim",  pt.size = .1)

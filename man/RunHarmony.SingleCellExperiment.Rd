@@ -65,9 +65,9 @@ single-core performance is not adequate.}
     \item{\code{plot_convergence}}{Whether to print the convergence plot of
 the clustering objective function. TRUE to plot, FALSE to
 suppress. This can be useful for debugging.}
-    \item{\code{.options}}{Advanced parameters of RunHarmony. This must be the
-result from a call to `harmony_options`. See ?`harmony_options`
-for more details.}
+    \item{\code{.options}}{Setting advanced parameters of RunHarmony. This must be the
+result from a call to `harmony_options`. See ?`harmony_options` for 
+parameters not listed above and more details.}
   }}
 }
 \value{

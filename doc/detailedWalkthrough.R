@@ -102,7 +102,6 @@ harmonyObj <- harmony::RunHarmony(
     vars_use = 'dataset', ## variable to integrate out
     nclust = 5, ## number of clusters in Harmony model
     max_iter = 0, ## stop after initialization
-    .options = harmony_options(lambda_range=c(1,1)), ## Internal:: disables automatic lambda estimation
     return_object = TRUE ## return the full Harmony model object
 )
 
@@ -473,7 +472,6 @@ harmonyObj <- RunHarmony(
     vars_use = 'dataset', ## (list of) variable(s) we'd like to Harmonize out
     nclust = 50, ## number of clusters in Harmony model
     max_iter = 0, ## don't actually run Harmony, stop after initialization
-    .options = harmony_options(lambda_range=c(1, 1)),  ## Internal:: disables automatic lambda estimation                               
     return_object = TRUE ## return the full Harmony model object, not just the corrected PCA matrix
 )
 
