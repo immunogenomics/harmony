@@ -1,5 +1,5 @@
 ## ----eval=FALSE---------------------------------------------------------------
-#  install.packages('harmony')
+# install.packages('harmony')
 
 ## -----------------------------------------------------------------------------
 library(harmony)
@@ -52,7 +52,7 @@ harmony_embeddings <- harmony::RunHarmony(
 )
 
 
-## ---- fig.width=5, fig.height=3, fig.align="center"---------------------------
+## ----fig.width=5, fig.height=3, fig.align="center"----------------------------
 p1 <- do_scatter(harmony_embeddings, meta_data, 'dataset') + 
     labs(title = 'Colored by dataset')
 p2 <- do_scatter(harmony_embeddings, meta_data, 'cell_type') + 

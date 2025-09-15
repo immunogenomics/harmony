@@ -783,7 +783,7 @@ data.table(obs = Z_i, pred = Z_i_pred) %>%
         geom_label_repel(aes(label = PC)) + 
         geom_abline(slope = 1, intercept = 0) + 
         theme_tufte() + geom_rangeframe() + 
-        labs(x = 'Observed PC score', 'Predicted PC score', title = 'Observed and predicted values of PC scores\nfor cell 5') + 
+        labs(x = 'Observed PC score', y = 'Predicted PC score', title = 'Observed and predicted values of PC scores\nfor cell 5') + 
         NULL        
 ```
 
