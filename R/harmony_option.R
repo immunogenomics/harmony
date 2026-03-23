@@ -15,6 +15,12 @@
 #' @param epsilon.harmony Convergence tolerance for Harmony. Set to -Inf to
 #'     never stop early. When `epsilon.harmony` is set to not NULL, then
 #'     user-supplied values of `early_stop` is ignored.
+#' @param batch.prop.cutoff During the integration step, if a batch
+#'     has less of the specified proportion in a harmony cluster it
+#'     will be excluded from the integration step. For example,
+#'     batch.prop.cutoff=0.01 and a batch has less than 1/100 of its
+#'     cells soft-assigned to a cluster this batch won't participating
+#'     in the correction step for the particular batch.
 #' @returns Return a list for `.options` argument of `RunHarmony`
 #' @export
 #' @examples
@@ -28,9 +34,10 @@ harmony_options <- function(
   alpha = 0.2,
   tau = 0,
   block.size = 0.05,
-  max.iter.cluster = 20,
+  max.iter.cluster = 4,
   epsilon.cluster = 1e-3,
-  epsilon.harmony = 1e-2) {
+  epsilon.harmony = 1e-2,
+  batch.prop.cutoff = 1e-5) {
     
     block.size <- validate_block.size(block.size)
     
@@ -40,7 +47,8 @@ harmony_options <- function(
         block.size = block.size,
         max.iter.cluster = max.iter.cluster,
         epsilon.cluster = epsilon.cluster,
-        epsilon.harmony = epsilon.harmony
+        epsilon.harmony = epsilon.harmony,
+        batch.prop.cutoff = batch.prop.cutoff
     )
     out <- structure(out, class = "harmony_options")
     return(out)
@@ -57,14 +65,19 @@ validate_block.size <- function(block.size) {
 
 #' @importFrom methods hasArg
 check_legacy_args <- function(...) {
-    if (hasArg("do_pca") || hasArg("npcs")) legacy_warning("do_pca_npcs")
-    if (hasArg("tau")) legacy_warning("tau")
-    if (hasArg("block.size")) legacy_warning("block.size")
-    if (hasArg("max.iter.harmony")) legacy_warning("max.iter.harmony")
-    if (hasArg("max.iter.cluster")) legacy_warning("max.iter.cluster")
-    if (hasArg("epsilon.cluster")) legacy_warning("epsilon.cluster")
-    if (hasArg("epsilon.harmony")) legacy_warning("epsilon.harmony")
-    
+    all.args = list(...)    
+    legarg <- c("do_pca", "npcs", "tau", "block.size",
+                "max.iter.harmony", "max.iter.cluster",
+                "epsilon.cluster", "epsilon.harmony")
+    for(arg in names(all.args)) {
+        if (arg %in% legarg) {
+            legacy_warning(arg)
+            all.args[[arg]] = NULL
+        }
+    }
+    if(length(all.args) > 0){
+        warning(paste("Argument", names(all.args),"is unhandled and ignored!\n"))
+    }
 }
 
 
@@ -106,7 +119,7 @@ legacy_warning <- function(param) {
                      "epsilon.cluster")) {
         warn_str <- common_warn
     }
-    if (param == "do_pca_npcs") {
+    if (param %in% c("do_pca", "npcs")) {
         warn_str <- do_pca_npcs_warn
     }
     if (param == "max.iter.harmony") {

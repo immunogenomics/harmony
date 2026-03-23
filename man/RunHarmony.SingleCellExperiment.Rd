@@ -85,8 +85,8 @@ sce <- RunHarmony(sce, "donor_id")
 }
 \seealso{
 Other RunHarmony: 
+\code{\link{RunHarmony}()},
 \code{\link{RunHarmony.Seurat}()},
-\code{\link{RunHarmony.default}()},
-\code{\link{RunHarmony}()}
+\code{\link{RunHarmony.default}()}
 }
 \concept{RunHarmony}

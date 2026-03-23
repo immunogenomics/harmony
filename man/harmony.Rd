@@ -2,6 +2,7 @@
 % Please edit documentation in R/harmony-package.r
 \docType{package}
 \name{harmony}
+\alias{-package}
 \alias{harmony}
 \title{Harmony: fast, accurate, and robust single cell integration.}
 \description{

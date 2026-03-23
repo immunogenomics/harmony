@@ -10,7 +10,7 @@
   vars_use,
   theta = NULL,
   sigma = 0.1,
-  lambda = 1,
+  lambda = NULL,
   nclust = NULL,
   max_iter = 10,
   early_stop = TRUE,
@@ -119,14 +119,14 @@ harmony_embeddings[seq_len(5), seq_len(5)]
 harmony_object <- RunHarmony(pca_matrix, meta_data, 'dataset', return_object=TRUE)
 dim(harmony_object$Y) ## cluster centroids
 dim(harmony_object$R) ## soft cluster assignment
-dim(harmony_object$Z_corr) ## corrected PCA embeddings
+dim(harmony_object$getZcorr()) ## corrected PCA embeddings
 head(harmony_object$O) ## batch by cluster co-occurence matrix
 
 }
 \seealso{
 Other RunHarmony: 
+\code{\link{RunHarmony}()},
 \code{\link{RunHarmony.Seurat}()},
-\code{\link{RunHarmony.SingleCellExperiment}()},
-\code{\link{RunHarmony}()}
+\code{\link{RunHarmony.SingleCellExperiment}()}
 }
 \concept{RunHarmony}

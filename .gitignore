@@ -12,3 +12,4 @@ config.status
 *.swp
 ..Rcheck
 /Meta/
+docs
