@@ -1,9 +1,34 @@
+
 # BLAS vs. OPENBLAS
 
 R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
 
 
-## Install OpenBLAS in non-conda environment
+
+# Windows Performance
+
+Harmony, was pretuned to just install in windows R installations. By default, R for Windows uses BLAS and LAPACK libraries which can not be utilized by armadillo.
+
+See this [tutorial](https://github.com/david-cortes/R-openblas-in-windows) for instructions on getting R for Windows to use OpenBLAS. 
+
+Once OpenBLAS is installed, harmony needs to be configured as follows (rtools are required too):
+
+1. download harmony locally from github
+
+```sh
+git clone https://github.com/immunogenomics/harmony/
+```
+
+2. remove the options -DARMA_DONT_USE_BLAS -DARMA_DONT_USE_LAPACK from src/Makevars.win
+
+3. re-install package using devtools
+
+```r
+devtools::install_local("<harmony-directory>", force=T, upgrade=F)
+```
+
+
+# Install OpenBLAS in non-conda environment (linux)
 
 Install [ropenblas](https://prdm0.github.io/ropenblas/) from CRAN:
 ```r
@@ -22,37 +47,31 @@ Using `sessionInfo()` from R it should report something similar to this: `BLAS/L
 
 By default harmony turns uses only one core. However, large datasets (>1M cells) may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are advised to increase gradually `ncores` and assess potential performance benefits.
 
-# OpenMP support
+# OpenMP support 
 
 [Armadillo can leverage the OpenMP backend](https://arma.sourceforge.net/faq.html#speed) to provide multithread support for its operations. Overall, performance benefits are relatively small. 
 
-If users want to leverage OpenMP with large datasets, OpenBLAS needs to openmp and not pthread support. There is no reliable way to determine whether the loaded OpenBLAS has support for OpenMP hence this section guiding users how to enable this support.
+ OpenBLAS by default ships with the 'pthreads' backend for multi-threading, but it offers a faster version based on OpenMP. For better speed, it's possible to use the OpenMP which will allow for better control of multithreading support.
+
+Therefore, users seeking to leverage OpenMP with large datasets, OpenBLAS needs to openmp and not pthread support.
 
 By default environments such as conda will not install openmp supported versions.
 
-## Building harmony with OpenMP support
 
-0. Ensure your environment supports OpenMP (conda)
-
-### Conda 
-
-Ensure your environment uses OpenMP in the used compilers or install OpenMP `conda install conda-forge::openmp`. 
-
-Then download an (openmp compatible package)[https://anaconda.org/channels/conda-forge/packages/libopenblas/files?name=openmp] for your architecture. For example for linux64 install conda using:
+## Install OpenMP compatible OpenBLAS
+### Option 1 - Conda (easy)
 
 ```sh
 conda activate myenv
-cd <the downloaded conda file>
-conda install /home/main/Downloads/libopenblas-0.3.30-openmp_hd680484_4.conda
-conda install <package_filename>.conda
+conda install -c conda-forge --override-channels r-base blas=*=*openblas* openblas=*=*openmp*
 ```
 
-### Other environments
+### Option 2 - build OpenBLAS from source (hard)
 
 Build openblas from source using the `USE_OPENMP=1` option.
 
 
-1. Clone the master branch of the harmony github repository.
+## Enable OpenMP support in Harmony
 
 ```sh
 git clone https://github.com/immunogenomics/harmony/
@@ -70,8 +89,7 @@ This line will include OpenMP during the compilation uses an incorrect version o
 devtools::install_local("harmony", force=T, upgrade=F)
 ```
 
-
-4. Ensure that harmony runs properly
+## Ensure that harmony runs properly
 
 You should *not* get messages as the following:
 
