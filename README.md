@@ -19,7 +19,7 @@ Harmony has been tested on R versions >= 3.4. Please consult the DESCRIPTION fil
 
 # Installation
 
-To run Harmony, open R and install harmony from CRAN: 
+To run Harmony, open R and install harmony from CRAN (15 seconds): 
 
 ```r
 install.packages("harmony")
@@ -34,12 +34,12 @@ devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
 
 # Usage
 
- Harmony is designed to be user-friendly and supports some SingleCellExperiment and Seurat R analysis pipelines. Alternatively, it can be used in standalone mode.
+Harmony is designed to be user-friendly and supports some SingleCellExperiment and Seurat R analysis pipelines. Alternatively, it can be used in standalone mode.
 
 ## Quick Start 
 
 ### Standalone Mode
-Check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode.
+Check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
 
 At minimum the following parameters need to be specified to achieve an integration. 
 
