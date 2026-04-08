@@ -15,7 +15,7 @@ For Python users, check out the [harmonypy package](https://github.com/slowkow/h
 
 # System requirements 
 
-Harmony has been tested on R versions >= 3.4. Please consult the DESCRIPTION file for more details on required R packages. Harmony has been tested on Linux, OS X, and Windows platforms.
+Harmony has been tested on R versions >= 4.2. Please consult the DESCRIPTION file for more details on required R packages. Harmony has been tested on Linux, OS X, and Windows platforms.
 
 # Installation
 
