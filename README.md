@@ -39,9 +39,9 @@ Harmony is designed to be user-friendly and supports some SingleCellExperiment a
 ## Quick Start 
 
 ### Standalone Mode
-Check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
+Check out this [vignette](doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
 
-At minimum the following parameters need to be specified to achieve an integration. 
+At minimum the following parameters need to be specified to achieve an integration. For a few samples < 100K cells integration should finish within seconds.
 
 ```r
 library(harmony)
@@ -60,7 +60,7 @@ seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
 
-For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html)
+For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](doc/Seurat.html)
 
 ## Harmony with two or more covariates
 
@@ -80,7 +80,7 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 
 ## Advanced tutorial 
 
-The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
+The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](doc/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
 
 
 # Performance Notes
