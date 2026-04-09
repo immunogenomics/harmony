@@ -17,18 +17,6 @@ RCPP_EXPOSED_CLASS(harmony)
   
 #include "harmony_types.h"
 
-typedef  struct {
-    unsigned batch_id;
-    unsigned cell_number;
-  } CellEntry;
-
-struct
-{
-  bool operator()(const CellEntry& rhs, const CellEntry& lhs) const { return rhs.batch_id < lhs.batch_id;}
-}CellEntryCompare;
-
-
-
 class harmony { 
 public:
   
@@ -75,8 +63,6 @@ public:
   // buffers
   MATTYPE W, dist_mat, O, E, dir_prior; // N_k, N_kb, N_b, numerator, denominator, C;
   uvec update_order, cells_update;
-
-  std::vector<CellEntry> orig_index;
 
   // flags
   bool ran_setup, ran_init, lambda_estimation,  verbose; // do_merge_R;

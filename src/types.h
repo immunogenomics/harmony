@@ -2,8 +2,9 @@
 #define ARMA_64BIT_WORD
 #include <RcppArmadillo.h>
 
-
 typedef float SCALAR;
+
+
 typedef arma::Mat<SCALAR> MATTYPE;
 typedef arma::mat RMAT;
 
