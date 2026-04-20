@@ -13,7 +13,7 @@
 #' \enumerate{
 #' \item Report bugs at \url{https://github.com/immunogenomics/harmony/issues}
 #' \item Read the manuscript
-#' \doi{10.1038/s41592-019-0619-0}
+#' \doi{10.64898/2026.03.16.711825}
 #' }
 #'
 #'
@@ -30,4 +30,12 @@
 #' @importFrom rlang `%||%`
 #' @importFrom stats model.matrix
 loadModule("harmony_module", TRUE)
+NULL
+
+
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+## usethis namespace: end
 NULL
