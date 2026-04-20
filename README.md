@@ -1,8 +1,7 @@
 Harmony <img src="man/figures/logo.png" width="181px" align="right" />
 ===========
 
-[![Travis-CI Build Status](https://travis-ci.org/immunogenomics/harmony.svg?branch=master)](https://travis-ci.org/immunogenomics/harmony)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/immunogenomics/harmony?branch=master&svg=true)](https://ci.appveyor.com/project/immunogenomics/harmony)
+[![CRAN status](https://www.r-pkg.org/badges/version/harmony)](https://CRAN.R-project.org/package=harmony)
 [![DOI](https://zenodo.org/badge/doi/10.1038/s41592-019-0619-0.svg)](https://doi.org/10.64898/2026.03.16.711825)
 
 *Integration of large, complex single-cell datasets with Harmony2*
