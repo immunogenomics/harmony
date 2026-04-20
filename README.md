@@ -7,8 +7,8 @@ Harmony <img src="man/figures/logo.png" width="181px" align="right" />
 *Integration of large, complex single-cell datasets with Harmony2*
 
 Check out our pre-print in biorxiv: 
-- [nature website](https://doi.org/10.64898/2026.03.16.711825)
-- [Previous version of harmony](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
+- [Preprint](https://doi.org/10.64898/2026.03.16.711825)
+- [Harmony v1 manuscript](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
 - [package website](https://korsunskylab.github.io/harmony2/)
 
 
@@ -25,7 +25,7 @@ Harmony has been tested on R versions >= 4.2. Please consult the DESCRIPTION fil
 To install Harmony2 please use the development version from github directly (should take less than 5 minutes): 
 
 ```r
-devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
+devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE, ref="harmony2")
 ```
 
 
