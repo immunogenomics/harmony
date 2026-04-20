@@ -10,7 +10,7 @@ Harmony <img src="man/figures/logo.png" width="181px" align="right" />
 Check out our pre-print in biorxiv: 
 - [nature website](https://doi.org/10.64898/2026.03.16.711825)
 - [Previous version of harmony](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
-- [package website](https://pati-ni.github.io/harmony/)
+- [package website](https://korsunskylab.github.io/harmony2/)
 
 
 For Python users, check out the [harmonypy package](https://github.com/slowkow/harmonypy) by Kamil Slowikowski. 
@@ -41,7 +41,7 @@ Harmony is designed to be user-friendly and supports some SingleCellExperiment a
 ## Quick Start 
 
 ### Standalone Mode
-Check out this [vignette](https://pati-ni.github.io/harmony/articles/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
+Check out this [vignette](https://korsunskylab.github.io/harmony2/articles/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
 
 At minimum the following parameters need to be specified to achieve an integration. For a few samples < 100K cells integration should finish within seconds.
 
@@ -62,7 +62,7 @@ seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
 
-For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](https://pati-ni.github.io/harmony/articles/Seurat.html)
+For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](https://korsunskylab.github.io/harmony2/articles/Seurat.html)
 
 ## Harmony with two or more covariates
 
@@ -82,7 +82,7 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 
 ## Advanced tutorial 
 
-The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](https://pati-ni.github.io/harmony/articles/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
+The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](https://korsunskylab.github.io/harmony2/articles/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
 
 
 # Performance Notes
