@@ -1,3 +1,4 @@
+#' @importFrom utils packageVersion vignette
 .onAttach <- function(libname, pkgname) {
     ver = packageVersion(pkgname)
     vignette_built = nrow(vignette(package = 'harmony')$results) != 0
@@ -16,5 +17,5 @@
 
     cli::cli_inform(paste0("{cli::symbol$bullet} This is Harmony2 version {.strong ", ver, "}"), class = "packageStartupMessage")
     cli::cli_inform(vignette_msg, class = "packageStartupMessage")
-    cli::cli_inform("{cli::symbol$bullet} {.strong Get help}: Visit the https://korsunsky-lab.github.io/harmony/ and report issues on https://github.com/immunogenomics/harmony/issues", class = "packageStartupMessage")
+    cli::cli_inform("{cli::symbol$bullet} {.strong Get help}: Visit the website at https://korsunskylab.github.io/harmony2/ and report issues on https://github.com/immunogenomics/harmony/issues", class = "packageStartupMessage")
 }
