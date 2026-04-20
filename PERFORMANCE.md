@@ -13,18 +13,10 @@ See this [tutorial](https://github.com/david-cortes/R-openblas-in-windows) for i
 
 Once OpenBLAS is installed, harmony needs to be configured as follows (rtools are required too):
 
-1. download harmony locally from github
-
-```sh
-git clone https://github.com/immunogenomics/harmony/
-```
-
-2. remove the options -DARMA_DONT_USE_BLAS -DARMA_DONT_USE_LAPACK from src/Makevars.win
-
-3. re-install package using devtools
+1. Install harmony using devtools
 
 ```r
-devtools::install_local("<harmony-directory>", force=T, upgrade=F)
+devtools::install_github("immunogenomics/harmony", force=T, upgrade=F)
 ```
 
 
@@ -79,7 +71,7 @@ git clone https://github.com/immunogenomics/harmony/
 
 2. Add OpenMP compilation flag
 
-Uncomment/Include `PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)` in the ~src/Makevars~ file.
+Uncomment `PKG_CXXFLAGS="${PKG_CXXFLAGS} $(SHLIB_OPENMP_CXXFLAGS)"` in the ~src/configure~ file.
 
 This line will include OpenMP during the compilation uses an incorrect version of OpenBLAS you will get a flood of messages.
 
