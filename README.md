@@ -89,9 +89,7 @@ The examples above all return integrated PCA embeddings. We created a [detailed 
 
 OpenBLAS will make a huge performance difference. If you are not using this version of BLAS have a look at the PERFORMANCE.md
 
-If you are using R in windows, to use OpenBLAS you need to modify build flags. PERFORMANCE.md will show you how to increase the performance.
-
-To get the most performance with large datasets (>10M cells) see the OpenMP notes in PERFORMANCE.md.
+For very large datasets (>10M cells) see the OpenMP notes in PERFORMANCE.md.
 
 
 
