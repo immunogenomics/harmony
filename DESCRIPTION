@@ -38,7 +38,8 @@ Imports:
     methods,
     tibble,
     rlang,
-    RhpcBLASctl
+    RhpcBLASctl,
+    cli
 Suggests:
     SingleCellExperiment,
     Seurat (>= 4.1.1),
