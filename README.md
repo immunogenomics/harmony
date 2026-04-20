@@ -86,9 +86,9 @@ The examples above all return integrated PCA embeddings. We created a [detailed 
 
 # Performance Notes
 
-OpenBLAS will make a huge performance difference. If you are not using this version of BLAS have a look at the PERFORMANCE.md
+1. OpenBLAS will make a substantial performance difference. If you are not using OpenBLAS have a look at the PERFORMANCE.md.
 
-For very large datasets (>10M cells) see the OpenMP notes in PERFORMANCE.md.
+2. For very large datasets (>10M cells) see the OpenMP notes see PERFORMANCE.md our github channel.
 
 
 
