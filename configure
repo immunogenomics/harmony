@@ -4,8 +4,8 @@
 # generate src/Makevars with the appropriate build flags.
 #
 # Procedures checked (float variants, Fortran calling convention):
-#   BLAS:   sgemm_, ssymv_, strsm_
-#   LAPACK: spotrf_, sgesv_
+#   BLAS:   sgemm_, sdot_
+#   LAPACK: sgemm_
 #
 # When a library does not provide these symbols, the corresponding
 # ARMA_DONT_USE_BLAS / ARMA_DONT_USE_LAPACK flag is added so that
@@ -34,7 +34,7 @@ mkdir -p "${CONFTMP}"
 # ---------------------------------------------------------------------------
 # Check BLAS: sgemm_, sdot_
 # ---------------------------------------------------------------------------
-echo "checking for BLAS procedures..."
+echo "checking for BLAS procedures (sdot_, sgemm_)..."
 
 cat > "${CONFTMP}/blas_test.c" << 'BLAS_EOF'
 extern void sgemm_(char*, char*, int*, int*, int*,
@@ -72,9 +72,10 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Check LAPACK: spotrf_, sgesv_
+# Check LAPACK: sgesv_
 # ---------------------------------------------------------------------------
-echo "checking for LAPACK procedures (spotrf_, sgesv_)..."
+
+echo "checking for LAPACK procedures (sgesv_)..."
 
 cat > "${CONFTMP}/lapack_test.c" << 'LAPACK_EOF'
 
