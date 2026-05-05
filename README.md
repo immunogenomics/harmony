@@ -1,31 +1,33 @@
 Harmony <img src="man/figures/logo.png" width="181px" align="right" />
 ===========
 
-[![Travis-CI Build Status](https://travis-ci.org/immunogenomics/harmony.svg?branch=master)](https://travis-ci.org/immunogenomics/harmony)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/immunogenomics/harmony?branch=master&svg=true)](https://ci.appveyor.com/project/immunogenomics/harmony)
-[![DOI](https://zenodo.org/badge/doi/10.1038/s41592-019-0619-0.svg)](https://doi.org/10.1038/s41592-019-0619-0)
+[![CRAN status](https://www.r-pkg.org/badges/version/harmony)](https://CRAN.R-project.org/package=harmony)
+[![DOI](https://zenodo.org/badge/doi/10.1038/s41592-019-0619-0.svg)](https://doi.org/10.64898/2026.03.16.711825)
 
-*Fast, sensitive and accurate integration of single-cell data with Harmony*
+*Integration of large, complex single-cell datasets with Harmony2*
 
-Check out the manuscript in Nature Methods: 
-- [nature website](https://www.nature.com/articles/s41592-019-0619-0)
-- [read link](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
+Check out our pre-print in biorxiv: 
+- [Preprint](https://doi.org/10.64898/2026.03.16.711825)
+- [Harmony v1 manuscript](https://www.nature.com/articles/s41592-019-0619-0.epdf?shared_access_token=rDg_Rd07lrFXExt_ySj7V9RgN0jAjWel9jnR3ZoTv0NfDJkKCfDV_X9Mq3lweQmKiXEXxhrebQRjJEZdc-xNv6-7ZN1XotlD_mo5TSS4Z4eWn-kUo6mBwA5dEAKlTfR8OT6E10MZY_E-906ajbzvgg%3D%3D)
+- [package website](https://korsunskylab.github.io/harmony2/)
+
 
 For Python users, check out the [harmonypy package](https://github.com/slowkow/harmonypy) by Kamil Slowikowski. 
 
 # System requirements 
 
-Harmony has been tested on R versions >= 3.4. Please consult the DESCRIPTION file for more details on required R packages. Harmony has been tested on Linux, OS X, and Windows platforms.
+Harmony has been tested on R versions >= 4.2. Please consult the DESCRIPTION file for more details on required R packages. Harmony has been tested on Linux, OS X, and Windows platforms.
 
 # Installation
 
-To run Harmony, open R and install harmony from CRAN: 
+To install Harmony2, from CRAN (takes approximately 15 seconds):
 
 ```r
 install.packages("harmony")
 ```
 
-If you'd like the latest development version, install from this github directly: 
+
+To install Harmony2 from github (development version) from github directly (should take less than 5 minutes): 
 
 ```r
 devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
@@ -34,14 +36,14 @@ devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
 
 # Usage
 
- Harmony is designed to be user-friendly and supports some SingleCellExperiment and Seurat R analysis pipelines. Alternatively, it can be used in standalone mode.
+Harmony is designed to be user-friendly and supports some SingleCellExperiment and Seurat R analysis pipelines. Alternatively, it can be used in standalone mode.
 
 ## Quick Start 
 
 ### Standalone Mode
-Check out this [vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode.
+Check out this [vignette](https://korsunskylab.github.io/harmony2/articles/quickstart.html) for a quick start tutorial which demonstrates the usage of the tool in standalone mode (~4 seconds).
 
-At minimum the following parameters need to be specified to achieve an integration. 
+At minimum the following parameters need to be specified to achieve an integration. For a few samples < 100K cells integration should finish within seconds.
 
 ```r
 library(harmony)
@@ -60,7 +62,7 @@ seuratObj <- RunHarmony(seuratObj, "dataset")
 seuratObj <- RunUMAP(seuratObj, reduction = "harmony")
 ```
 
-For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/Seurat.html)
+For a more detailed overview of the `RunHarmony()` Seurat interface check, the [Seurat vignette](https://korsunskylab.github.io/harmony2/articles/Seurat.html)
 
 ## Harmony with two or more covariates
 
@@ -80,22 +82,14 @@ seuratObject <- RunHarmony(seuratObject, c("dataset", "donor", "batch_id"))
 
 ## Advanced tutorial 
 
-The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](http://htmlpreview.github.io/?https://github.com/immunogenomics/harmony/blob/master/doc/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
+The examples above all return integrated PCA embeddings. We created a [detailed walkthrough](https://korsunskylab.github.io/harmony2/articles/detailedWalkthrough.html) that explores the internal data structures and mechanics of the Harmony algorithm.
 
 
 # Performance Notes
 
-## BLAS vs. OPENBLAS
+1. OpenBLAS will make a substantial performance difference. If you are not using OpenBLAS have a look at the PERFORMANCE.md.
 
-R distributions can be bundled with different scientific computing libraries. This can drastically impact harmony's performance. Rstudio comes by default with BLAS. In contrast, conda distributions of R are bundled with OPENBLAS. Overall, our benchmarks show that **harmony+OPENBLAS is substantially faster compared harmony+BLAS**. Therefore users with large datasets will benefit using OPENBLAS.
+2. For very large datasets (>10M cells) see the OpenMP notes see PERFORMANCE.md our github channel.
 
-## Multithreading in OPENBLAS
-
-One caveat is that OPENBLAS uses OPENMP to parallelize operations. By default, OPENBLAS will utilize all cores for these operations. While in theory this accelerates runtimes, in practice harmony is not optimized for multi-threaded performance and the unoptimized parallelization granularity may result in significantly slower run times and inefficient resource utilization (wasted CPU cycles). Therefore, by default harmony turns off multi-threading. However, very large datasets >1M may benefit from parallelization. This behavior can be controlled by the `ncores` parameter which expects a number threads which harmony will use for its math operation. Users are advised to increase gradually `ncores` and assess potential performance benefits.
-
-
-# Reproducing results from manuscript
-
-Code to reproduce Harmony results from the Korsunsky et al 2019 manuscript will be made available on github.com/immunogenomics/harmony2019. 
 
 

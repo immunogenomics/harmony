@@ -98,19 +98,6 @@ scaleData <- function(A, margin = 1, thresh = 10) {
 }
 
 
-#' Get beta Utility 
-#' 
-#' Utility function to get ridge regression coefficients from trained
-#' Harmony object 
-#' 
-#' @param harmonyObj Trained harmony object. Get this by running 
-#' RunHarmony function with return_object=TRUE.
-#' @return Returns nothing, modifies object in place. 
-#' @export
-moe_ridge_get_betas <- function(harmonyObj) {
-    harmonyObj$moe_ridge_get_betas_cpp()
-}
-
 
 setOMPthreads <- function(ncores) {
     tryCatch({

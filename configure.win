@@ -1,0 +1,115 @@
+#!/bin/sh
+
+# configure: probe BLAS/LAPACK for procedures used by Armadillo and
+# generate src/Makevars with the appropriate build flags.
+#
+# Procedures checked (float variants, Fortran calling convention):
+#   BLAS:   sgemm_, ssymv_, strsm_
+#   LAPACK: spotrf_, sgesv_
+#
+# When a library does not provide these symbols, the corresponding
+# ARMA_DONT_USE_BLAS / ARMA_DONT_USE_LAPACK flag is added so that
+# Armadillo falls back to its own built-in implementations.
+
+PKG_ROOT="$(cd "$(dirname "$0")"; pwd)"
+
+# Retrieve R build configuration
+BLAS_LIBS=`"${R_HOME}/bin/R" CMD config BLAS_LIBS`
+LAPACK_LIBS=`"${R_HOME}/bin/R" CMD config LAPACK_LIBS`
+FLIBS=`"${R_HOME}/bin/R" CMD config FLIBS`
+CC=`"${R_HOME}/bin/R" CMD config CC`
+CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
+
+PKG_CXXFLAGS="-DARMA_USE_CURRENT"
+PKG_LIBS="${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}"
+
+## Uncomment to include openmp parallelization
+# PKG_CXXFLAGS="${PKG_CXXFLAGS} $(SHLIB_OPENMP_CXXFLAGS)"
+
+
+# Temporary directory for test programs
+CONFTMP="${TMPDIR:-/tmp}/harmony_configure_$$"
+mkdir -p "${CONFTMP}"
+
+# ---------------------------------------------------------------------------
+# Check BLAS: sgemm_, sdot_
+# ---------------------------------------------------------------------------
+echo "checking for BLAS procedures..."
+
+cat > "${CONFTMP}/blas_test.c" << 'BLAS_EOF'
+extern void sgemm_(char*, char*, int*, int*, int*,
+                   float*, float*, int*, float*, int*,
+                   float*, float*, int*);
+
+extern float sdot_(
+       	     const int* n, const float* x, const int* incx,
+	     const float* y, const int* incy);
+
+int main(void) {
+    /* dummy calls so the linker must resolve each symbol */
+    /* this will segfault at runtime */
+    float A = 0.0f, B = 0.0f, C = 0.0f;
+    float sc = 0.0f;
+    int dim = 1;
+    char trA = 'N', trB = 'U';
+    sgemm_(&trA, &trB, &dim, &dim, &dim, &sc, &A, 0, &B, &dim, &sc, &C, &dim);
+    sdot_(&dim, &A, &dim, &B, &dim);    
+    return 0;
+}
+BLAS_EOF
+
+BLAS_OK=no
+if ${CC} ${CFLAGS} -o "${CONFTMP}/blas_test" "${CONFTMP}/blas_test.c" \
+       ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
+    BLAS_OK=yes
+fi
+
+if [ "${BLAS_OK}" = "yes" ]; then
+    echo "  BLAS procedures found -- enabling BLAS for Armadillo"
+else
+    echo "  BLAS procedures NOT found -- disabling BLAS for Armadillo"
+    PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_BLAS"
+fi
+
+# ---------------------------------------------------------------------------
+# Check LAPACK: spotrf_, sgesv_
+# ---------------------------------------------------------------------------
+echo "checking for LAPACK procedures (spotrf_, sgesv_)..."
+
+cat > "${CONFTMP}/lapack_test.c" << 'LAPACK_EOF'
+
+extern void sgesv_(int*, int*, float*, int*, int*, float*, int*, int*);
+
+int main(void) {
+    float A = 0.0f, B = 0.0f, C = 0.0f;
+    int dim=1, res = 0;
+    sgesv_(1, 1, &A, 1, &dim, &B, 1, &res);
+    return 0;
+}
+LAPACK_EOF
+
+LAPACK_OK=no
+if ${CC} ${CFLAGS} -o "${CONFTMP}/lapack_test" "${CONFTMP}/lapack_test.c" \
+       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
+    LAPACK_OK=yes
+fi
+
+if [ "${LAPACK_OK}" = "yes" ]; then
+    echo "  LAPACK procedures found -- enabling LAPACK for Armadillo"
+else
+    echo "  LAPACK procedures NOT found -- disabling LAPACK for Armadillo"
+    PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
+fi
+
+# ---------------------------------------------------------------------------
+# Clean up and generate src/Makevars
+# ---------------------------------------------------------------------------
+rm -rf "${CONFTMP}"
+
+sed -e "s|@PKG_CXXFLAGS@|${PKG_CXXFLAGS}|g" \
+    -e "s|@PKG_LIBS@|${PKG_LIBS}|g" \
+    "${PKG_ROOT}/src/Makevars.in" > "${PKG_ROOT}/src/Makevars"
+
+echo "configure: src/Makevars written"
+echo "  PKG_CXXFLAGS = ${PKG_CXXFLAGS}"
+echo "  PKG_LIBS     = ${PKG_LIBS}"

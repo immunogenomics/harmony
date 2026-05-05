@@ -91,8 +91,8 @@ seu <- RunHarmony(seu, "donor_id")
 }
 \seealso{
 Other RunHarmony: 
+\code{\link{RunHarmony}()},
 \code{\link{RunHarmony.SingleCellExperiment}()},
-\code{\link{RunHarmony.default}()},
-\code{\link{RunHarmony}()}
+\code{\link{RunHarmony.default}()}
 }
 \concept{RunHarmony}

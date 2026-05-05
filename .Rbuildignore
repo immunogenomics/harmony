@@ -18,3 +18,7 @@ appveyor\.yml
 ^codecov\.yml$
 ^NEWS\.md$
 ^Meta$
+^_pkgdown\.yml$
+^pkgdown$
+PERFORMANCE.md
+^\.github$

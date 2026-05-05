@@ -1,7 +1,5 @@
 ---
 title: "Quick start to Harmony"
-author: "Korsunsky et al.: Fast, sensitive, and accurate integration of single 
-cell data with Harmony"
 output:
   rmarkdown::html_vignette:
     code_folding: show

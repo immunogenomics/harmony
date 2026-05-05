@@ -8,9 +8,10 @@ harmony_options(
   alpha = 0.2,
   tau = 0,
   block.size = 0.05,
-  max.iter.cluster = 20,
+  max.iter.cluster = 4,
   epsilon.cluster = 0.001,
-  epsilon.harmony = 0.01
+  epsilon.harmony = 0.01,
+  batch.prop.cutoff = 1e-05
 )
 }
 \arguments{
@@ -35,6 +36,13 @@ of Harmony. Set to -Inf to never stop early.}
 \item{epsilon.harmony}{Convergence tolerance for Harmony. Set to -Inf to
 never stop early. When `epsilon.harmony` is set to not NULL, then
 user-supplied values of `early_stop` is ignored.}
+
+\item{batch.prop.cutoff}{During the integration step, if a batch
+has less of the specified proportion in a harmony cluster it
+will be excluded from the integration step. For example,
+batch.prop.cutoff=0.01 and a batch has less than 1/100 of its
+cells soft-assigned to a cluster this batch won't participating
+in the correction step for the particular batch.}
 }
 \value{
 Return a list for `.options` argument of `RunHarmony`

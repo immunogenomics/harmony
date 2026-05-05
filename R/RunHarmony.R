@@ -161,9 +161,6 @@ RunHarmony.SingleCellExperiment <- function(
         stop("PCA must be computed before running Harmony.")
     }
     pca_embedding <- SingleCellExperiment::reducedDim(object, "PCA")
-    if (is.null(dims.use)) {
-        dims.use <- seq_len(ncol(pca_embedding))
-    }
 
     if (is.null(dims.use)) {
         dims.use <- seq_len(ncol(pca_embedding))
@@ -189,7 +186,7 @@ RunHarmony.SingleCellExperiment <- function(
     )
    
 
-    rownames(harmonyEmbed) <- row.names(metavars_df)
+    rownames(harmonyEmbed) <- rownames(metavars_df)
     colnames(harmonyEmbed) <- paste0(reduction.save, "_", seq_len(ncol(harmonyEmbed)))
     SingleCellExperiment::reducedDim(object, reduction.save) <- harmonyEmbed
 

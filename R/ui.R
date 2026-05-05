@@ -85,7 +85,7 @@
 #' harmony_object <- RunHarmony(pca_matrix, meta_data, 'dataset', return_object=TRUE)
 #' dim(harmony_object$Y) ## cluster centroids
 #' dim(harmony_object$R) ## soft cluster assignment
-#' dim(harmony_object$Z_corr) ## corrected PCA embeddings
+#' dim(harmony_object$getZcorr()) ## corrected PCA embeddings
 #' head(harmony_object$O) ## batch by cluster co-occurence matrix
 #' 
 RunHarmony.default <- function(
@@ -94,7 +94,7 @@ RunHarmony.default <- function(
   vars_use,
   theta = NULL,
   sigma = 0.1,
-  lambda = 1,
+  lambda = NULL,
   nclust = NULL,
   max_iter = 10,
   early_stop = TRUE,
@@ -113,11 +113,12 @@ RunHarmony.default <- function(
     ## set threads and harmony runs in single-thread mode
     set.cores <- setOMPthreads(ncores)
     
+    ## Check legacy arguments
+    check_legacy_args(...)
     
     tryCatch({
-        ## Check legacy arguments
-        check_legacy_args(...)
-
+        
+        
         ## Set threads if BLAS threas are set/detected properly
         if (set.cores) {
             prev.ncores.blas <- RhpcBLASctl::blas_get_num_procs()
@@ -144,7 +145,7 @@ RunHarmony.default <- function(
         block.size <- .options$block.size
         max.iter.cluster <- .options$max.iter.cluster
         epsilon.cluster <- .options$epsilon.cluster   
-        
+        batch.prop.cutoff <- .options$batch.prop.cutoff
         
 
         ## TODO: check for 
@@ -255,15 +256,22 @@ RunHarmony.default <- function(
 
         ## Theta scaling
         theta <- theta * (1 - exp(-(N_b / (nclust * tau))^2))
+        if(verbose){
+            message(paste("Thetas:", unique(theta)))
+        }
         
+        ## Hacky workaround to adress un-initialized seeds, RcppArmadillo #438
+        if (!exists(".Random.seed")) {
+            set.seed(NULL)
+        }
+
         ## RUN HARMONY
         harmonyObj <- new(harmony)
         
         harmonyObj$setup(
                        data_mat, phi, sigma, theta, lambda_vec, alpha,
                        max.iter.cluster, epsilon.cluster,
-                       epsilon.harmony, nclust, block.size,
-                       B_vec, verbose
+                       epsilon.harmony, nclust, block.size, B_vec, batch.prop.cutoff, verbose
                    )
 
         
@@ -281,7 +289,7 @@ RunHarmony.default <- function(
         if (return_object) {
             return(harmonyObj)
         } else {
-            res <- as.matrix(harmonyObj$Z_corr)
+            res <- harmonyObj$getZcorr()
             row.names(res) <- row.names(data_mat)
             colnames(res) <- colnames(data_mat)
             return(t(res))
@@ -300,17 +308,3 @@ RunHarmony.default <- function(
     
 }
 
-#' A proxy call to [RunHarmony()]. Deprecated.
-#'
-#' Maintain name backwards compatibility with version 0 of
-#' harmony. However, API is not backwards compatible with version
-#' 0. This function will be deprecated in later versions of Harmony.
-#'
-#' @inheritDotParams RunHarmony.default
-#'
-#' @export
-#' @md
-HarmonyMatrix <- function(...) {
-    .Deprecated("RunHarmony", msg="HarmonyMatrix is deprecated and will be removed in the future from the API in the future")
-    RunHarmony(...)
-}
