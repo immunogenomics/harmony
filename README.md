@@ -20,12 +20,17 @@ Harmony has been tested on R versions >= 4.2. Please consult the DESCRIPTION fil
 
 # Installation
 
-~~To run Harmony, open R and install harmony from CRAN (15 seconds):~~ Currently harmony has not been upstreamed to CRAN.
-
-To install Harmony2 please use the development version from github directly (should take less than 5 minutes): 
+To install Harmony2, from CRAN (takes approximately 15 seconds):
 
 ```r
-devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE, ref="harmony2")
+install.packages("harmony")
+```
+
+
+To install Harmony2 from github (development version) from github directly (should take less than 5 minutes): 
+
+```r
+devtools::install_github("immunogenomics/harmony", build_vignettes=TRUE)
 ```
 
 
