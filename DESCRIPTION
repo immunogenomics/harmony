@@ -1,6 +1,6 @@
 Package: harmony
 Title: Fast, Sensitive, and Accurate Integration of Single Cell Data
-Version: 2.0.2
+Version: 2.0.3
 Authors@R: c(
     person("Nikolaos", "Patikas", email = "nik.patik@gmail.com",
         role = c("aut", "ctb"), comment = c(ORCID = "0000-0002-3978-0134")),
