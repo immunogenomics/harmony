@@ -189,20 +189,20 @@ if [ "${USE_DOUBLE}" = "no" ]; then
         echo "  disabling BLAS for Armadillo (single-precision routines absent)"
         PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_BLAS"
     fi
-    if [ "${SINGLE_LAPACK_OK}" = "no" ]; then
-        echo "  disabling LAPACK for Armadillo (single-precision routines absent)"
-        PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
-    fi
+    # if [ "${SINGLE_LAPACK_OK}" = "no" ]; then
+        # echo "  disabling LAPACK for Armadillo (single-precision routines absent)"
+        # PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
+    # fi
 else
     # double path: Armadillo needs double-precision BLAS/LAPACK
     if [ "${DOUBLE_BLAS_OK}" = "no" ]; then
         echo "  disabling BLAS for Armadillo (double-precision routines absent)"
         PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_BLAS"
     fi
-    if [ "${DOUBLE_LAPACK_OK}" = "no" ]; then
-        echo "  disabling LAPACK for Armadillo (double-precision routines absent)"
-        PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
-    fi
+    # if [ "${DOUBLE_LAPACK_OK}" = "no" ]; then
+        # echo "  disabling LAPACK for Armadillo (double-precision routines absent)"
+        # PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
+    # fi
 fi
 
 # ---------------------------------------------------------------------------
