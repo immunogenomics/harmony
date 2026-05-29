@@ -1,13 +1,14 @@
 #!/bin/sh
 
-# configure: probe BLAS/LAPACK for single- and double-precision procedures
-# used by Armadillo and generate src/Makevars with the appropriate build flags.
+# configure: probe BLAS/LAPACK for single- and double-precision
+# procedures used by Armadillo and generate src/Makevars with the
+# appropriate build flags.
 #
 # Procedures checked (Fortran calling convention):
-#   single-precision BLAS:   sgemm_, sdot_
-#   single-precision LAPACK: sgesv_
-#   double-precision BLAS:   dgemm_, ddot_
-#   double-precision LAPACK: dgesv_
+#   single-precision BLAS:   sdot_
+#   single-precision LAPACK: sgetrf_
+#   double-precision BLAS:   ddot_
+#   double-precision LAPACK: dgetrf_
 #
 # Scalar type selection:
 #   single-precision routines available -> SCALAR = float
@@ -17,6 +18,7 @@
 #   ARMA_DONT_USE_BLAS   -- added when the chosen-precision BLAS is absent
 #   ARMA_DONT_USE_LAPACK -- added when the chosen-precision LAPACK is absent
 
+
 PKG_ROOT="$(cd "$(dirname "$0")"; pwd)"
 
 # Retrieve R build configuration
@@ -25,6 +27,7 @@ LAPACK_LIBS=`"${R_HOME}/bin/R" CMD config LAPACK_LIBS`
 FLIBS=`"${R_HOME}/bin/R" CMD config FLIBS`
 CC=`"${R_HOME}/bin/R" CMD config CC`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
+LDFLAGS=`"${R_HOME}/bin/R" CMD config LDFLAGS`
 
 PKG_CXXFLAGS="-DARMA_USE_CURRENT"
 PKG_LIBS="${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS}"
@@ -38,35 +41,29 @@ CONFTMP="${TMPDIR:-/tmp}/harmony_configure_$$"
 mkdir -p "${CONFTMP}"
 
 # ---------------------------------------------------------------------------
-# Check single-precision BLAS: sgemm_, sdot_
+# Check precision BLAS procedures: sdot_,ddot_
 # ---------------------------------------------------------------------------
-echo "checking for single-precision BLAS procedures (sdot_, sgemm_)..."
+echo "checking for single-precision BLAS procedures (sdot_)..."
 
 cat > "${CONFTMP}/single_blas_test.c" << 'SINGLE_BLAS_EOF'
-extern void sgemm_(char*, char*, int*, int*, int*,
-                   float*, float*, int*, float*, int*,
-                   float*, float*, int*);
-
-extern float sdot_(
-             const int* n, const float* x, const int* incx,
-             const float* y, const int* incy);
+extern float sdot_ (const int *n, const float *x, const int *incx,
+                    const float *y, const int *incy);
 
 int main(void) {
-    /* dummy calls so the linker must resolve each symbol */
-    /* this will segfault at runtime */
-    float A = 0.0f, B = 0.0f, C = 0.0f;
-    float sc = 0.0f;
-    int dim = 1;
-    char trA = 'N', trB = 'U';
-    sgemm_(&trA, &trB, &dim, &dim, &dim, &sc, &A, 0, &B, &dim, &sc, &C, &dim);
-    sdot_(&dim, &A, &dim, &B, &dim);
+    float A = 0.0f, B = 0.0f, C = 0.0f, sc = 0.0f;
+    int   dim = 1;
+    char  tr = 'N', ul = 'U';    
+    sdot_ (&dim, &A, &dim, &B, &dim);
     return 0;
 }
 SINGLE_BLAS_EOF
 
 SINGLE_BLAS_OK=no
 if ${CC} ${CFLAGS} -o "${CONFTMP}/single_blas_test" "${CONFTMP}/single_blas_test.c" \
-       ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
+       ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} 2>/dev/null; then
+    SINGLE_BLAS_OK=yes
+elif ${CC} ${CFLAGS} -o "${CONFTMP}/single_blas_test" "${CONFTMP}/single_blas_test.c" \
+       ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} -L"${R_HOME}/lib" -lR 2>/dev/null; then
     SINGLE_BLAS_OK=yes
 fi
 
@@ -74,27 +71,63 @@ if [ "${SINGLE_BLAS_OK}" = "yes" ]; then
     echo "  single-precision BLAS found"
 else
     echo "  single-precision BLAS NOT found"
+    echo "checking for double-precision BLAS procedures (dasum_, ddot_, dnrm2_, dgemv_, dgemm_, dsyrk_)..."
+
+    cat > "${CONFTMP}/double_blas_test.c" << 'DOUBLE_BLAS_EOF'
+extern double ddot_ (const int *n, const double *x, const int *incx,
+                     const double *y, const int *incy);
+
+int main(void) {
+    double A = 0.0, B = 0.0, C = 0.0, sc = 0.0;
+    int    dim = 1;
+    char   tr = 'N', ul = 'U';
+    ddot_ (&dim, &A, &dim, &B, &dim);
+    return 0;
+}
+DOUBLE_BLAS_EOF
+
+    DOUBLE_BLAS_OK=no
+    if ${CC} ${CFLAGS} -o "${CONFTMP}/double_blas_test" "${CONFTMP}/double_blas_test.c" \
+	     ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} 2>/dev/null; then
+	DOUBLE_BLAS_OK=yes
+    elif ${CC} ${CFLAGS} -o "${CONFTMP}/double_blas_test" "${CONFTMP}/double_blas_test.c" \
+	       ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} -L"${R_HOME}/lib" -lR 2>/dev/null; then
+	DOUBLE_BLAS_OK=yes
+    fi
+
+    if [ "${DOUBLE_BLAS_OK}" = "yes" ]; then
+	echo "  double-precision BLAS found"
+    else
+	echo "  double-precision BLAS NOT found"
+    fi
+
+
+
 fi
 
 # ---------------------------------------------------------------------------
-# Check single-precision LAPACK: sgesv_
+# Check for LAPACK procedures: sgetrf_, dgetrf_
 # ---------------------------------------------------------------------------
-echo "checking for single-precision LAPACK procedures (sgesv_)..."
+echo "checking for single-precision LAPACK procedures (sgetrf_)..."
 
 cat > "${CONFTMP}/single_lapack_test.c" << 'SINGLE_LAPACK_EOF'
-extern void sgesv_(int*, int*, float*, int*, int*, float*, int*, int*);
-
+extern void sgetrf_(const int *m, const int *n, float *A, const int *lda,
+                    int *ipiv, int *info);
 int main(void) {
-    float A = 0.0f, B = 0.0f;
-    int dim = 1, res = 0;
-    sgesv_(&dim, &dim, &A, &dim, &dim, &B, &dim, &res);
+    float A = 0.0f, work = 0.0f;
+    int   dim = 1, ipiv = 0, info = 0, lwork = 1;
+    char  ul = 'U', dg = 'N';
+    sgetrf_(&dim, &dim, &A, &dim, &ipiv, &info);
     return 0;
 }
 SINGLE_LAPACK_EOF
 
 SINGLE_LAPACK_OK=no
 if ${CC} ${CFLAGS} -o "${CONFTMP}/single_lapack_test" "${CONFTMP}/single_lapack_test.c" \
-       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
+       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} 2>/dev/null; then
+    SINGLE_LAPACK_OK=yes
+elif ${CC} ${CFLAGS} -o "${CONFTMP}/single_lapack_test" "${CONFTMP}/single_lapack_test.c" \
+       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} -L"${R_HOME}/lib" -lR 2>/dev/null; then
     SINGLE_LAPACK_OK=yes
 fi
 
@@ -102,73 +135,35 @@ if [ "${SINGLE_LAPACK_OK}" = "yes" ]; then
     echo "  single-precision LAPACK found"
 else
     echo "  single-precision LAPACK NOT found"
-fi
+    echo "checking for double-precision LAPACK procedures (dgetrf_)..."
 
-# ---------------------------------------------------------------------------
-# Check double-precision BLAS: dgemm_, ddot_
-# ---------------------------------------------------------------------------
-echo "checking for double-precision BLAS procedures (ddot_, dgemm_)..."
-
-cat > "${CONFTMP}/double_blas_test.c" << 'DOUBLE_BLAS_EOF'
-extern void dgemm_(char*, char*, int*, int*, int*,
-                   double*, double*, int*, double*, int*,
-                   double*, double*, int*);
-
-extern double ddot_(
-               const int* n, const double* x, const int* incx,
-               const double* y, const int* incy);
+    cat > "${CONFTMP}/double_lapack_test.c" << 'DOUBLE_LAPACK_EOF'
+extern void dgetrf_(const int *m, const int *n, double *A, const int *lda,
+                    int *ipiv, int *info);
 
 int main(void) {
-    /* dummy calls so the linker must resolve each symbol */
-    /* this will segfault at runtime */
-    double A = 0.0, B = 0.0, C = 0.0;
-    double sc = 0.0;
-    int dim = 1;
-    char trA = 'N', trB = 'U';
-    dgemm_(&trA, &trB, &dim, &dim, &dim, &sc, &A, 0, &B, &dim, &sc, &C, &dim);
-    ddot_(&dim, &A, &dim, &B, &dim);
-    return 0;
-}
-DOUBLE_BLAS_EOF
-
-DOUBLE_BLAS_OK=no
-if ${CC} ${CFLAGS} -o "${CONFTMP}/double_blas_test" "${CONFTMP}/double_blas_test.c" \
-       ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
-    DOUBLE_BLAS_OK=yes
-fi
-
-if [ "${DOUBLE_BLAS_OK}" = "yes" ]; then
-    echo "  double-precision BLAS found"
-else
-    echo "  double-precision BLAS NOT found"
-fi
-
-# ---------------------------------------------------------------------------
-# Check double-precision LAPACK: dgesv_
-# ---------------------------------------------------------------------------
-echo "checking for double-precision LAPACK procedures (dgesv_)..."
-
-cat > "${CONFTMP}/double_lapack_test.c" << 'DOUBLE_LAPACK_EOF'
-extern void dgesv_(int*, int*, double*, int*, int*, double*, int*, int*);
-
-int main(void) {
-    double A = 0.0, B = 0.0;
-    int dim = 1, res = 0;
-    dgesv_(&dim, &dim, &A, &dim, &dim, &B, &dim, &res);
+    double A = 0.0, work = 0.0;
+    int    dim = 1, ipiv = 0, info = 0, lwork = 1;
+    char   ul = 'U', dg = 'N';
+    dgetrf_(&dim, &dim, &A, &dim, &ipiv, &info);
     return 0;
 }
 DOUBLE_LAPACK_EOF
 
-DOUBLE_LAPACK_OK=no
-if ${CC} ${CFLAGS} -o "${CONFTMP}/double_lapack_test" "${CONFTMP}/double_lapack_test.c" \
-       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} 2>/dev/null; then
-    DOUBLE_LAPACK_OK=yes
-fi
+    DOUBLE_LAPACK_OK=no
+    if ${CC} ${CFLAGS} -o "${CONFTMP}/double_lapack_test" "${CONFTMP}/double_lapack_test.c" \
+	     ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} 2>/dev/null; then
+	DOUBLE_LAPACK_OK=yes
+    elif ${CC} ${CFLAGS} -o "${CONFTMP}/double_lapack_test" "${CONFTMP}/double_lapack_test.c" \
+	       ${LAPACK_LIBS} ${BLAS_LIBS} ${FLIBS} ${LDFLAGS} -L"${R_HOME}/lib" -lR 2>/dev/null; then
+	DOUBLE_LAPACK_OK=yes
+    fi
 
-if [ "${DOUBLE_LAPACK_OK}" = "yes" ]; then
-    echo "  double-precision LAPACK found"
-else
-    echo "  double-precision LAPACK NOT found"
+    if [ "${DOUBLE_LAPACK_OK}" = "yes" ]; then
+	echo "  double-precision LAPACK found"
+    else
+	echo "  double-precision LAPACK NOT found"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -189,20 +184,20 @@ if [ "${USE_DOUBLE}" = "no" ]; then
         echo "  disabling BLAS for Armadillo (single-precision routines absent)"
         PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_BLAS"
     fi
-    # if [ "${SINGLE_LAPACK_OK}" = "no" ]; then
-        # echo "  disabling LAPACK for Armadillo (single-precision routines absent)"
-        # PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
-    # fi
+    if [ "${SINGLE_LAPACK_OK}" = "no" ]; then
+        echo "  disabling LAPACK for Armadillo (single-precision routines absent)"
+        PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
+    fi
 else
     # double path: Armadillo needs double-precision BLAS/LAPACK
     if [ "${DOUBLE_BLAS_OK}" = "no" ]; then
         echo "  disabling BLAS for Armadillo (double-precision routines absent)"
         PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_BLAS"
     fi
-    # if [ "${DOUBLE_LAPACK_OK}" = "no" ]; then
-        # echo "  disabling LAPACK for Armadillo (double-precision routines absent)"
-        # PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
-    # fi
+    if [ "${DOUBLE_LAPACK_OK}" = "no" ]; then
+        echo "  disabling LAPACK for Armadillo (double-precision routines absent)"
+        PKG_CXXFLAGS="${PKG_CXXFLAGS} -DARMA_DONT_USE_LAPACK"
+    fi
 fi
 
 # ---------------------------------------------------------------------------
