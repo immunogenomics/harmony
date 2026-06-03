@@ -93,12 +93,8 @@ void harmony::setup(const RMAT& __Z, const RSPMAT& __Phi,
   
   
   // Covariate bounds
-  if (B_vec.size() > 1) {
-    covariate_bounds.resize(B_vec.size() - 1 );
-    std::partial_sum(B_vec.begin(), B_vec.end(), covariate_bounds.begin(), std::plus<unsigned>());
-  } else {
-    covariate_bounds.push_back(B_vec.front());
-  }  
+  covariate_bounds.resize(B_vec.size());
+  std::partial_sum(B_vec.begin(), B_vec.end(), covariate_bounds.begin(), std::plus<unsigned>());
   
   theta = conv_to<VECTYPE>::from(__theta);
   max_iter_kmeans = __max_iter_kmeans;
@@ -371,7 +367,7 @@ void harmony::moe_correct_ridge_cpp() {
     // be corrected
     for (unsigned b = 0, current_covariate = 0; b < B; b++) {
       // Determine covariate of factor (assumes that for each covariate the levels are sorted into blocks)
-      if ((current_covariate < covariate_bounds.size()) && !(b < covariate_bounds[current_covariate])) {
+      if (!(b < covariate_bounds[current_covariate])) {
 	current_covariate++;
       }
       
@@ -382,6 +378,7 @@ void harmony::moe_correct_ridge_cpp() {
 	cells[current_covariate] += O(k,b);
       }
     }
+    
     if (DEBUG) {
       for (unsigned c =0; c < B_vec.size(); ++c ) {
 	std::cout << "Cluster k:" << k <<" Covariate level " << c << " with cells: "<< cells[c] <<" Included " << cov_levels[c] << " out of " << B_vec[c] << std::endl;

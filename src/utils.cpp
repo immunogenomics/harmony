@@ -10,10 +10,10 @@
 MATTYPE initialize_centroids(const MATTYPE& X, const unsigned int K, bool verbose) {
   // K-means++ centroid initialization
   VECTYPE random_seeds(K, arma::fill::randu);
-  int N = (X.n_cols-0.000001); // subtract a small number so randu=1 won't give out of bounds
+  unsigned N = X.n_cols - 1;
   arma::uvec indices = arma::conv_to<arma::uvec>::from(floor(random_seeds * N));
   
-  MATTYPE Y(X.cols(indices));    
+  MATTYPE Y(X.cols(indices));
   if (verbose) {
     Rcpp::Rcout << "Initializing centroids" << std::endl;
   }
@@ -25,7 +25,7 @@ MATTYPE initialize_centroids(const MATTYPE& X, const unsigned int K, bool verbos
   for (unsigned int i = 0; i < K; i++) {
     p.increment();
     
-    VECTYPE distances = arma::abs((2* (1 - Y.col(i).t() * X)).as_col());    
+    VECTYPE distances = arma::abs((2* (1 - Y.col(i).t() * X)).as_col());
     VECTYPE random_numbers(size(distances), arma::fill::randu);
     
     // Weighted Random Sampling, sample from different expontential
