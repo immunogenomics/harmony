@@ -159,7 +159,7 @@ void harmony::compute_objective() {
   const float norm_const = 2000/((float)N);
   float kmeans_error = as_scalar(my_accu(R % dist_mat));  
   float _entropy = as_scalar(my_accu(safe_entropy(R).each_col() % sigma)); // NEW: vector sigma
-  float _cross_entropy = as_scalar(my_accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + E + 1) / ((2*E) + 1))) * Phi)));
+  float _cross_entropy = as_scalar(my_accu((R.each_col() % sigma) % ((arma::repmat(theta.t(), K, 1) % log((O + E + 1) / (E + 1))) * Phi)));
 
   // Push back the data
   objective_kmeans.push_back((kmeans_error + _entropy + _cross_entropy) * norm_const);
@@ -319,7 +319,7 @@ int harmony::update_R() {
       Rcells.each_col() /= sigma; // NEW: vector sigma
       Rcells = exp(Rcells);
       Rcells = arma::normalise(Rcells, 1, 0);
-      Rcells = Rcells % (harmony_pow(((2*E) + 1) / (O + E + 1), theta) * Phicells);
+      Rcells = Rcells % (harmony_pow((E + 1) / (O + E + 1), theta) * Phicells);
       Rcells = arma::normalise(Rcells, 1, 0); // L1 norm columns
     }
 
