@@ -39,6 +39,7 @@ public:
   void compute_objective(); 
   int update_R();
   bool check_convergence(int type);
+  void check_finite_state(const char* stage) const;
   void setY(const MATTYPE& Z);
   RMAT getZcorr();
   RMAT getZorig();

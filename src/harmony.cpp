@@ -1,11 +1,38 @@
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <unordered_map>
 #include <cstring>
 #include "harmony.h"
 #include "types.h"
 #include "utils.h"
 #include "timer.h"
+
+namespace {
+
+RVEC distance_log_scores(const arma::subview_col<SCALAR>& distances,
+                         const RVEC& sigma) {
+  return -conv_to<RVEC>::from(distances) / sigma;
+}
+
+VECTYPE normalize_log_scores(RVEC& log_scores) {
+  log_scores -= log_scores.max();
+  log_scores = exp(log_scores);
+  log_scores /= accu(log_scores);
+  return conv_to<VECTYPE>::from(log_scores);
+}
+
+void initialize_assignments(MATTYPE& assignments, const MATTYPE& distances,
+                            const VECTYPE& sigma) {
+  const RVEC sigma_double = conv_to<RVEC>::from(sigma);
+  assignments.set_size(distances.n_rows, distances.n_cols);
+  for (arma::uword cell = 0; cell < distances.n_cols; ++cell) {
+    RVEC log_scores = distance_log_scores(distances.col(cell), sigma_double);
+    assignments.col(cell) = normalize_log_scores(log_scores);
+  }
+}
+
+} // namespace
 
 void print_timers() {  
   Rcpp::Rcerr << "Print timers" << std::endl;
@@ -140,10 +167,7 @@ void harmony::init_cluster_cpp() {
   // compute squared distance directly with cross product
   dist_mat = 2 * (1 - Y.t() * Z_corr);
   
-  R = -dist_mat;
-  R.each_col() /= sigma;
-  R = exp(R);
-  R.each_row() /= sum(R, 0);
+  initialize_assignments(R, dist_mat, sigma);
   
   // (3) BATCH DIVERSITY STATISTICS
   E = sum(R, 1) * Pr_b.t();
@@ -151,8 +175,34 @@ void harmony::init_cluster_cpp() {
   
   compute_objective();
   objective_harmony.push_back(objective_kmeans.back());
+  check_finite_state("initialization");
 
   ran_init = true;
+}
+
+void harmony::check_finite_state(const char* stage) const {
+  const auto finite_values = [](const std::vector<float>& values) {
+    return std::all_of(values.begin(), values.end(), [](float value) {
+      return std::isfinite(value);
+    });
+  };
+
+  if (!R.is_finite() || !O.is_finite() || !E.is_finite() ||
+      !Z_orig.is_finite() || !Z_corr.is_finite() || !Y.is_finite() ||
+      !finite_values(objective_kmeans) ||
+      !finite_values(objective_kmeans_dist) ||
+      !finite_values(objective_kmeans_entropy) ||
+      !finite_values(objective_kmeans_cross) ||
+      !finite_values(objective_harmony)) {
+    Rcpp::stop(
+      "Harmony numerical error: nonfinite state during %s "
+      "(sigma=[%g, %g], theta=[%g, %g], block.size=%g, N=%u, K=%u)",
+      stage,
+      static_cast<double>(sigma.min()), static_cast<double>(sigma.max()),
+      static_cast<double>(theta.min()), static_cast<double>(theta.max()),
+      static_cast<double>(block_size), N, K
+    );
+  }
 }
 
 void harmony::compute_objective() {
@@ -166,6 +216,7 @@ void harmony::compute_objective() {
   objective_kmeans_dist.push_back(kmeans_error * norm_const);
   objective_kmeans_entropy.push_back(_entropy * norm_const);
   objective_kmeans_cross.push_back(_cross_entropy * norm_const);
+  check_finite_state("objective calculation");
 
 }
 
@@ -191,12 +242,15 @@ bool harmony::check_convergence(int type) {
       // Harmony
       obj_old = objective_harmony[objective_harmony.size() - 2];
       obj_new = objective_harmony[objective_harmony.size() - 1];
-      if ((obj_old - obj_new) / abs(obj_old) < epsilon_harmony) {
-	// Unshuffle Z_corr
-	
-        return(true);              
-      } else {
-        return(false);              
+      if (!std::isfinite(obj_old) || !std::isfinite(obj_new)) {
+        return(false);
+      }
+      if (obj_old == 0) {
+        return(obj_new == 0 && 0 < epsilon_harmony);
+      }
+      {
+        const float relative_decrease = (obj_old - obj_new) / std::abs(obj_old);
+        return(relative_decrease >= 0 && relative_decrease < epsilon_harmony);
       }
   }
   
@@ -219,12 +273,10 @@ int harmony::cluster_cpp() {
     // we did in init_cluster_cpp
     Z_corr = arma::normalise(Z_corr, 2, 0);
     dist_mat = 2 * (1 - Y.t() * Z_corr);  
-    R = -dist_mat;
-    R.each_col() /= sigma;
-    R = exp(R);
-    R.each_row() /= sum(R, 0);
+    initialize_assignments(R, dist_mat, sigma);
     E = sum(R, 1) * Pr_b.t();
     O = R * Phi_t;
+    check_finite_state("clustering restart");
   }
   
   for (iter = 0; iter < max_iter_kmeans; iter++) {
@@ -258,6 +310,7 @@ int harmony::cluster_cpp() {
   
   kmeans_rounds.push_back(iter);
   objective_harmony.push_back(objective_kmeans.back());
+  check_finite_state("clustering");
   return 0;
 }
 
@@ -289,6 +342,7 @@ int harmony::update_R() {
   
   SPMAT Phi_randomized(Phi.cols(update_order));
   SPMAT Phi_t_randomized(Phi_randomized.t());
+  const RVEC sigma_double = conv_to<RVEC>::from(sigma);
 
   for (unsigned i = 0; i < n_blocks; i++) {
     unsigned idx_min = i*cells_per_block;
@@ -301,9 +355,7 @@ int harmony::update_R() {
     
     Timer *t_r = new Timer(timers["random_subset"]);
     auto Rcells = R_randomized.submat(0, idx_min, R_randomized.n_rows - 1, idx_max);
-    auto Phicells = Phi_randomized.submat(0, idx_min, Phi_randomized.n_rows - 1, idx_max);
     auto Phi_tcells = Phi_t_randomized.submat(idx_min, 0, idx_max, Phi_t_randomized.n_cols - 1);
-    auto dist_matcells = dist_mat_randomized.submat(0, idx_min, dist_mat_randomized.n_rows - 1, idx_max);
     delete t_r;
     
     {
@@ -315,12 +367,20 @@ int harmony::update_R() {
     // Step 2: recompute R for removed cells
     {
       Timer t(timers["Rcells_update"]);
-      Rcells = -dist_matcells;
-      Rcells.each_col() /= sigma; // NEW: vector sigma
-      Rcells = exp(Rcells);
-      Rcells = arma::normalise(Rcells, 1, 0);
-      Rcells = Rcells % (harmony_pow(((2*E) + 1) / (O + E + 1), theta) * Phicells);
-      Rcells = arma::normalise(Rcells, 1, 0); // L1 norm columns
+      RMAT E_double = conv_to<RMAT>::from(E);
+      RMAT O_double = conv_to<RMAT>::from(O);
+      RMAT log_diversity =
+        arma::repmat(conv_to<RVEC>::from(theta).t(), K, 1) %
+        log(((2*E_double) + 1) / (O_double + E_double + 1));
+      for (unsigned cell = idx_min; cell <= idx_max; ++cell) {
+        RVEC log_scores = distance_log_scores(
+          dist_mat_randomized.col(cell), sigma_double);
+        for (auto factor = Phi_randomized.begin_col(cell);
+             factor != Phi_randomized.end_col(cell); ++factor) {
+          log_scores += log_diversity.col(factor.row());
+        }
+        R_randomized.col(cell) = normalize_log_scores(log_scores);
+      }
     }
 
     {
@@ -338,12 +398,14 @@ int harmony::update_R() {
       R_randomized = R_randomized.cols(reverse_index);
       dist_mat = dist_mat.cols(reverse_index);
   }
+  check_finite_state("assignment update");
   return 0;
 }
 
 
 void harmony::moe_correct_ridge_cpp() {
 
+  check_finite_state("correction input");
   Z_corr = Z_orig;
   Progress p(K, verbose);
 
@@ -631,6 +693,7 @@ void harmony::moe_correct_ridge_cpp() {
     delete _Z_tmp;
   }
   Y = arma::normalise(Y, 2, 0);
+  check_finite_state("correction output");
   if (DEBUG) {
     print_timers();
   }

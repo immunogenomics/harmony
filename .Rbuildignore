@@ -14,6 +14,7 @@ appveyor\.yml
 ^\.Rproj\.user$
 ^.*\.Rproj$
 ^docs$
+^rfcs$
 ^README.*\.md$
 ^codecov\.yml$
 ^NEWS\.md$
