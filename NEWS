@@ -1,3 +1,6 @@
+# harmony v2.1.0 - Oct 15 2026
+  - Fix multi-covariate cluster assignment: per-covariate diversity penalties are now multiplied instead of summed (#292)
+  - Added unit test: a covariate with theta = 0 does not change cluster assignments
 # harmony v1.2.0 - Oct 12 2023
   - Major performance enhancements, using indexes for the regression
   - update_R - Generate blocks correctly #214
