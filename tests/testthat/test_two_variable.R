@@ -53,3 +53,32 @@ test_that('two-variable run: higher theta reduces batch/cluster association for 
     chi2_hi <- sum(((obj_hi$O - obj_hi$E) ^ 2) / obj_hi$E)
     expect_gt(chi2_lo, chi2_hi)
 })
+
+test_that('a covariate with theta zero does not change cluster assignments', {
+    data(cell_lines_small)
+    options <- harmony_options(
+        block.size = 0.2, max.iter.cluster = 1, epsilon.cluster = -Inf
+    )
+
+    set.seed(11)
+    one_variable <- RunHarmony(
+        cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
+        vars_use = 'dataset', theta = 1, nclust = 5, sigma = 0.1,
+        max_iter = 0, return_object = TRUE, verbose = FALSE,
+        .options = options
+    )
+    set.seed(11)
+    two_variables <- RunHarmony(
+        cell_lines_small$scaled_pcs, cell_lines_small$meta_data,
+        vars_use = c('dataset', 'cell_type'), theta = c(1, 0),
+        nclust = 5, sigma = 0.1, max_iter = 0,
+        return_object = TRUE, verbose = FALSE, .options = options
+    )
+
+    set.seed(29)
+    one_variable$cluster_cpp()
+    set.seed(29)
+    two_variables$cluster_cpp()
+
+    expect_equal(two_variables$R, one_variable$R, tolerance = 1e-6)
+})
