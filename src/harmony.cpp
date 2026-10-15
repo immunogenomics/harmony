@@ -319,7 +319,10 @@ int harmony::update_R() {
       Rcells.each_col() /= sigma; // NEW: vector sigma
       Rcells = exp(Rcells);
       Rcells = arma::normalise(Rcells, 1, 0);
-      Rcells = Rcells % (harmony_pow(((2*E) + 1) / (O + E + 1), theta) * Phicells);
+      MATTYPE diversity_factors = harmony_pow(((2*E) + 1) / (O + E + 1), theta);
+      for (auto factor = Phicells.begin(); factor != Phicells.end(); ++factor) {
+        Rcells.col(factor.col()) %= diversity_factors.col(factor.row());
+      }
       Rcells = arma::normalise(Rcells, 1, 0); // L1 norm columns
     }
 
